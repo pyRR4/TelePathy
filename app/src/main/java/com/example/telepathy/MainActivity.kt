@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -31,31 +33,37 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             TelePathyTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    Column (
-                        verticalArrangement = Arrangement.Top,
-                        modifier = Modifier
-                            .background(color = Color.DarkGray)
-                            .padding(top = 40.dp)
-                            .fillMaxWidth()
-                    ) {
-                        Header(
-                            text = stringResource(com.example.telepathy.R.string.your_contacts),
-                            modifier = Modifier.align(
-                                Alignment.CenterHorizontally
-                            )
-                        )
+                ContactsScreen()
+            }
+        }
+    }
+}
 
-                        Column (
-                            modifier = Modifier
-                        ) {
+@Composable
+fun ContactsScreen() {
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
+    ) {
+        Column (
+            verticalArrangement = Arrangement.Top,
+            modifier = Modifier
+                .background(color = Color.DarkGray)
+                .padding(top = 40.dp)
+                .fillMaxWidth()
+        ) {
+            Header(
+                text = stringResource(com.example.telepathy.R.string.your_contacts),
+                modifier = Modifier
+                    .align(
+                        Alignment.CenterHorizontally
+                    )
+            )
 
-                        }
-                    }
-                }
+            Column (
+                modifier = Modifier
+            ) {
+
             }
         }
     }
@@ -67,29 +75,38 @@ fun Header(text: String, modifier: Modifier = Modifier) {
         text = text,
         color = Color.White,
         fontSize = 48.sp,
-        textAlign = TextAlign.Center
+        textAlign = TextAlign.Center,
+        modifier = modifier
     )
 }
 
 @Composable
 fun Contact() {
-    Row(
+    Button (
+        onClick = { /*TODO*/},
+        shape = RoundedCornerShape(10.dp),
 
     ) {
+        Row(
 
+        ) {
+            Avatar()
+            ContactText()
+        }
     }
 }
 
 
 @Composable
 fun Avatar() {
-
 }
 
 
 @Composable
 fun ContactText() {
-
+    Text(
+        text = "siema"
+    )
 }
 
 
@@ -97,6 +114,7 @@ fun ContactText() {
 @Composable
 fun TelePathyPreview() {
     TelePathyTheme {
+        //ContactsScreen()
         Contact()
     }
 }
