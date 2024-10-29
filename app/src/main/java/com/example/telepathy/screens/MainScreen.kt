@@ -1,3 +1,4 @@
+// MainScreen.kt
 package com.example.telepathy.screens
 
 import androidx.compose.foundation.layout.*
@@ -8,7 +9,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun Ekran1(onNavigateToEkran2: () -> Unit) {
+fun MainScreen(
+    onNavigateToAviable: () -> Unit,
+    onNavigateToSettings: () -> Unit
+) {
     Scaffold { contentPadding ->
         Column(
             modifier = Modifier
@@ -18,10 +22,14 @@ fun Ekran1(onNavigateToEkran2: () -> Unit) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Ekran 1", style = MaterialTheme.typography.headlineMedium)
+            Text("Main Screen", style = MaterialTheme.typography.headlineMedium)
             Spacer(modifier = Modifier.height(16.dp))
-            Button(onClick = onNavigateToEkran2) {
-                Text("Przejdź do Ekranu 2")
+            Button(onClick = onNavigateToAviable) {
+                Text("Go to Aviable Around")
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            Button(onClick = onNavigateToSettings) {
+                Text("Go to Settings")
             }
         }
     }

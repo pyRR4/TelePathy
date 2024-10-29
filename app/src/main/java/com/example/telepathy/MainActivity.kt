@@ -4,14 +4,17 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.telepathy.screens.Ekran1  // Import poprawnego pakietu
-import com.example.telepathy.screens.Ekran2  // Import poprawnego pakietu
+import com.example.telepathy.screens.AviableAroundScreen
+import com.example.telepathy.screens.MainScreen
+import com.example.telepathy.screens.SettingsScreen
 import com.example.telepathy.ui.theme.TelePathyTheme
 
 class MainActivity : ComponentActivity() {
@@ -19,8 +22,11 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             TelePathyTheme {
-                Surface(modifier = Modifier.fillMaxSize()) {//weewe
-                    AppNavGraph()
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    SetupNavGraph()
                 }
             }
         }
@@ -28,14 +34,21 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun AppNavGraph() {
+fun SetupNavGraph() {
     val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = "ekran1") {
-        composable("ekran1") {
-            Ekran1(onNavigateToEkran2 = { navController.navigate("ekran2") })
+
+    NavHost(navController = navController, startDestination = "main") {
+        composable("main") {
+            MainScreen(
+                onNavigateToAviable = { navController.navigate("aviable_around") },
+                onNavigateToSettings = { navController.navigate("settings") }
+            )
         }
-        composable("ekran2") {
-            Ekran2(onNavigateToEkran1 = { navController.navigate("ekran1") })
+        composable("aviable_around") {
+            AviableAroundScreen(onNavigateBack = { navController.popBackStack() })
+        }
+        composable("settings") {
+            SettingsScreen(onNavigateBack = { navController.popBackStack() })
         }
     }
 }
