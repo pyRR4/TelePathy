@@ -8,6 +8,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,7 +21,6 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -33,6 +33,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -93,29 +94,32 @@ fun Header(text: String, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun Contact() {
+fun ContactCard(
+    imageDrawable: Int,
+    name: String,
+    message: String,
+    time: String,
+    backgroundColor: Color,
+    onClick: () -> Unit
+) {
     val buttonModifier = Modifier
-        .padding(horizontal = 40.dp)
-        .fillMaxWidth()
-        .size(140.dp)
+        .size(height = 140.dp, width = 570.dp)
+        .clickable(onClick = onClick)
+        .padding(horizontal = 16.dp, vertical = 8.dp)
+        .background(color = backgroundColor, shape = RoundedCornerShape(20.dp))
+        .padding(16.dp)
 
-    Button (
-        onClick = { /*TODO*/},
-        shape = RoundedCornerShape(20.dp),
-        modifier = buttonModifier
+    Row (
+        modifier = buttonModifier,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row (
-            modifier = Modifier
-                .fillMaxSize()
-        ) {
-            val avatarModifier = Modifier
-                .align(Alignment.CenterVertically)
+        val avatarModifier = Modifier
+            .align(Alignment.CenterVertically)
 
-            val textModifier = Modifier
-                .padding(16.dp)
-            Avatar(painterResource(R.drawable.test), avatarModifier)
-            ContactText(textModifier)
-        }
+        val textModifier = Modifier
+            .padding(horizontal = 8.dp, vertical = 8.dp)
+        Avatar(painterResource(imageDrawable), avatarModifier)
+        ContactText(name, message, time, textModifier)
     }
 }
 
@@ -137,17 +141,37 @@ fun Avatar(image: Painter, modifier: Modifier) {
 
 
 @Composable
-fun ContactText(modifier: Modifier) {
+fun ContactText(name: String, message: String, time: String, modifier: Modifier) {
     Row (
         modifier = modifier
             .fillMaxWidth()
             .fillMaxHeight()
     ) {
-        Column {
+        Column (
+            modifier = Modifier.weight(1f)
+        ) {
             Text(
-                text = "siema"
+                text = name,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
+
+            Text(
+                text = message,
+                fontSize = 14.sp,
+                color = Color.White.copy(alpha = 0.8f),
+                lineHeight = 18.sp,
+                modifier = Modifier.padding(top = 10.dp)
             )
         }
+
+        Text (
+            text = time,
+            fontSize = 14.sp,
+            color = Color.White.copy(alpha = 0.8f),
+            textAlign = TextAlign.End
+        )
     }
 }
 
@@ -157,6 +181,13 @@ fun ContactText(modifier: Modifier) {
 fun TelePathyPreview() {
     TelePathyTheme {
         //ContactsScreen()
-        Contact()
+        ContactCard(
+            R.drawable.test,
+            "AmatorUczciwiec000",
+            "Ty:\nsiema",
+            "15:37",
+            Color.Blue,
+            { println("Button clicked!") }
+        )
     }
 }
