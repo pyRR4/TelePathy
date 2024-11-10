@@ -1,6 +1,6 @@
 [versions]
-accompanistPagerIndicators = "0.31.5-beta"
-agp = "8.6.0"
+accompanistPagerIndicators = "0.36.0"
+agp = "8.7.1"
 kotlin = "2.0.0"
 coreKtx = "1.13.1"
 junit = "4.13.2"
@@ -8,9 +8,9 @@ junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 lifecycleRuntimeKtx = "2.8.6"
 activityCompose = "1.9.3"
-composeBom = "2024.04.01"
+composeBom = "2024.10.00"
 navigationCompose = "2.8.3"
-navigationComposeVersion = "2.5.3"
+navigationComposeVersion = "2.8.3"
 
 [libraries]
 accompanist-pager = { module = "com.google.accompanist:accompanist-pager", version.ref = "accompanistPagerIndicators" }
