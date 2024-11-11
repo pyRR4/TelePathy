@@ -97,6 +97,7 @@ fun Header(text: String, modifier: Modifier = Modifier) {
 fun ContactCard(
     imageDrawable: Int,
     name: String,
+    isFromUser: Boolean,
     message: String,
     time: String,
     backgroundColor: Color,
@@ -119,7 +120,7 @@ fun ContactCard(
         val textModifier = Modifier
             .padding(horizontal = 8.dp, vertical = 8.dp)
         Avatar(painterResource(imageDrawable), avatarModifier)
-        ContactText(name, message, time, textModifier)
+        ContactText(name, isFromUser, message, time, textModifier)
     }
 }
 
@@ -141,7 +142,13 @@ fun Avatar(image: Painter, modifier: Modifier) {
 
 
 @Composable
-fun ContactText(name: String, message: String, time: String, modifier: Modifier) {
+fun ContactText(name: String, isFromUser: Boolean, message: String, time: String, modifier: Modifier) {
+    var msg = message;
+    if (isFromUser) {
+        msg = "Ty:\n$msg"
+    } else {
+        msg = name + '\n' + msg
+    }
     Row (
         modifier = modifier
             .fillMaxWidth()
@@ -158,7 +165,7 @@ fun ContactText(name: String, message: String, time: String, modifier: Modifier)
             )
 
             Text(
-                text = message,
+                text = msg,
                 fontSize = 14.sp,
                 color = Color.White.copy(alpha = 0.8f),
                 lineHeight = 18.sp,
@@ -184,7 +191,8 @@ fun TelePathyPreview() {
         ContactCard(
             R.drawable.test,
             "AmatorUczciwiec000",
-            "Ty:\nsiema",
+            true,
+            "siema",
             "15:37",
             Color.Blue,
             { println("Button clicked!") }
