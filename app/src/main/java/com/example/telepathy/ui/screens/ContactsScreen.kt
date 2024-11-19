@@ -19,24 +19,32 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.telepathy.R
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.stringResource
 
 
 @Composable
@@ -68,10 +76,10 @@ fun Avatar(image: Painter, modifier: Modifier) {
 @Composable
 fun ContactText(name: String, isFromUser: Boolean, message: String, time: String, modifier: Modifier) {
     var msg = message;
-    if (isFromUser) {
-        msg = "Ty:\n$msg"
+    msg = if (isFromUser) {
+        "Ty:\n$msg"
     } else {
-        msg = name + '\n' + msg
+        "$name:\n$msg"
     }
     Row (
         modifier = modifier
@@ -85,7 +93,9 @@ fun ContactText(name: String, isFromUser: Boolean, message: String, time: String
                 text = name,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White
+                color = Color.White,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
 
             Text(
@@ -93,7 +103,8 @@ fun ContactText(name: String, isFromUser: Boolean, message: String, time: String
                 fontSize = 14.sp,
                 color = Color.White.copy(alpha = 0.8f),
                 lineHeight = 18.sp,
-                modifier = Modifier.padding(top = 10.dp)
+                modifier = Modifier.padding(top = 10.dp),
+                overflow = TextOverflow.Ellipsis
             )
         }
 
@@ -137,8 +148,18 @@ fun ContactCard(
     }
 }
 
+
+data class Contact(
+    val imageDrawable: Int,
+    val name: String,
+    val isFromUser: Boolean,
+    val message: String,
+    val time: String,
+    val backgroundColor: Color
+)
+
 @Composable
-fun ContactsScreen(navController: NavHostController) {
+fun ContactsScreen(navController: NavHostController, contacts: List<Contact>) {
     var isSwipeHandled by remember { mutableStateOf(false) }
     var isNavigating by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
@@ -179,26 +200,73 @@ fun ContactsScreen(navController: NavHostController) {
                 }
             }
     ) {
-        Column (
-            verticalArrangement = Arrangement.Top,
+
+        Column(
+
             modifier = Modifier
-                .background(color = Color.DarkGray)
-                .padding(top = 40.dp)
-                .fillMaxWidth()
+                .fillMaxSize()
+                .background(Color.DarkGray)
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Header(
-                text = stringResource(com.example.telepathy.R.string.your_contacts),
-                modifier = Modifier
-                    .align(
-                        Alignment.CenterHorizontally
-                    )
+                text = stringResource(R.string.your_contacts),
+                modifier = Modifier.padding(bottom = 16.dp)
             )
+            val aspectRatio = 570f / 140f // Oryginalna proporcja
+            val height = (LocalConfiguration.current.screenWidthDp.dp / aspectRatio)
+            val width = LocalConfiguration.current.screenWidthDp.dp
 
-            Column (
+            LazyColumn(
                 modifier = Modifier
+                    .weight(1f)
+                    .size(width, height),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
 
+                items(count = contacts.size) {
+                    index ->
+                    val contact = contacts[index]
+                    ContactCard(
+                        imageDrawable = contact.imageDrawable,
+                        name = contact.name,
+                        isFromUser = contact.isFromUser,
+                        message = contact.message,
+                        time = contact.time,
+                        backgroundColor = contact.backgroundColor,
+                        onClick = { /* Handle click for this contact */ }
+                    )
+                }
             }
+
+            DividerWithImage()
         }
     }
+}
+
+@Composable
+fun DividerWithImage() {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Divider(
+            color = Color.LightGray,
+            thickness = 2.dp,
+            modifier = Modifier
+                .alpha((0.6).toFloat())
+                .padding(vertical = 16.dp)
+                .width(LocalConfiguration.current.screenWidthDp.dp / 2)
+        )
+        BottomImage()
     }
+}
+
+@Composable
+fun BottomImage() {
+    Image(
+        painter = painterResource(R.drawable.test),
+        contentDescription = null,
+        modifier = Modifier.size(80.dp)
+    )
+}
