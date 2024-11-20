@@ -14,6 +14,7 @@ import com.example.telepathy.ui.screens.ContactCard
 import com.example.telepathy.ui.screens.MainScreen
 import com.example.telepathy.ui.screens.SettingsScreen
 import com.example.telepathy.ui.screens.ContactsScreen
+import com.example.telepathy.ui.screens.CustomButton
 import com.example.telepathy.ui.theme.TelePathyTheme
 
 class MainActivity : ComponentActivity() {
@@ -61,6 +62,46 @@ fun sampleContacts(): List<Contact> {
             message = "Siema, co tam?",
             time = "12:37",
             backgroundColor = Color(0xFF4682B4)
+        ),
+        Contact(
+            imageDrawable = R.drawable.test,
+            name = "AmatorUczciwiec000",
+            isFromUser = true,
+            message = "Siema, co tam?",
+            time = "12:37",
+            backgroundColor = Color(0xFF4682B4)
+        ),
+        Contact(
+            imageDrawable = R.drawable.test,
+            name = "AmatorUczciwiec000",
+            isFromUser = true,
+            message = "Siema, co tam?",
+            time = "12:37",
+            backgroundColor = Color(0xFF4682B4)
+        ),
+        Contact(
+            imageDrawable = R.drawable.test,
+            name = "AmatorUczciwiec000",
+            isFromUser = true,
+            message = "Siema, co tam?",
+            time = "12:37",
+            backgroundColor = Color(0xFF4682B4)
+        ),
+        Contact(
+            imageDrawable = R.drawable.test,
+            name = "AmatorUczciwiec000",
+            isFromUser = true,
+            message = "Siema, co tam?",
+            time = "12:37",
+            backgroundColor = Color(0xFF4682B4)
+        ),
+        Contact(
+            imageDrawable = R.drawable.test,
+            name = "AmatorUczciwiec000",
+            isFromUser = true,
+            message = "Siema, co tam?",
+            time = "12:37",
+            backgroundColor = Color(0xFF4682B4)
         )
     )
 }
@@ -70,8 +111,15 @@ fun sampleContacts(): List<Contact> {
 @Composable
 fun TelePathyPreview() {
     TelePathyTheme {
-        val navController = rememberNavController()
-        ContactsScreen(navController, sampleContacts())
+        CustomButton(
+            name = "AmatorUczciwiec000",
+            backgroundColor = Color(0xFF4682B4),
+            image = R.drawable.test,
+            onClick = { /* Handle click for this contact */ }
+        )
+
+//        val navController = rememberNavController()
+//        ContactsScreen(navController, sampleContacts())
 //        ContactCard(
 //            imageDrawable = R.drawable.test,
 //            name = "AmatorUczciwiec000",

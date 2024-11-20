@@ -178,7 +178,7 @@ fun ContactsScreen(navController: NavHostController, contacts: List<Contact>) {
     Surface(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Magenta)
+            .background(Color.DarkGray)
             .pointerInput(Unit) {
                 detectDragGestures { change, dragAmount ->
                     // Log swipe gestures and the swipe amount
@@ -205,7 +205,6 @@ fun ContactsScreen(navController: NavHostController, contacts: List<Contact>) {
 
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.DarkGray)
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
