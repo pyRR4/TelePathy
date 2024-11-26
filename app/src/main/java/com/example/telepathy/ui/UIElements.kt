@@ -1,5 +1,6 @@
 package com.example.telepathy.ui
 
+import android.graphics.Bitmap
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -47,86 +48,38 @@ import kotlinx.coroutines.launch
 
 
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import kotlinx.coroutines.launch
-
-fun Modifier.swipeToNavigate(
-    coroutineScope: CoroutineScope,
-    onSwipeLeft: (() -> Unit)? = null,
-    onSwipeRight: (() -> Unit)? = null,
-    onSwipeUp: (() -> Unit)? = null,
-    onSwipeDown: (() -> Unit)? = null,
-    isSwipeHandled: MutableState<Boolean>,
-    isNavigating: MutableState<Boolean>
-): Modifier = this.pointerInput(Unit) {
-    detectDragGestures { change, dragAmount ->
-        change.consume()
-
-
-        if (!isSwipeHandled.value && !isNavigating.value) {
-            Log.d("SwipeGesture", "Drag Amount: x = ${dragAmount.x}, y = ${dragAmount.y}")
-            when {
-                dragAmount.x < -100f && onSwipeLeft != null -> {
-                    Log.d("SwipeGesture", "Swipe Left detected")
-                    isNavigating.value = true
-                    coroutineScope.launch {
-                        onSwipeLeft()
-                        delay(200)
-                        isSwipeHandled.value = true
-                        isNavigating.value = false
-                    }
-                }
-                dragAmount.y < -100f && onSwipeDown != null -> {
-                    Log.d("SwipeGesture", "Swipe Down detected")
-                    isNavigating.value = true
-                    coroutineScope.launch {
-                        onSwipeDown()
-                        delay(200)
-                        isSwipeHandled.value = true
-                        isNavigating.value = false
-                    }
-                }
-                dragAmount.x > 100f && onSwipeRight != null -> {
-                    Log.d("SwipeGesture", "Swipe Right detected")
-                    isNavigating.value = true
-                    coroutineScope.launch {
-                        onSwipeRight()
-                        delay(200)
-                        isSwipeHandled.value = true
-                        isNavigating.value = false
-                    }
-                }
-                dragAmount.y > 100f && onSwipeUp != null -> {
-                    Log.d("SwipeGesture", "Swipe Up detected")
-                    isNavigating.value = true
-                    coroutineScope.launch {
-                        onSwipeUp()
-                        delay(200)
-                        isSwipeHandled.value = true
-                        isNavigating.value = false
-                    }
-                }
-            }
-        }
-    }
-}
 
 
 
 @Composable
-fun CicrcledImage(
-    image: Painter,
+fun CircledImage(
+    bitmap: Bitmap?,
     modifier: Modifier = Modifier,
     size: Dp = 90.dp
 ) {
-    Image(
-        painter = image,
-        contentDescription = null,
-        contentScale = ContentScale.Crop,
-        modifier = modifier
-            .requiredSize(size)
-            .clip(CircleShape)
-    )
+    val avatarModifier = modifier
+        .size(size)
+        .clip(CircleShape)
+
+    if (bitmap != null) {
+        Image(
+            bitmap = bitmap.asImageBitmap(),
+            contentDescription = "Avatar",
+            modifier = avatarModifier,
+            contentScale = ContentScale.Crop
+        )
+    } else {
+        // Domyślny obraz, jeśli `bitmap` to null
+        Image(
+            painter = painterResource(R.drawable.black),
+            contentDescription = "Default Avatar",
+            modifier = avatarModifier,
+            contentScale = ContentScale.Crop
+        )
+    }
 }
 
 

@@ -3,6 +3,7 @@ package com.example.telepathy.ui.screens
 import android.graphics.Bitmap
 import android.util.Log
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -19,12 +20,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -34,26 +37,13 @@ import androidx.compose.ui.unit.sp
 import com.example.telepathy.R
 import androidx.compose.ui.res.stringResource
 import com.example.telepathy.clases.User
-import com.example.telepathy.ui.CicrcledImage
+import com.example.telepathy.ui.CircledImage
 import com.example.telepathy.ui.DividerWithImage
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-
-
-@Composable
-fun Header(text: String, modifier: Modifier = Modifier) {
-    Text(
-        text = text,
-        color = Color.White,
-        fontSize = 48.sp,
-        textAlign = TextAlign.Center,
-        modifier = modifier
-    )
-}
-
 import com.example.telepathy.ui.ScreenTemplate
-import com.example.telepathy.ui.swipeToNavigate
+import com.example.telepathy.ui.utils.swipeToNavigate
 
 @Composable
 fun formatTime(timestamp: Long): String {
@@ -129,31 +119,16 @@ fun UserCard(
         modifier = buttonModifier,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        val avatarModifier = Modifier
-            .align(Alignment.CenterVertically)
-            .size(64.dp)
-            .clip(CircleShape)
 
         val textModifier = Modifier
             .padding(horizontal = 8.dp, vertical = 8.dp)
 
-        // Wyświetl awatar z Bitmap lub obraz domyślny
-        if (avatarBitmap != null) {
-            Image(
-                bitmap = avatarBitmap.asImageBitmap(),
-                contentDescription = "Avatar",
-                modifier = avatarModifier,
-                contentScale = ContentScale.Crop
-            )
-        } else {
-            // Domyślny obraz, jeśli `avatarBitmap` to null
-            Image(
-                painter = painterResource(R.drawable.black),
-                contentDescription = "Default Avatar",
-                modifier = avatarModifier,
-                contentScale = ContentScale.Crop
-            )
-        }
+        CircledImage(
+            bitmap = avatarBitmap,
+            modifier = Modifier.align(Alignment.CenterVertically),
+            size = 64.dp
+        )
+
 
         ContactText(name, isFromUser, message, time, textModifier)
     }
@@ -181,25 +156,17 @@ fun ContactsScreen(navController: NavHostController, users: List<User>) {
             modifier = Modifier
                 .fillMaxWidth()
         ) {
-            LazyColumn(
-                modifier = Modifier
-                    .weight(1f)
-                    .size(width, height),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-
-                items(count = users.size) { index ->
-                    val user = users[index]
-                    UserCard(
-                        avatarBitmap = user.avatar,
-                        name = user.name,
-                        isFromUser = user.isLocalUser,
-                        message = user.chatHistory.firstOrNull()?.content ?: "Brak wiadomości",
-                        time = user.chatHistory.firstOrNull()?.timestamp ?: 0L,
-                        backgroundColor = user.color,
-                        onClick = { /* Handle click for this user */ }
-                    )
-                }
+            items(count = users.size) { index ->
+                val user = users[index]
+                UserCard(
+                    avatarBitmap = user.avatar,
+                    name = user.name,
+                    isFromUser = user.isLocalUser,
+                    message = user.chatHistory.firstOrNull()?.content ?: "Brak wiadomości",
+                    time = user.chatHistory.firstOrNull()?.timestamp ?: 0L,
+                    backgroundColor = user.color,
+                    onClick = { /* Handle click for this user */ }
+                )
             }
         }
     }

@@ -12,13 +12,14 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.telepathy.ui.ScreenTemplate
 import com.example.telepathy.R
+import com.example.telepathy.clases.User
 import com.example.telepathy.ui.CustomButton
 import com.example.telepathy.ui.DividerWithImage
-import com.example.telepathy.ui.swipeToNavigate
+import com.example.telepathy.ui.utils.swipeToNavigate
 
 
 @Composable
-fun AvailableAroundScreen(navController: NavHostController, availableContacts: List<Contact>) {
+fun AvailableAroundScreen(navController: NavHostController, availableContacts: List<User>) {
     var isSwipeHandled by remember { mutableStateOf(false) }
     var isNavigating by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
@@ -51,11 +52,11 @@ fun AvailableAroundScreen(navController: NavHostController, availableContacts: L
                     name = contact.name,
                     image = {
                         ButtonIcon(
-                            image = painterResource(contact.imageDrawable),
+                            image = painterResource(R.drawable.test1),
                             modifier = Modifier
                         )
                     },
-                    backgroundColor = contact.backgroundColor,
+                    backgroundColor = contact.color,
                     onClick = { /* Handle click */ }
                 )
             }

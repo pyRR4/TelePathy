@@ -11,12 +11,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.telepathy.ui.CicrcledImage
+import com.example.telepathy.ui.CircledImage
 import com.example.telepathy.ui.CustomButton
 import com.example.telepathy.R
 import com.example.telepathy.ui.DividerWithImage
 import com.example.telepathy.ui.ScreenTemplate
-import com.example.telepathy.ui.swipeToNavigate
+import com.example.telepathy.ui.utils.swipeToNavigate
 
 data class SettingOption(
     val icon: Int,
@@ -29,17 +29,17 @@ data class SettingOption(
 fun SettingsScreen(navController: NavHostController) {
     val settingsOptions = listOf(
         SettingOption(
-            icon = R.drawable.test, // Replace with actual icon resources
+            icon = R.drawable.test1, // Replace with actual icon resources
             title = stringResource(R.string.edit_profile),
             backgroundColor = Color.Gray
         ),
         SettingOption(
-            icon = R.drawable.test,
+            icon = R.drawable.test1,
             title = stringResource(R.string.change_pin),
             backgroundColor = Color.DarkGray
         ),
         SettingOption(
-            icon = R.drawable.test,
+            icon = R.drawable.test1,
             title = stringResource(R.string.reset_app_data),
             backgroundColor = Color.Red
         )
@@ -84,6 +84,6 @@ fun SettingsScreen(navController: NavHostController) {
 
 @Composable
 fun ButtonIcon(image: Painter, modifier: Modifier) {
-    CicrcledImage(image, modifier, 48.dp)
+    CircledImage(null, modifier, 48.dp)
 }
 
