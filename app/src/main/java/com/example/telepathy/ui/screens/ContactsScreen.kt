@@ -1,20 +1,12 @@
 package com.example.telepathy.ui.screens
 
-import android.annotation.SuppressLint
-import android.util.Log
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.navigation.NavHostController
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -39,7 +31,7 @@ import androidx.compose.ui.res.stringResource
 import com.example.telepathy.ui.CicrcledImage
 import com.example.telepathy.ui.DividerWithImage
 import com.example.telepathy.ui.ScreenTemplate
-import com.example.telepathy.ui.swipeToNavigateBack
+import com.example.telepathy.ui.swipeToNavigate
 
 @Composable
 fun Avatar(image: Painter, modifier: Modifier) {
@@ -139,18 +131,19 @@ fun ContactsScreen(navController: NavHostController, contacts: List<Contact>) {
 
     ScreenTemplate(
         title = stringResource(R.string.your_contacts),
-        navIcon = { DividerWithImage() }
+        navIcon = { DividerWithImage() },
+        modifier = Modifier.swipeToNavigate(
+            isSwipeHandled = remember { mutableStateOf(isSwipeHandled) },
+            isNavigating = remember { mutableStateOf(isNavigating) },
+            coroutineScope = coroutineScope,
+            onSwipeRight = { navController.navigate("available") },
+            onSwipeDown = { navController.navigate("settings") },
+        )
     ) {
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             modifier = Modifier
                 .fillMaxWidth()
-                .swipeToNavigateBack(
-                    navController = navController,
-                    isSwipeHandled = remember { mutableStateOf(isSwipeHandled) },
-                    isNavigating = remember { mutableStateOf(isNavigating) },
-                    coroutineScope = coroutineScope
-                )
         ) {
             items(count = contacts.size) { index ->
                 val contact = contacts[index]

@@ -3,7 +3,6 @@ package com.example.telepathy.ui.screens
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -17,6 +16,7 @@ import com.example.telepathy.ui.CustomButton
 import com.example.telepathy.R
 import com.example.telepathy.ui.DividerWithImage
 import com.example.telepathy.ui.ScreenTemplate
+import com.example.telepathy.ui.swipeToNavigate
 
 data class SettingOption(
     val icon: Int,
@@ -45,9 +45,19 @@ fun SettingsScreen(navController: NavHostController) {
         )
     )
 
+    var isSwipeHandled by remember { mutableStateOf(false) }
+    var isNavigating by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
+
     ScreenTemplate(
         title = stringResource(R.string.settings),
-        navIcon = { DividerWithImage() }
+        navIcon = { DividerWithImage() },
+        modifier = Modifier.swipeToNavigate(
+            isSwipeHandled = remember { mutableStateOf(isSwipeHandled) },
+            isNavigating = remember { mutableStateOf(isNavigating) },
+            coroutineScope = coroutineScope,
+            onSwipeUp = { navController.navigate("available") }
+        )
     ) {
         Column(
             verticalArrangement = Arrangement.spacedBy(16.dp),

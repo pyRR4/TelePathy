@@ -28,8 +28,8 @@ class MainActivity : ComponentActivity() {
 fun MyApp() {
     TelePathyTheme {
         val navController = rememberNavController()
-        NavHost(navController = navController, startDestination = "main") {
-            composable("main") { AvailableAroundScreen(navController, sampleContacts()) }
+        NavHost(navController = navController, startDestination = "available") {
+            composable("available") { AvailableAroundScreen(navController, sampleContacts()) }
             composable("settings") { SettingsScreen(navController) }
             composable("contacts") { ContactsScreen(navController, sampleContacts()) }
         }
