@@ -10,7 +10,8 @@ data class User(
     val color: Color,
     var avatar: Bitmap? = null,
     val chatHistory: MutableList<Message> = mutableListOf(),
-    val isLocalUser: Boolean = false
+    val isLocalUser: Boolean = false,
+    var description: String
 ) {
     fun addMessage(message: Message) {
         chatHistory.add(message)

@@ -64,7 +64,8 @@ fun sampleUsers(context: Context): List<User> {
             Message(sender = "Remonty24H", content = "Cześć, wszystko w porządku?", timestamp = currentTime - 60000, fromLocalUser = false), // 1 minuta temu
             Message(sender = "AmatorUczciwiec000", content = "Tak, wszystko ok, a u Ciebie?", timestamp = currentTime - 90000, fromLocalUser = true) // 1,5 minuty temu
         ),
-        isLocalUser = false
+        isLocalUser = false,
+        description = "Uwielbiam grać w gry i pomagać innym!" // Opis użytkownika
     )
 
     val user2 = User(
@@ -76,7 +77,8 @@ fun sampleUsers(context: Context): List<User> {
             Message(sender = "AmatorUczciwiec000", content = "W środę o 10:00.", timestamp = currentTime - 360000, fromLocalUser = true), // 6 minut temu
             Message(sender = "Remonty24H", content = "Ok, do zobaczenia!", timestamp = currentTime - 540000, fromLocalUser = false) // 9 minut temu
         ),
-        isLocalUser = false
+        isLocalUser = false,
+        description = "Specjalista od remontów. Zawsze punktualny!" // Opis użytkownika
     )
 
     val user3 = User(
@@ -88,7 +90,8 @@ fun sampleUsers(context: Context): List<User> {
             Message(sender = "AmatorUczciwiec000", content = "Tak, wiem! To tylko żart :)", timestamp = currentTime - 150000, fromLocalUser = true), // 2,5 minuty temu
             Message(sender = "Łania23", content = "Haha, dobra! :D", timestamp = currentTime - 180000, fromLocalUser = false) // 3 minuty temu
         ),
-        isLocalUser = false
+        isLocalUser = false,
+        description = "Zafascynowana przyrodą i zwierzętami!" // Opis użytkownika
     )
 
     val user4 = User(
@@ -100,7 +103,8 @@ fun sampleUsers(context: Context): List<User> {
             Message(sender = "AmatorUczciwiec000", content = "Mam problem z aplikacją, nie mogę się zalogować.", timestamp = currentTime - 900000, fromLocalUser = true), // 15 minut temu
             Message(sender = "TechSupport42", content = "Proszę spróbować zresetować hasło.", timestamp = currentTime - 1080000, fromLocalUser = false) // 18 minut temu
         ),
-        isLocalUser = false
+        isLocalUser = false,
+        description = "Pomagam rozwiązywać problemy z technologią!" // Opis użytkownika
     )
 
     val user5 = User(
@@ -112,11 +116,13 @@ fun sampleUsers(context: Context): List<User> {
             Message(sender = "AmatorUczciwiec000", content = "Wow, fajnie! Pokażesz?", timestamp = currentTime - 300000, fromLocalUser = true), // 5 minut temu
             Message(sender = "PixelArtist", content = "Jasne, zaraz wyślę zdjęcie.", timestamp = currentTime - 360000, fromLocalUser = false) // 6 minut temu
         ),
-        isLocalUser = false
+        isLocalUser = false,
+        description = "Tworzę sztukę w stylu pixel art!" // Opis użytkownika
     )
 
     return listOf(user1, user2, user3, user4, user5)
 }
+
 
 @Preview(showBackground = true)
 @Composable
