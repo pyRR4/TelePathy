@@ -1,85 +1,85 @@
 package com.example.telepathy.ui.screens
 
-import android.util.Log
-import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredSize
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import com.example.telepathy.ui.CicrcledImage
+import com.example.telepathy.ui.CustomButton
+import com.example.telepathy.R
+import com.example.telepathy.ui.DividerWithImage
+import com.example.telepathy.ui.ScreenTemplate
+import com.example.telepathy.ui.swipeToNavigate
+
+data class SettingOption(
+    val icon: Int,
+    val title: String,
+    val backgroundColor: Color
+)
+
 
 @Composable
 fun SettingsScreen(navController: NavHostController) {
+    val settingsOptions = listOf(
+        SettingOption(
+            icon = R.drawable.test, // Replace with actual icon resources
+            title = stringResource(R.string.edit_profile),
+            backgroundColor = Color.Gray
+        ),
+        SettingOption(
+            icon = R.drawable.test,
+            title = stringResource(R.string.change_pin),
+            backgroundColor = Color.DarkGray
+        ),
+        SettingOption(
+            icon = R.drawable.test,
+            title = stringResource(R.string.reset_app_data),
+            backgroundColor = Color.Red
+        )
+    )
+
     var isSwipeHandled by remember { mutableStateOf(false) }
     var isNavigating by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
 
-    // Handle back press manually
-    BackHandler {
-        if (!isSwipeHandled && !isNavigating) {
-            Log.d("BackPress", "SettingsScreen - Back Pressed")
-            coroutineScope.launch {
-                delay(200)  // Delay to ensure swipe completion
-                navController.popBackStack()  // Go back to Main Screen
+    ScreenTemplate(
+        title = stringResource(R.string.settings),
+        navIcon = { DividerWithImage() },
+        modifier = Modifier.swipeToNavigate(
+            isSwipeHandled = remember { mutableStateOf(isSwipeHandled) },
+            isNavigating = remember { mutableStateOf(isNavigating) },
+            coroutineScope = coroutineScope,
+            onSwipeUp = { navController.navigate("available") }
+        )
+    ) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            settingsOptions.forEach { option ->
+                CustomButton(
+                    name = option.title,
+                    backgroundColor = option.backgroundColor,
+                    image = {
+                        ButtonIcon(
+                            image = painterResource(id = option.icon),
+                            modifier = Modifier
+                        )
+                    },
+                    onClick = { /* Handle click for this setting */ }
+                )
             }
         }
     }
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.DarkGray)
-            .pointerInput(Unit) {
-                detectDragGestures { change, dragAmount ->
-                    // Log swipe gestures and the swipe amount
-                    Log.d("SwipeGesture", "SettingsScreen - Swipe Amount (X, Y): (${dragAmount.x}, ${dragAmount.y})")
-
-                    if (!isSwipeHandled && !isNavigating) {
-                        // Vertical swipe detection
-                        if (dragAmount.y > 100f) {  // Swipe down to go back to Main Screen
-                            Log.d("SwipeGesture", "SettingsScreen - Vertical Swipe: Down")
-                            isNavigating = true
-                            coroutineScope.launch {
-                                delay(200)  // Delay to ensure swipe completion
-                                navController.popBackStack()
-                                isSwipeHandled = true  // Mark swipe as handled
-                                isNavigating = false
-                            }
-                        }
-                    }
-                }
-            }
-    ) {
-        Text(
-            text = "Settings Screen",
-            modifier = Modifier.align(Alignment.Center)
-        )
-    }
 }
+
 
 
 @Composable

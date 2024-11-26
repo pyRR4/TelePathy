@@ -1,4 +1,9 @@
 <resources>
     <string name="app_name">TelePathy</string>
     <string name="your_contacts">Your contacts</string>
+    <string name="available_around_you">Available around</string>
+    <string name="edit_profile">Edit profile</string>
+    <string name="change_pin">Change PIN</string>
+    <string name="reset_app_data">Reset App Data</string>
+    <string name="settings">Settings</string>
 </resources>
