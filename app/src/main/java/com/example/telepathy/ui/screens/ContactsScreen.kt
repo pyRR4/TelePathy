@@ -45,6 +45,9 @@ import androidx.compose.ui.res.stringResource
 import com.example.telepathy.clases.User
 import com.example.telepathy.ui.CicrcledImage
 import com.example.telepathy.ui.DividerWithImage
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 
 @Composable
@@ -60,18 +63,22 @@ fun Header(text: String, modifier: Modifier = Modifier) {
 
 
 @Composable
-fun Avatar(image: Painter, modifier: Modifier) {
-    CicrcledImage(image, modifier)
+fun formatTime(timestamp: Long): String {
+    val dateFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+    val date = Date(timestamp)
+    return dateFormat.format(date)
 }
 
 @Composable
-fun ContactText(name: String, isFromUser: Boolean, message: String, time: String, modifier: Modifier) {
+fun ContactText(name: String, isFromUser: Boolean, message: String, timestamp: Long, modifier: Modifier) {
+    val formattedTime = formatTime(timestamp)  // Formatujemy czas do HH:MM
     var msg = message
     msg = if (isFromUser) {
         "Ty:\n$msg"
     } else {
         "$name:\n$msg"
     }
+
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -100,7 +107,7 @@ fun ContactText(name: String, isFromUser: Boolean, message: String, time: String
         }
 
         Text(
-            text = time,
+            text = formattedTime,  // Wyświetlamy czas w formacie HH:MM
             fontSize = 14.sp,
             color = Color.White.copy(alpha = 0.8f),
             textAlign = TextAlign.End
@@ -114,7 +121,7 @@ fun UserCard(
     name: String,
     isFromUser: Boolean,
     message: String,
-    time: String,
+    time: Long,
     backgroundColor: Color,
     onClick: () -> Unit
 ) {
@@ -148,7 +155,7 @@ fun UserCard(
         } else {
             // Domyślny obraz, jeśli `avatarBitmap` to null
             Image(
-                painter = painterResource(R.drawable.test),
+                painter = painterResource(R.drawable.black),
                 contentDescription = "Default Avatar",
                 modifier = avatarModifier,
                 contentScale = ContentScale.Crop
@@ -230,7 +237,7 @@ fun ContactsScreen(navController: NavHostController, users: List<User>) {
                         name = user.name,
                         isFromUser = user.isLocalUser,
                         message = user.chatHistory.firstOrNull()?.content ?: "Brak wiadomości",
-                        time = user.chatHistory.firstOrNull()?.timestamp?.toString() ?: "Brak czasu",
+                        time = user.chatHistory.firstOrNull()?.timestamp ?: 0L,
                         backgroundColor = user.color,
                         onClick = { /* Handle click for this user */ }
                     )
