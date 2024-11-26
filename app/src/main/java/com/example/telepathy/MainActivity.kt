@@ -110,22 +110,6 @@ fun sampleContacts(): List<Contact> {
 @Composable
 fun TelePathyPreview() {
     TelePathyTheme {
-//        CustomButton(
-//            name = "AmatorUczciwiec000",
-//            backgroundColor = Color(0xFF4682B4),
-//            image = { ButtonIcon(painterResource(R.drawable.test), Modifier) },
-//            onClick = { /* Handle click for this contact */ }
-//        )
-        val navController = rememberNavController()
-        SettingsScreen(navController)
-//        ContactsScreen(navController, sampleContacts())
-//        ContactCard(
-//            imageDrawable = R.drawable.test,
-//            name = "AmatorUczciwiec000",
-//            isFromUser = true,
-//            message = "Siema, co tam?",
-//            time = "12:37",
-//            backgroundColor = Color(0xFF4682B4)
-//        ) { }
+
     }
 }
