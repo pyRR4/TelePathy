@@ -1,5 +1,8 @@
 package com.example.telepathy.ui.screens
 
+import android.graphics.Bitmap
+import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -19,6 +22,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -28,30 +33,51 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.telepathy.R
 import androidx.compose.ui.res.stringResource
+import com.example.telepathy.clases.User
 import com.example.telepathy.ui.CicrcledImage
 import com.example.telepathy.ui.DividerWithImage
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+
+
+@Composable
+fun Header(text: String, modifier: Modifier = Modifier) {
+    Text(
+        text = text,
+        color = Color.White,
+        fontSize = 48.sp,
+        textAlign = TextAlign.Center,
+        modifier = modifier
+    )
+}
+
 import com.example.telepathy.ui.ScreenTemplate
 import com.example.telepathy.ui.swipeToNavigate
 
 @Composable
-fun Avatar(image: Painter, modifier: Modifier) {
-    CicrcledImage(image, modifier)
+fun formatTime(timestamp: Long): String {
+    val dateFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+    val date = Date(timestamp)
+    return dateFormat.format(date)
 }
 
 @Composable
-fun ContactText(name: String, isFromUser: Boolean, message: String, time: String, modifier: Modifier) {
-    var msg = message;
+fun ContactText(name: String, isFromUser: Boolean, message: String, timestamp: Long, modifier: Modifier) {
+    val formattedTime = formatTime(timestamp)  // Formatujemy czas do HH:MM
+    var msg = message
     msg = if (isFromUser) {
         "Ty:\n$msg"
     } else {
         "$name:\n$msg"
     }
-    Row (
+
+    Row(
         modifier = modifier
             .fillMaxWidth()
             .fillMaxHeight()
     ) {
-        Column (
+        Column(
             modifier = Modifier.weight(1f)
         ) {
             Text(
@@ -73,8 +99,8 @@ fun ContactText(name: String, isFromUser: Boolean, message: String, time: String
             )
         }
 
-        Text (
-            text = time,
+        Text(
+            text = formattedTime,  // Wyświetlamy czas w formacie HH:MM
             fontSize = 14.sp,
             color = Color.White.copy(alpha = 0.8f),
             textAlign = TextAlign.End
@@ -83,12 +109,12 @@ fun ContactText(name: String, isFromUser: Boolean, message: String, time: String
 }
 
 @Composable
-fun ContactCard(
-    imageDrawable: Int,
+fun UserCard(
+    avatarBitmap: Bitmap?,
     name: String,
     isFromUser: Boolean,
     message: String,
-    time: String,
+    time: Long,
     backgroundColor: Color,
     onClick: () -> Unit
 ) {
@@ -99,32 +125,42 @@ fun ContactCard(
         .background(color = backgroundColor, shape = RoundedCornerShape(20.dp))
         .padding(16.dp)
 
-    Row (
+    Row(
         modifier = buttonModifier,
         verticalAlignment = Alignment.CenterVertically
     ) {
         val avatarModifier = Modifier
             .align(Alignment.CenterVertically)
+            .size(64.dp)
+            .clip(CircleShape)
 
         val textModifier = Modifier
             .padding(horizontal = 8.dp, vertical = 8.dp)
-        Avatar(painterResource(imageDrawable), avatarModifier)
+
+        // Wyświetl awatar z Bitmap lub obraz domyślny
+        if (avatarBitmap != null) {
+            Image(
+                bitmap = avatarBitmap.asImageBitmap(),
+                contentDescription = "Avatar",
+                modifier = avatarModifier,
+                contentScale = ContentScale.Crop
+            )
+        } else {
+            // Domyślny obraz, jeśli `avatarBitmap` to null
+            Image(
+                painter = painterResource(R.drawable.black),
+                contentDescription = "Default Avatar",
+                modifier = avatarModifier,
+                contentScale = ContentScale.Crop
+            )
+        }
+
         ContactText(name, isFromUser, message, time, textModifier)
     }
 }
 
-
-data class Contact(
-    val imageDrawable: Int,
-    val name: String,
-    val isFromUser: Boolean,
-    val message: String,
-    val time: String,
-    val backgroundColor: Color
-)
-
 @Composable
-fun ContactsScreen(navController: NavHostController, contacts: List<Contact>) {
+fun ContactsScreen(navController: NavHostController, users: List<User>) {
     var isSwipeHandled by remember { mutableStateOf(false) }
     var isNavigating by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
@@ -145,19 +181,26 @@ fun ContactsScreen(navController: NavHostController, contacts: List<Contact>) {
             modifier = Modifier
                 .fillMaxWidth()
         ) {
-            items(count = contacts.size) { index ->
-                val contact = contacts[index]
-                ContactCard(
-                    imageDrawable = contact.imageDrawable,
-                    name = contact.name,
-                    isFromUser = contact.isFromUser,
-                    message = contact.message,
-                    time = contact.time,
-                    backgroundColor = contact.backgroundColor,
-                    onClick = { /* Handle click */ }
-                )
+            LazyColumn(
+                modifier = Modifier
+                    .weight(1f)
+                    .size(width, height),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+
+                items(count = users.size) { index ->
+                    val user = users[index]
+                    UserCard(
+                        avatarBitmap = user.avatar,
+                        name = user.name,
+                        isFromUser = user.isLocalUser,
+                        message = user.chatHistory.firstOrNull()?.content ?: "Brak wiadomości",
+                        time = user.chatHistory.firstOrNull()?.timestamp ?: 0L,
+                        backgroundColor = user.color,
+                        onClick = { /* Handle click for this user */ }
+                    )
+                }
             }
         }
     }
 }
-

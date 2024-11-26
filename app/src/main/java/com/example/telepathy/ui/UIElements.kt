@@ -201,7 +201,7 @@ fun DividerWithImage() {
 @Composable
 fun BottomImage() {
     Image(
-        painter = painterResource(R.drawable.test),
+        painter = painterResource(R.drawable.test1),
         contentDescription = null,
         modifier = Modifier.size(80.dp)
     )
