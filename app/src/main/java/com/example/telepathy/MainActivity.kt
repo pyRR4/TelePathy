@@ -119,7 +119,7 @@ fun TelePathyPreview() {
             image = { ButtonIcon(painterResource(R.drawable.test), Modifier) },
             onClick = { /* Handle click for this contact */ }
         )
-        SettingsScreen()
+      //  SettingsScreen()
 //
 //        val navController = rememberNavController()
 //        ContactsScreen(navController, sampleContacts())
