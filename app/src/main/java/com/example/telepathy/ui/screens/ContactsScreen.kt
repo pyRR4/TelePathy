@@ -45,6 +45,8 @@ import androidx.compose.ui.unit.sp
 import com.example.telepathy.R
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
+import com.example.telepathy.ui.CicrcledImage
+import com.example.telepathy.ui.DividerWithImage
 
 
 @Composable
@@ -61,16 +63,7 @@ fun Header(text: String, modifier: Modifier = Modifier) {
 
 @Composable
 fun Avatar(image: Painter, modifier: Modifier) {
-
-    Image (
-        painter = image,
-        contentDescription = null,
-        contentScale = ContentScale.Crop,
-        modifier = modifier
-            .requiredSize(90.dp)
-            .clip(CircleShape)
-    )
-
+    CicrcledImage(image, modifier)
 }
 
 @Composable
@@ -178,7 +171,7 @@ fun ContactsScreen(navController: NavHostController, contacts: List<Contact>) {
     Surface(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Magenta)
+            .background(Color.DarkGray)
             .pointerInput(Unit) {
                 detectDragGestures { change, dragAmount ->
                     // Log swipe gestures and the swipe amount
@@ -205,7 +198,6 @@ fun ContactsScreen(navController: NavHostController, contacts: List<Contact>) {
 
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.DarkGray)
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -244,29 +236,3 @@ fun ContactsScreen(navController: NavHostController, contacts: List<Contact>) {
     }
 }
 
-@Composable
-fun DividerWithImage() {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Divider(
-            color = Color.LightGray,
-            thickness = 2.dp,
-            modifier = Modifier
-                .alpha((0.6).toFloat())
-                .padding(vertical = 16.dp)
-                .width(LocalConfiguration.current.screenWidthDp.dp / 2)
-        )
-        BottomImage()
-    }
-}
-
-@Composable
-fun BottomImage() {
-    Image(
-        painter = painterResource(R.drawable.test),
-        contentDescription = null,
-        modifier = Modifier.size(80.dp)
-    )
-}
