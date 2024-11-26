@@ -75,7 +75,7 @@ fun MainScreen(navController: NavHostController) {
                 }
         ) {
             Text(
-                text = "Main Screen",
+                text = "Available Around Screen",
                 modifier = Modifier.align(Alignment.Center),
                 style = MaterialTheme.typography.headlineSmall
             )

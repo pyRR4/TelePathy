@@ -4,17 +4,19 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.telepathy.ui.CustomButton
+import com.example.telepathy.ui.screens.ButtonIcon
 import com.example.telepathy.ui.screens.Contact
-import com.example.telepathy.ui.screens.ContactCard
 import com.example.telepathy.ui.screens.MainScreen
 import com.example.telepathy.ui.screens.SettingsScreen
 import com.example.telepathy.ui.screens.ContactsScreen
-import com.example.telepathy.ui.screens.CustomButton
 import com.example.telepathy.ui.theme.TelePathyTheme
 
 class MainActivity : ComponentActivity() {
@@ -114,10 +116,11 @@ fun TelePathyPreview() {
         CustomButton(
             name = "AmatorUczciwiec000",
             backgroundColor = Color(0xFF4682B4),
-            image = R.drawable.test,
+            image = { ButtonIcon(painterResource(R.drawable.test), Modifier) },
             onClick = { /* Handle click for this contact */ }
         )
-
+        SettingsScreen()
+//
 //        val navController = rememberNavController()
 //        ContactsScreen(navController, sampleContacts())
 //        ContactCard(
