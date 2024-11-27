@@ -1,9 +1,6 @@
 package com.example.telepathy.ui.screens
 
 import android.graphics.Bitmap
-import android.util.Log
-import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -13,22 +10,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavHostController
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -108,29 +100,37 @@ fun UserCard(
     backgroundColor: Color,
     onClick: () -> Unit
 ) {
-    val buttonModifier = Modifier
-        .size(height = 140.dp, width = 570.dp)
-        .clickable(onClick = onClick)
-        .padding(horizontal = 16.dp, vertical = 8.dp)
-        .background(color = backgroundColor, shape = RoundedCornerShape(20.dp))
-        .padding(16.dp)
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(124.dp)
+            .background(color = backgroundColor, shape = RoundedCornerShape(16.dp)),
+        contentAlignment = Alignment.Center
+    )
+    {
+        val buttonModifier = Modifier
+            .fillMaxSize()
+            .clickable(onClick = onClick)
+            .background(color = backgroundColor, shape = RoundedCornerShape(20.dp))
+            .padding(16.dp)
 
-    Row(
-        modifier = buttonModifier,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
+        Row(
+            modifier = buttonModifier,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
 
-        val textModifier = Modifier
-            .padding(horizontal = 8.dp, vertical = 8.dp)
+            val textModifier = Modifier
+                .padding(horizontal = 8.dp, vertical = 8.dp)
 
-        CircledImage(
-            bitmap = avatarBitmap,
-            modifier = Modifier.align(Alignment.CenterVertically),
-            size = 64.dp
-        )
+            CircledImage(
+                bitmap = avatarBitmap,
+                modifier = Modifier.align(Alignment.CenterVertically),
+                size = 64.dp
+            )
 
 
-        ContactText(name, isFromUser, message, time, textModifier)
+            ContactText(name, isFromUser, message, time, textModifier)
+        }
     }
 }
 

@@ -36,12 +36,12 @@ fun SettingsScreen(navController: NavHostController) {
         SettingOption(
             icon = R.drawable.test1,
             title = stringResource(R.string.change_pin),
-            backgroundColor = Color.DarkGray
+            backgroundColor = Color.Gray
         ),
         SettingOption(
             icon = R.drawable.test1,
             title = stringResource(R.string.reset_app_data),
-            backgroundColor = Color.Red
+            backgroundColor = Color.Gray
         )
     )
 

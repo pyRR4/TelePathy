@@ -125,5 +125,9 @@ fun sampleUsers(context: Context): List<User> {
 @Composable
 fun TelePathyPreview() {
     TelePathyTheme {
+
+        val navController = rememberNavController()
+        val context = LocalContext.current
+        ContactsScreen(navController, sampleUsers(context))
     }
 }
