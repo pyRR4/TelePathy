@@ -34,7 +34,7 @@ fun MyApp() {
     TelePathyTheme {
         val navController = rememberNavController()
         val context = LocalContext.current
-        NavHost(navController = navController, startDestination = "available") {
+        NavHost(navController = navController, startDestination = "contacts") {
             composable("available") { AvailableAroundScreen(navController, sampleUsers(context)) }
             composable("settings") { SettingsScreen(navController) }
             composable("contacts") { ContactsScreen(navController, sampleUsers(context)) }

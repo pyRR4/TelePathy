@@ -82,7 +82,7 @@ fun ContactText(name: String, isFromUser: Boolean, message: String, timestamp: L
         }
 
         Text(
-            text = formattedTime,  // Wyświetlamy czas w formacie HH:MM
+            text = formattedTime,
             fontSize = 14.sp,
             color = Color.White.copy(alpha = 0.8f),
             textAlign = TextAlign.End
@@ -161,9 +161,9 @@ fun ContactsScreen(navController: NavHostController, users: List<User>) {
                 UserCard(
                     avatarBitmap = user.avatar,
                     name = user.name,
-                    isFromUser = user.isLocalUser,
-                    message = user.chatHistory.firstOrNull()?.content ?: "Brak wiadomości",
-                    time = user.chatHistory.firstOrNull()?.timestamp ?: 0L,
+                    isFromUser = user.chatHistory.lastOrNull()?.fromLocalUser == true,
+                    message = user.chatHistory.lastOrNull()?.content ?: "Brak wiadomości",
+                    time = user.chatHistory.lastOrNull()?.timestamp ?: 0L,
                     backgroundColor = user.color,
                     onClick = { /* Handle click for this user */ }
                 )
