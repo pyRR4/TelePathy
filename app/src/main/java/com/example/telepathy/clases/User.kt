@@ -6,6 +6,7 @@ import android.content.Context
 import android.graphics.BitmapFactory
 
 data class User(
+    val id: Int,
     val name: String,
     val color: Color,
     var avatar: Bitmap? = null,
@@ -26,6 +27,10 @@ data class User(
     }
 
     fun loadAvatarFromResources(context: Context, resId: Int) {
-        this.avatar = BitmapFactory.decodeResource(context.resources, resId)
+        avatar = BitmapFactory.decodeResource(context.resources, resId)
+    }
+
+    fun loadAvatarFromFile(filePath: String) {
+        avatar = BitmapFactory.decodeFile(filePath)
     }
 }

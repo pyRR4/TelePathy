@@ -165,7 +165,7 @@ fun ContactsScreen(navController: NavHostController, users: List<User>) {
                     message = user.chatHistory.lastOrNull()?.content ?: "Brak wiadomości",
                     time = user.chatHistory.lastOrNull()?.timestamp ?: 0L,
                     backgroundColor = user.color,
-                    onClick = { /* Handle click for this user */ }
+                    onClick = {navController.navigate("talkscreen/${user.id}")}
                 )
             }
         }
