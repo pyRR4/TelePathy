@@ -56,7 +56,7 @@ fun SettingsScreen(navController: NavHostController) {
             isSwipeHandled = remember { mutableStateOf(isSwipeHandled) },
             isNavigating = remember { mutableStateOf(isNavigating) },
             coroutineScope = coroutineScope,
-            onSwipeUp = { navController.navigate("available") }
+            onSwipeUp = { navController.navigate("contacts") }
         )
     ) {
         Column(

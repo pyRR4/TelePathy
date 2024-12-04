@@ -18,7 +18,11 @@ import com.example.telepathy.clases.User
 import com.example.telepathy.ui.screens.AvailableAroundScreen
 import com.example.telepathy.ui.screens.SettingsScreen
 import com.example.telepathy.ui.screens.ContactsScreen
+import com.example.telepathy.ui.screens.TalkScreen
 import com.example.telepathy.ui.theme.TelePathyTheme
+import com.example.telepathy.ui.users.UsersRepository
+import com.example.telepathy.ui.users.UserViewModel
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,13 +38,37 @@ fun MyApp() {
     TelePathyTheme {
         val navController = rememberNavController()
         val context = LocalContext.current
+        val userRepository = UsersRepository() // Make sure this is initialized
+
         NavHost(navController = navController, startDestination = "contacts") {
-            composable("available") { AvailableAroundScreen(navController, sampleUsers(context)) }
-            composable("settings") { SettingsScreen(navController) }
-            composable("contacts") { ContactsScreen(navController, sampleUsers(context)) }
+            composable("available") {
+                AvailableAroundScreen(navController, sampleUsers(context))
+            }
+            composable("settings") {
+                SettingsScreen(navController)
+            }
+            composable("contacts") {
+                ContactsScreen(navController, sampleUsers(context))
+            }
+            composable("talkscreen/{userId}") { backStackEntry ->
+                // Retrieve the userId from the backStackEntry
+                val userId = backStackEntry.arguments?.getString("userId")?.toIntOrNull()
+
+                // Fetch the user by ID from UsersRepository
+                val user = userId?.let { userRepository.getUserById(context, it) }
+
+                user?.let {
+                    // Display the TalkScreen if user is found
+                    TalkScreen(navController, it)
+                } ?: run {
+                    // Handle the case when user is not found (Optional, like showing an error screen)
+                }
+            }
         }
     }
 }
+
+
 
 fun sampleUsers(context: Context): List<User> {
 
@@ -52,6 +80,7 @@ fun sampleUsers(context: Context): List<User> {
     val currentTime = System.currentTimeMillis()
 
     val user1 = User(
+        id = 1,
         name = "AmatorUczciwiec000",
         color = Color(0xFF4682B4), // Kolor niebieski
         avatar = loadAvatar(R.drawable.test1), // Załaduj avatar z drawable
@@ -66,6 +95,7 @@ fun sampleUsers(context: Context): List<User> {
     )
 
     val user2 = User(
+        id = 2,
         name = "Remonty24H",
         color = Color(0xFF8B0000), // Kolor czerwony
         avatar = loadAvatar(R.drawable.test2), // Załaduj avatar z drawable
@@ -79,6 +109,7 @@ fun sampleUsers(context: Context): List<User> {
     )
 
     val user3 = User(
+        id = 3,
         name = "Łania23",
         color = Color(0xFF696969), // Kolor szary
         avatar = loadAvatar(R.drawable.test3), // Załaduj avatar z drawable
@@ -92,6 +123,7 @@ fun sampleUsers(context: Context): List<User> {
     )
 
     val user4 = User(
+        id = 4,
         name = "TechSupport42",
         color = Color(0xFF32CD32), // Kolor zielony
         avatar = null,
@@ -105,6 +137,7 @@ fun sampleUsers(context: Context): List<User> {
     )
 
     val user5 = User(
+        id = 5,
         name = "PixelArtist",
         color = Color(0xFFFFA500), // Kolor pomarańczowy
         avatar = loadAvatar(R.drawable.test2),
