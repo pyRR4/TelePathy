@@ -3,6 +3,7 @@ package com.example.telepathy.ui.screens
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -14,7 +15,9 @@ import androidx.navigation.NavHostController
 import com.example.telepathy.ui.CircledImage
 import com.example.telepathy.ui.CustomButton
 import com.example.telepathy.R
+import com.example.telepathy.ui.BottomNavBar
 import com.example.telepathy.ui.DividerWithImage
+import com.example.telepathy.ui.Header
 import com.example.telepathy.ui.ScreenTemplate
 import com.example.telepathy.ui.utils.swipeToNavigate
 
@@ -26,7 +29,7 @@ data class SettingOption(
 
 
 @Composable
-fun SettingsScreen(navController: NavHostController) {
+fun SettingsScreen(navController: NavHostController, currentScreen: MutableState<String>) {
     val settingsOptions = listOf(
         SettingOption(
             icon = R.drawable.test1, // Replace with actual icon resources
@@ -50,13 +53,29 @@ fun SettingsScreen(navController: NavHostController) {
     val coroutineScope = rememberCoroutineScope()
 
     ScreenTemplate(
-        title = stringResource(R.string.settings),
-        navIcon = { DividerWithImage() },
+        navIcon = {
+            BottomNavBar(
+                currentScreen = currentScreen.value,
+                onNavigate = { targetScreen ->
+                    currentScreen.value = targetScreen
+                    navController.navigate(targetScreen) {
+                        popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                }
+            )
+        },
+        header = {
+            Header(stringResource(R.string.settings), modifier = Modifier.padding(bottom = 16.dp))
+        },
         modifier = Modifier.swipeToNavigate(
             isSwipeHandled = remember { mutableStateOf(isSwipeHandled) },
             isNavigating = remember { mutableStateOf(isNavigating) },
             coroutineScope = coroutineScope,
-            onSwipeUp = { navController.navigate("contacts") }
+            onSwipeUp = {
+                navController.navigate("contacts")
+                currentScreen.value = "contacts"
+            }
         )
     ) {
         Column(

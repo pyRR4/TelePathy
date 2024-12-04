@@ -10,6 +10,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -64,7 +65,6 @@ fun MessageBubble(
     }
 }
 
-// Composable to display user info at the top of the screen in a card
 @Composable
 fun TalkCard(
     avatarBitmap: Bitmap?,
@@ -121,10 +121,18 @@ fun TalkScreen(navController: NavHostController, user: User) {
     val userViewModel: UserViewModel = viewModel()
     val localUser = userViewModel.localUser
 
-    // ScreenTemplate is used for consistent UI structure
     ScreenTemplate(
-        title = user.name,
-        navIcon = { DividerWithImage() },
+        navIcon = {
+            DividerWithImage()
+        },
+        header = {
+            TalkCard(
+                avatarBitmap = user.avatar,
+                name = user.name,
+                description = user.description,
+                backgroundColor = user.color
+            )
+        },
         modifier = Modifier.swipeToNavigate(
             isSwipeHandled = remember { mutableStateOf(false) },
             isNavigating = remember { mutableStateOf(false) },
@@ -135,17 +143,8 @@ fun TalkScreen(navController: NavHostController, user: User) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFF121212))  // Dark background color
+                .background(Color.DarkGray)
         ) {
-            // TalkCard at the top displaying user info
-            TalkCard(
-                avatarBitmap = user.avatar,
-                name = user.name,
-                description = user.description,
-                backgroundColor = user.color
-            )
-
-            // List of messages using LazyColumn
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
@@ -156,7 +155,6 @@ fun TalkScreen(navController: NavHostController, user: User) {
                     val message = messages[index]
                     val messageColor = if (message.fromLocalUser) Color(0xFF4CAF50) else user.color
 
-                    // Display each message using MessageBubble composable
                     MessageBubble(
                         message = message,
                         isLocalUser = message.fromLocalUser,

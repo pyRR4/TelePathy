@@ -7,6 +7,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -38,17 +40,18 @@ fun MyApp() {
     TelePathyTheme {
         val navController = rememberNavController()
         val context = LocalContext.current
-        val userRepository = UsersRepository() // Make sure this is initialized
+        val userRepository = UsersRepository()
+        val currentScreen = remember { mutableStateOf("contacts") }
 
         NavHost(navController = navController, startDestination = "contacts") {
             composable("available") {
-                AvailableAroundScreen(navController, sampleUsers(context))
+                AvailableAroundScreen(navController, sampleUsers(context), currentScreen)
             }
             composable("settings") {
-                SettingsScreen(navController)
+                SettingsScreen(navController, currentScreen)
             }
             composable("contacts") {
-                ContactsScreen(navController, sampleUsers(context))
+                ContactsScreen(navController, sampleUsers(context), currentScreen)
             }
             composable("talkscreen/{userId}") { backStackEntry ->
                 // Retrieve the userId from the backStackEntry
@@ -158,9 +161,10 @@ fun sampleUsers(context: Context): List<User> {
 @Composable
 fun TelePathyPreview() {
     TelePathyTheme {
+        val currentScreen = remember { mutableStateOf("contacts") }
 
         val navController = rememberNavController()
         val context = LocalContext.current
-        ContactsScreen(navController, sampleUsers(context))
+        ContactsScreen(navController, sampleUsers(context), currentScreen)
     }
-}
+} 

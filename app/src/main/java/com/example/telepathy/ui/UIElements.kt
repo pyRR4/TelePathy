@@ -17,7 +17,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,7 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.telepathy.R
 import androidx.compose.ui.graphics.asImageBitmap
-
+import androidx.compose.ui.text.font.FontWeight
 
 
 @Composable
@@ -146,8 +150,8 @@ fun BottomImage() {
 
 @Composable
 fun ScreenTemplate(
-    title: String,
     navIcon: @Composable () -> Unit,
+    header: @Composable () -> Unit,
     modifier: Modifier,
     content: @Composable ColumnScope.() -> Unit
 ) {
@@ -161,10 +165,7 @@ fun ScreenTemplate(
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Header(
-                text = title,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
+            header()
 
             Column(
                 modifier = Modifier
@@ -184,5 +185,55 @@ fun ScreenTemplate(
                 navIcon()
             }
         }
+    }
+}
+
+
+@Composable
+fun BottomNavBar(
+    currentScreen: String,
+    onNavigate: (String) -> Unit
+) {
+    BottomAppBar(
+        modifier = Modifier.background(Color.LightGray)
+    ) {
+        BottomNavButton(
+            text = "Left",
+            isSelected = currentScreen == "available",
+            onClick = { onNavigate("available") }
+        )
+        BottomNavButton(
+            text = "Down",
+            isSelected = currentScreen == "settings",
+            onClick = { onNavigate("settings") }
+        )
+        BottomNavButton(
+            text = "Right",
+            isSelected = currentScreen == "contacts",
+            onClick = { onNavigate("contacts") }
+        )
+    }
+}
+
+@Composable
+fun BottomNavButton(
+    text: String,
+    isSelected: Boolean,
+    onClick: () -> Unit
+) {
+    val backgroundColor = if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent
+    val textColor = Color.White
+
+    Button(
+        onClick = onClick,
+        enabled = !isSelected,
+        shape = CircleShape,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = backgroundColor,
+            disabledContainerColor = Color.Gray
+        ),
+        modifier = Modifier.height(56.dp)
+    ) {
+        Text(text, color = textColor, fontWeight = FontWeight.Bold, fontSize = 16.sp)
     }
 }
