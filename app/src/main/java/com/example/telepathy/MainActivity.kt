@@ -54,23 +54,15 @@ fun MyApp() {
                 ContactsScreen(navController, sampleUsers(context), currentScreen)
             }
             composable("talkscreen/{userId}") { backStackEntry ->
-                // Retrieve the userId from the backStackEntry
                 val userId = backStackEntry.arguments?.getString("userId")?.toIntOrNull()
-
-                // Fetch the user by ID from UsersRepository
                 val user = userId?.let { userRepository.getUserById(context, it) }
+                user?.let { TalkScreen(navController, it) } ?: run {//no  user}
 
-                user?.let {
-                    // Display the TalkScreen if user is found
-                    TalkScreen(navController, it)
-                } ?: run {
-                    // Handle the case when user is not found (Optional, like showing an error screen)
                 }
             }
         }
     }
 }
-
 
 
 fun sampleUsers(context: Context): List<User> {
