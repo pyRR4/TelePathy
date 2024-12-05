@@ -1,5 +1,6 @@
 package com.example.telepathy.ui.screens
 
+import android.content.Context
 import android.graphics.Bitmap
 import androidx.compose.foundation.background
 import androidx.compose.material3.Text
@@ -29,7 +30,6 @@ import androidx.compose.ui.unit.sp
 import com.example.telepathy.R
 import androidx.compose.ui.res.stringResource
 import com.example.telepathy.clases.User
-import com.example.telepathy.ui.BottomNavBar
 import com.example.telepathy.ui.CircledImage
 import com.example.telepathy.ui.DividerWithImage
 import com.example.telepathy.ui.Header
@@ -37,7 +37,6 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import com.example.telepathy.ui.ScreenTemplate
-import com.example.telepathy.ui.utils.swipeToNavigate
 
 @Composable
 fun formatTime(timestamp: Long): String {
@@ -137,7 +136,7 @@ fun UserCard(
 }
 
 @Composable
-fun ContactsScreen(users: List<User>) {
+fun ContactsScreen(navController: NavHostController, users: List<User>, currentScreen: MutableState<String>) {
 
     ScreenTemplate(
         navIcon = {
@@ -162,7 +161,7 @@ fun ContactsScreen(users: List<User>) {
                     message = user.chatHistory.lastOrNull()?.content ?: "Brak wiadomości",
                     time = user.chatHistory.lastOrNull()?.timestamp ?: 0L,
                     backgroundColor = user.color,
-                    onClick = {}
+                    onClick = {navController.navigate("talkscreen/${user.id}")}
                 )
             }
         }

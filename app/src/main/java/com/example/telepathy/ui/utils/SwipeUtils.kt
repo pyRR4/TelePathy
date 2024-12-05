@@ -26,6 +26,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.telepathy.ui.screens.AvailableAroundScreen
 import com.example.telepathy.ui.screens.ContactsScreen
+import com.example.telepathy.ui.screens.MainScreen
 import com.example.telepathy.ui.screens.SettingsScreen
 import com.example.telepathy.ui.screens.TalkScreen
 import com.example.telepathy.ui.users.UsersRepository
@@ -92,87 +93,51 @@ fun Modifier.swipeToNavigate(
     }
 }
 
-//
-//@OptIn(ExperimentalAnimationApi::class)
-//@Composable
-//fun AnimatedNavHost(
-//    navController: NavHostController,
-//    startDestination: String,
-//    userRepository: UsersRepository,
-//    context: Context,
-//    currentScreen: MutableState<String>
-//) {
-//    androidx.navigation.compose.NavHost(
-//        navController = navController,
-//        startDestination = startDestination,
-//    ) {
-//        composable(
-//            route = "available",
-//            enterTransition = {
-//                slideInHorizontally(initialOffsetX = { it }) + fadeIn()
-//            },
-//            exitTransition = {
-//                slideOutHorizontally(targetOffsetX = { -it }) + fadeOut()
-//            },
-//            popEnterTransition = {
-//                slideInHorizontally(initialOffsetX = { -it }) + fadeIn()
-//            },
-//            popExitTransition = {
-//                slideOutHorizontally(targetOffsetX = { it }) + fadeOut()
-//            }
-//        ) {
-//            AvailableAroundScreen(navController, userRepository.getUsers(context), currentScreen)
-//        }
-//
-//        composable(
-//            route = "settings",
-//            enterTransition = {
-//                slideInVertically(initialOffsetY = { it }) + fadeIn()
-//            },
-//            exitTransition = {
-//                slideOutVertically(targetOffsetY = { -it }) + fadeOut()
-//            },
-//            popEnterTransition = {
-//                slideInVertically(initialOffsetY = { -it }) + fadeIn()
-//            },
-//            popExitTransition = {
-//                slideOutVertically(targetOffsetY = { it }) + fadeOut()
-//            }
-//        ) {
-//            SettingsScreen(navController, currentScreen)
-//        }
-//
-//        composable(
-//            route = "contacts",
-//            enterTransition = {
-//                slideInHorizontally(initialOffsetX = { -it }) + fadeIn()
-//            },
-//            exitTransition = {
-//                slideOutHorizontally(targetOffsetX = { it }) + fadeOut()
-//            },
-//            popEnterTransition = {
-//                slideInHorizontally(initialOffsetX = { it }) + fadeIn()
-//            },
-//            popExitTransition = {
-//                slideOutHorizontally(targetOffsetX = { -it }) + fadeOut()
-//            }
-//        ) {
-//            ContactsScreen(navController, userRepository.getUsers(context), currentScreen)
-//        }
-//
-//        composable(
-//            route = "talkscreen/{userId}",
-//            arguments = listOf(navArgument("userId") { type = NavType.IntType }),
-//            enterTransition = {
-//                slideInHorizontally(initialOffsetX = { it }) + fadeIn()
-//            },
-//            exitTransition = {
-//                slideOutHorizontally(targetOffsetX = { -it }) + fadeOut()
-//            }
-//        ) { backStackEntry ->
-//            val userId = backStackEntry.arguments?.getInt("userId")
-//            val user = userId?.let { userRepository.getUserById(context, it) }
-//            user?.let { TalkScreen(navController, it) }
-//        }
-//    }
-//}
+
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+fun AnimatedNavHost(
+    navController: NavHostController,
+    startDestination: String,
+    userRepository: UsersRepository,
+    context: Context,
+    currentScreen: MutableState<String>
+) {
+    androidx.navigation.compose.NavHost(
+        navController = navController,
+        startDestination = startDestination,
+    ) {
+        composable(
+            route = "mainscreens",
+            enterTransition = {
+                slideInHorizontally(initialOffsetX = { -it }) + fadeIn()
+            },
+            exitTransition = {
+                slideOutHorizontally(targetOffsetX = { it }) + fadeOut()
+            },
+            popEnterTransition = {
+                slideInHorizontally(initialOffsetX = { it }) + fadeIn()
+            },
+            popExitTransition = {
+                slideOutHorizontally(targetOffsetX = { -it }) + fadeOut()
+            }
+        ) {
+            MainScreen(navController, userRepository, context, currentScreen)
+        }
+
+        composable(
+            route = "talkscreen/{userId}",
+            arguments = listOf(navArgument("userId") { type = NavType.IntType }),
+            enterTransition = {
+                slideInHorizontally(initialOffsetX = { it }) + fadeIn()
+            },
+            exitTransition = {
+                slideOutHorizontally(targetOffsetX = { -it }) + fadeOut()
+            }
+        ) { backStackEntry ->
+            val userId = backStackEntry.arguments?.getInt("userId")
+            val user = userId?.let { userRepository.getUserById(context, it) }
+            user?.let { TalkScreen(navController, it) }
+        }
+    }
+}

@@ -1,5 +1,6 @@
 package com.example.telepathy.ui.screens
 
+import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -9,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.example.telepathy.ui.ScreenTemplate
 import com.example.telepathy.R
 import com.example.telepathy.clases.User
@@ -18,7 +20,7 @@ import com.example.telepathy.ui.Header
 
 
 @Composable
-fun AvailableAroundScreen(availableContacts: List<User>) {
+fun AvailableAroundScreen(navController: NavHostController, availableContacts: List<User>, currentScreen: MutableState<String>) {
 
     ScreenTemplate(
         navIcon = {
@@ -45,7 +47,7 @@ fun AvailableAroundScreen(availableContacts: List<User>) {
                         )
                     },
                     backgroundColor = contact.color,
-                    onClick = { /* Handle click */ }
+                    onClick = {navController.navigate("talkscreen/${contact.id}")}
                 )
             }
         }

@@ -1,5 +1,6 @@
 package com.example.telepathy
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -17,6 +18,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -28,13 +30,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.telepathy.ui.screens.AvailableAroundScreen
 import com.example.telepathy.ui.screens.SettingsScreen
 import com.example.telepathy.ui.screens.ContactsScreen
 import com.example.telepathy.ui.theme.TelePathyTheme
 import com.example.telepathy.ui.users.UsersRepository
-import kotlinx.coroutines.launch
+import com.example.telepathy.ui.utils.AnimatedNavHost
 
 
 class MainActivity : ComponentActivity() {
@@ -52,49 +55,20 @@ fun MyApp() {
         val context = LocalContext.current
         val userRepository = UsersRepository()
 
-        val horizontalScreens = listOf("available", "contacts", "chats")
-        val verticalScreens = listOf("contacts", "settings")
-        val horizontalPagerState = rememberPagerState(initialPage = 1, pageCount = { horizontalScreens.size })
-        val verticalPagerState = rememberPagerState(initialPage = 0, pageCount = { verticalScreens.size })
+        val currentScreen = remember { mutableStateOf("contacts") }
+        val navController = rememberNavController()
 
-        Box(modifier = Modifier.fillMaxSize()) {
-            VerticalPager(
-                state = verticalPagerState
-            ) { page ->
-                when (verticalScreens[page]) {
-                    "settings" -> SettingsScreen()
-
-                    "contacts" ->
-                        HorizontalPager(
-                            state = horizontalPagerState
-                        ) { horizontalPage ->
-                            when (horizontalScreens[horizontalPage]) {
-                                "available" -> AvailableAroundScreen(userRepository.getUsers(context))
-                                "contacts" -> ContactsScreen(userRepository.getUsers(context))
-                                "chats" -> {}
-                            }
-                        }
-                }
-            }
-
-            CustomPagerIndicator(
-                pagerState = horizontalPagerState,
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(16.dp)
-            )
-        }
-
-//
-//        AnimatedNavHost(
-//            navController = navController,
-//            startDestination = "contacts",
-//            userRepository = userRepository,
-//            context = context,
-//            currentScreen = currentScreen
-//        )
+        AnimatedNavHost(
+            navController = navController,
+            startDestination = "mainscreens",
+            userRepository = userRepository,
+            context = context,
+            currentScreen = currentScreen
+        )
     }
 }
+
+
 
 @Composable
 fun CustomPagerIndicator(
