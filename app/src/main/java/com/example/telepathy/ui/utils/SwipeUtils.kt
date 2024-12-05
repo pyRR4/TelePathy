@@ -9,25 +9,17 @@ import androidx.compose.ui.input.pointer.pointerInput
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.with
 import androidx.compose.runtime.*
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.slideOutVertically
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.example.telepathy.ui.screens.AvailableAroundScreen
-import com.example.telepathy.ui.screens.ContactsScreen
 import com.example.telepathy.ui.screens.MainScreen
-import com.example.telepathy.ui.screens.SettingsScreen
 import com.example.telepathy.ui.screens.TalkScreen
 import com.example.telepathy.ui.users.UsersRepository
 
