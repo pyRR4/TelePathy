@@ -1,6 +1,5 @@
 package com.example.telepathy.ui.screens
 
-import android.content.Context
 import android.graphics.Bitmap
 import androidx.compose.foundation.background
 import androidx.compose.material3.Text
