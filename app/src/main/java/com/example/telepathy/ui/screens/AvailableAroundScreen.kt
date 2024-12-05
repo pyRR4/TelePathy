@@ -74,7 +74,7 @@ fun AvailableAroundScreen(navController: NavHostController, availableContacts: L
                         )
                     },
                     backgroundColor = contact.color,
-                    onClick = { /* Handle click */ }
+                    onClick = { navController.navigate("talkscreen/${contact.id}") }
                 )
             }
         }
