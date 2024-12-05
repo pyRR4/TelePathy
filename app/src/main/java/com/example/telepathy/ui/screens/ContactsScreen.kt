@@ -137,40 +137,16 @@ fun UserCard(
 }
 
 @Composable
-fun ContactsScreen(navController: NavHostController, users: List<User>, currentScreen: MutableState<String>) {
-    var isSwipeHandled by remember { mutableStateOf(false) }
-    var isNavigating by remember { mutableStateOf(false) }
-    val coroutineScope = rememberCoroutineScope()
+fun ContactsScreen(users: List<User>) {
 
     ScreenTemplate(
         navIcon = {
-            BottomNavBar(
-                currentScreen = currentScreen.value,
-                onNavigate = { targetScreen ->
-                    currentScreen.value = targetScreen
-                    navController.navigate(targetScreen) {
-                        popUpTo(navController.graph.startDestinationId) { inclusive = true }
-                        launchSingleTop = true
-                    }
-                }
-            )
+            DividerWithImage()
         },
         header = {
             Header(stringResource(R.string.your_contacts), modifier = Modifier.padding(bottom = 16.dp))
         },
-        modifier = Modifier.swipeToNavigate(
-            isSwipeHandled = remember { mutableStateOf(isSwipeHandled) },
-            isNavigating = remember { mutableStateOf(isNavigating) },
-            coroutineScope = coroutineScope,
-            onSwipeRight = {
-                navController.navigate("available")
-                currentScreen.value = "available"
-            },
-            onSwipeDown = {
-                navController.navigate("settings")
-                currentScreen.value = "settings"
-            },
-        )
+        modifier = Modifier
     ) {
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -186,7 +162,7 @@ fun ContactsScreen(navController: NavHostController, users: List<User>, currentS
                     message = user.chatHistory.lastOrNull()?.content ?: "Brak wiadomości",
                     time = user.chatHistory.lastOrNull()?.timestamp ?: 0L,
                     backgroundColor = user.color,
-                    onClick = {navController.navigate("talkscreen/${user.id}")}
+                    onClick = {}
                 )
             }
         }
