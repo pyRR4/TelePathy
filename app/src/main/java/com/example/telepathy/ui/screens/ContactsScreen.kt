@@ -1,5 +1,6 @@
 package com.example.telepathy.ui.screens
 
+import android.content.Context
 import android.graphics.Bitmap
 import androidx.compose.foundation.background
 import androidx.compose.material3.Text
@@ -29,7 +30,6 @@ import androidx.compose.ui.unit.sp
 import com.example.telepathy.R
 import androidx.compose.ui.res.stringResource
 import com.example.telepathy.clases.User
-import com.example.telepathy.ui.BottomNavBar
 import com.example.telepathy.ui.CircledImage
 import com.example.telepathy.ui.DividerWithImage
 import com.example.telepathy.ui.Header
@@ -37,7 +37,6 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import com.example.telepathy.ui.ScreenTemplate
-import com.example.telepathy.ui.utils.swipeToNavigate
 
 @Composable
 fun formatTime(timestamp: Long): String {
@@ -138,39 +137,15 @@ fun UserCard(
 
 @Composable
 fun ContactsScreen(navController: NavHostController, users: List<User>, currentScreen: MutableState<String>) {
-    var isSwipeHandled by remember { mutableStateOf(false) }
-    var isNavigating by remember { mutableStateOf(false) }
-    val coroutineScope = rememberCoroutineScope()
 
     ScreenTemplate(
         navIcon = {
-            BottomNavBar(
-                currentScreen = currentScreen.value,
-                onNavigate = { targetScreen ->
-                    currentScreen.value = targetScreen
-                    navController.navigate(targetScreen) {
-                        popUpTo(navController.graph.startDestinationId) { inclusive = true }
-                        launchSingleTop = true
-                    }
-                }
-            )
+            DividerWithImage()
         },
         header = {
             Header(stringResource(R.string.your_contacts), modifier = Modifier.padding(bottom = 16.dp))
         },
-        modifier = Modifier.swipeToNavigate(
-            isSwipeHandled = remember { mutableStateOf(isSwipeHandled) },
-            isNavigating = remember { mutableStateOf(isNavigating) },
-            coroutineScope = coroutineScope,
-            onSwipeRight = {
-                navController.navigate("available")
-                currentScreen.value = "available"
-            },
-            onSwipeDown = {
-                navController.navigate("settings")
-                currentScreen.value = "settings"
-            },
-        )
+        modifier = Modifier
     ) {
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(16.dp),

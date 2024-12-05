@@ -15,7 +15,6 @@ class UsersRepository {
 
     private fun sampleUsers(context: Context): List<User> {
 
-        // Funkcja pomocnicza do ładowania Bitmap z drawable
         fun loadAvatar(resId: Int): Bitmap {
             return BitmapFactory.decodeResource(context.resources, resId)
         }
@@ -25,8 +24,8 @@ class UsersRepository {
         val user1 = User(
             id = 1,
             name = "AmatorUczciwiec000",
-            color = Color(0xFF4682B4), // Kolor niebieski
-            avatar = loadAvatar(R.drawable.test1), // Załaduj avatar z drawable
+            color = Color(0xFF4682B4),
+            avatar = loadAvatar(R.drawable.test1),
             chatHistory = mutableListOf(
                 Message(sender = "AmatorUczciwiec000", content = "Siema, co tam?", timestamp = currentTime - 10000, fromLocalUser = true),  // 10 sek temu
                 Message(sender = "AmatorUczciwiec000", content = "Chciałem pogadać o czymś ważnym.", timestamp = currentTime - 30000, fromLocalUser = true), // 30 sek temu

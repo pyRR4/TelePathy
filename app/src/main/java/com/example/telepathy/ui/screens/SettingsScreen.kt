@@ -11,15 +11,12 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
 import com.example.telepathy.ui.CircledImage
 import com.example.telepathy.ui.CustomButton
 import com.example.telepathy.R
-import com.example.telepathy.ui.BottomNavBar
 import com.example.telepathy.ui.DividerWithImage
 import com.example.telepathy.ui.Header
 import com.example.telepathy.ui.ScreenTemplate
-import com.example.telepathy.ui.utils.swipeToNavigate
 
 data class SettingOption(
     val icon: Int,
@@ -29,7 +26,7 @@ data class SettingOption(
 
 
 @Composable
-fun SettingsScreen(navController: NavHostController, currentScreen: MutableState<String>) {
+fun SettingsScreen() {
     val settingsOptions = listOf(
         SettingOption(
             icon = R.drawable.test1, // Replace with actual icon resources
@@ -48,35 +45,14 @@ fun SettingsScreen(navController: NavHostController, currentScreen: MutableState
         )
     )
 
-    var isSwipeHandled by remember { mutableStateOf(false) }
-    var isNavigating by remember { mutableStateOf(false) }
-    val coroutineScope = rememberCoroutineScope()
-
     ScreenTemplate(
         navIcon = {
-            BottomNavBar(
-                currentScreen = currentScreen.value,
-                onNavigate = { targetScreen ->
-                    currentScreen.value = targetScreen
-                    navController.navigate(targetScreen) {
-                        popUpTo(navController.graph.startDestinationId) { inclusive = true }
-                        launchSingleTop = true
-                    }
-                }
-            )
+            DividerWithImage()
         },
         header = {
             Header(stringResource(R.string.settings), modifier = Modifier.padding(bottom = 16.dp))
         },
-        modifier = Modifier.swipeToNavigate(
-            isSwipeHandled = remember { mutableStateOf(isSwipeHandled) },
-            isNavigating = remember { mutableStateOf(isNavigating) },
-            coroutineScope = coroutineScope,
-            onSwipeUp = {
-                navController.navigate("contacts")
-                currentScreen.value = "contacts"
-            }
-        )
+        modifier = Modifier
     ) {
         Column(
             verticalArrangement = Arrangement.spacedBy(16.dp),
