@@ -1,4 +1,4 @@
-package com.example.telepathy.ui.screens
+package com.example.telepathy.presentation.ui.screens
 
 import android.graphics.Bitmap
 import androidx.compose.foundation.background
@@ -28,14 +28,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.telepathy.R
 import androidx.compose.ui.res.stringResource
-import com.example.telepathy.clases.User
-import com.example.telepathy.ui.CircledImage
-import com.example.telepathy.ui.DividerWithImage
-import com.example.telepathy.ui.Header
+import com.example.telepathy.data.User
+import com.example.telepathy.presentation.ui.CircledImage
+import com.example.telepathy.presentation.ui.DividerWithImage
+import com.example.telepathy.presentation.ui.Header
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import com.example.telepathy.ui.ScreenTemplate
+import com.example.telepathy.presentation.ui.ScreenTemplate
 
 @Composable
 fun formatTime(timestamp: Long): String {

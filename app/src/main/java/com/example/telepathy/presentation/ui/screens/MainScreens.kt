@@ -1,4 +1,4 @@
-package com.example.telepathy.ui.screens
+package com.example.telepathy.presentation.ui.screens
 
 import android.content.Context
 import androidx.compose.foundation.background
@@ -8,9 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
-import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
@@ -22,7 +20,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.telepathy.ui.users.UsersRepository
+import com.example.telepathy.presentation.navigation.MainScreensPager
+import com.example.telepathy.domain.users.UsersRepository
 
 @Composable
 fun MainScreen(
@@ -31,36 +30,22 @@ fun MainScreen(
     context: Context,
     currentScreen: MutableState<String>
 ) {
-
     val horizontalScreens = listOf("available", "contacts")
     val verticalScreens = listOf("contacts", "settings")
     val horizontalPagerState = rememberPagerState(initialPage = 1, pageCount = { horizontalScreens.size })
     val verticalPagerState = rememberPagerState(initialPage = 0, pageCount = { verticalScreens.size })
 
     Box(modifier = Modifier.fillMaxSize()) {
-        VerticalPager(
-            state = verticalPagerState
-        ) { page ->
-            when (verticalScreens[page]) {
-                "settings" -> SettingsScreen()
-
-                "contacts" ->
-                    HorizontalPager(
-                        state = horizontalPagerState
-                    ) { horizontalPage ->
-                        when (horizontalScreens[horizontalPage]) {
-                            "available" ->  {
-                                AvailableAroundScreen(navController, userRepository.getUsers(context), currentScreen)
-                                currentScreen.value = "available"
-                            }
-                            "contacts" -> {
-                                ContactsScreen(navController, userRepository.getUsers(context), currentScreen)
-                                currentScreen.value = "contacts"
-                            }
-                        }
-                    }
-            }
-        }
+        MainScreensPager(
+            horizontalScreens = horizontalScreens,
+            verticalScreens = verticalScreens,
+            horizontalPagerState = horizontalPagerState,
+            verticalPagerState = verticalPagerState,
+            navController = navController,
+            userRepository = userRepository,
+            currentScreen = currentScreen,
+            context = context
+        )
 
         CustomPagerIndicator(
             pagerState = horizontalPagerState,

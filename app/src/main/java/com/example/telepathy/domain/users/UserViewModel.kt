@@ -1,10 +1,10 @@
-package com.example.telepathy.ui.users
+package com.example.telepathy.domain.users
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import com.example.telepathy.clases.User
+import com.example.telepathy.data.User
 import androidx.compose.ui.graphics.Color
 
 class UserViewModel : ViewModel() {

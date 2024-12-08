@@ -1,11 +1,11 @@
-package com.example.telepathy.ui.users
+package com.example.telepathy.domain.users
 
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.compose.ui.graphics.Color
-import com.example.telepathy.clases.Message
-import com.example.telepathy.clases.User
+import com.example.telepathy.data.Message
+import com.example.telepathy.data.User
 import com.example.telepathy.R
 
 class UsersRepository {

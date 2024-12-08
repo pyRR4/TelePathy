@@ -1,4 +1,4 @@
-package com.example.telepathy.ui.theme
+package com.example.telepathy.presentation.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

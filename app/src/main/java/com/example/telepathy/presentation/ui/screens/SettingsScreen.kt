@@ -1,4 +1,4 @@
-package com.example.telepathy.ui.screens
+package com.example.telepathy.presentation.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -11,12 +11,12 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.example.telepathy.ui.CircledImage
-import com.example.telepathy.ui.CustomButton
+import com.example.telepathy.presentation.ui.CircledImage
+import com.example.telepathy.presentation.ui.CustomButton
 import com.example.telepathy.R
-import com.example.telepathy.ui.DividerWithImage
-import com.example.telepathy.ui.Header
-import com.example.telepathy.ui.ScreenTemplate
+import com.example.telepathy.presentation.ui.DividerWithImage
+import com.example.telepathy.presentation.ui.Header
+import com.example.telepathy.presentation.ui.ScreenTemplate
 
 data class SettingOption(
     val icon: Int,

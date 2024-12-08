@@ -1,4 +1,4 @@
-package com.example.telepathy.ui.screens
+package com.example.telepathy.presentation.ui.screens
 
 import android.graphics.Bitmap
 import androidx.compose.foundation.background
@@ -16,13 +16,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.example.telepathy.clases.Message
-import com.example.telepathy.clases.User
-import com.example.telepathy.ui.CircledImage
-import com.example.telepathy.ui.DividerWithImage
-import com.example.telepathy.ui.ScreenTemplate
-import com.example.telepathy.ui.utils.swipeToNavigate
-import com.example.telepathy.ui.users.UserViewModel
+import com.example.telepathy.data.Message
+import com.example.telepathy.data.User
+import com.example.telepathy.presentation.ui.CircledImage
+import com.example.telepathy.presentation.ui.DividerWithImage
+import com.example.telepathy.presentation.ui.ScreenTemplate
+import com.example.telepathy.presentation.navigation.swipeToNavigate
+import com.example.telepathy.domain.users.UserViewModel
 
 
 @Composable

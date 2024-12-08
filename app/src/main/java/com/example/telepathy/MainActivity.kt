@@ -9,9 +9,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
-import com.example.telepathy.ui.theme.TelePathyTheme
-import com.example.telepathy.ui.users.UsersRepository
-import com.example.telepathy.ui.utils.AnimatedNavHost
+import com.example.telepathy.presentation.ui.theme.TelePathyTheme
+import com.example.telepathy.domain.users.UsersRepository
+import com.example.telepathy.presentation.navigation.AnimatedNavHost
 
 
 class MainActivity : ComponentActivity() {

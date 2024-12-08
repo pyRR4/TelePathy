@@ -1,4 +1,4 @@
-package com.example.telepathy.clases
+package com.example.telepathy.data
 
 data class Message(
     val sender: String,

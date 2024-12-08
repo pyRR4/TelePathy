@@ -1,6 +1,5 @@
-package com.example.telepathy.ui.screens
+package com.example.telepathy.presentation.ui.screens
 
-import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -11,12 +10,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.telepathy.ui.ScreenTemplate
+import com.example.telepathy.presentation.ui.ScreenTemplate
 import com.example.telepathy.R
-import com.example.telepathy.clases.User
-import com.example.telepathy.ui.CustomButton
-import com.example.telepathy.ui.DividerWithImage
-import com.example.telepathy.ui.Header
+import com.example.telepathy.data.User
+import com.example.telepathy.presentation.ui.CustomButton
+import com.example.telepathy.presentation.ui.DividerWithImage
+import com.example.telepathy.presentation.ui.Header
 
 
 @Composable

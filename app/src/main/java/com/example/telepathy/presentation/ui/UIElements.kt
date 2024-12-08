@@ -1,4 +1,4 @@
-package com.example.telepathy.ui
+package com.example.telepathy.presentation.ui
 
 import android.graphics.Bitmap
 import androidx.compose.foundation.Image
