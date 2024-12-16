@@ -23,7 +23,8 @@ import androidx.navigation.navArgument
 import com.example.telepathy.presentation.ui.screens.MainScreen
 import com.example.telepathy.presentation.ui.screens.TalkScreen
 import com.example.telepathy.domain.users.UsersRepository
-
+import com.example.telepathy.presentation.ui.screens.EditProfileScreen
+import com.example.telepathy.presentation.ui.screens.pins.EnterPinScreen
 
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -70,6 +71,30 @@ fun AnimatedNavHost(
             val userId = backStackEntry.arguments?.getInt("userId")
             val user = userId?.let { userRepository.getUserById(context, it) }
             user?.let { TalkScreen(navController, it) }
+        }
+
+        composable(
+            route = "edit_profile",
+            enterTransition = {
+                slideInHorizontally(initialOffsetX = { it }) + fadeIn()
+            },
+            exitTransition = {
+                slideOutHorizontally(targetOffsetX = { -it }) + fadeOut()
+            }
+        ) {
+            EditProfileScreen()
+        }
+
+        composable(
+            route = "enter_pin",
+            enterTransition = {
+                slideInHorizontally(initialOffsetX = { it }) + fadeIn()
+            },
+            exitTransition = {
+                slideOutHorizontally(targetOffsetX = { -it }) + fadeOut()
+            }
+        ) {
+            EnterPinScreen(navController)
         }
     }
 }
