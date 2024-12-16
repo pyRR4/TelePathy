@@ -27,7 +27,7 @@ fun MainScreensPager(
         state = verticalPagerState
     ) { page ->
         when (verticalScreens[page]) {
-            "settings" -> SettingsScreen()
+            "settings" -> SettingsScreen(navController)
 
             "contacts" ->
                 HorizontalPager(

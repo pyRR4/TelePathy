@@ -4,22 +4,20 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.example.telepathy.presentation.ui.CircledImage
 import com.example.telepathy.presentation.ui.CustomButton
+import com.example.telepathy.presentation.ui.CircledImage
 import com.example.telepathy.R
 import com.example.telepathy.presentation.ui.DividerWithImage
 import com.example.telepathy.presentation.ui.Header
 import com.example.telepathy.presentation.ui.ScreenTemplate
-import androidx.navigation.NavHostController
 
-data class SettingOption(
+data class EditOption(
     val icon: Int,
     val title: String,
     val backgroundColor: Color,
@@ -27,25 +25,25 @@ data class SettingOption(
 )
 
 @Composable
-fun SettingsScreen(navController: NavHostController) {
+fun EditProfileScreen() {
     val settingsOptions = listOf(
-        SettingOption(
-            icon = R.drawable.test1, // Replace with actual icon resources
-            title = stringResource(R.string.edit_profile),
-            backgroundColor = Color.Gray,
-            onClick = {navController.navigate("edit_profile")}
-        ),
-        SettingOption(
+        EditOption(
             icon = R.drawable.test1,
-            title = stringResource(R.string.change_pin),
+            title = stringResource(R.string.change_avatar),
             backgroundColor = Color.Gray,
-            onClick = {navController.navigate("change_pin")}
+            onClick = { /* Navigate to avatar change screen */ }
         ),
-        SettingOption(
+        EditOption(
             icon = R.drawable.test1,
-            title = stringResource(R.string.reset_app_data),
+            title = stringResource(R.string.change_desc),
             backgroundColor = Color.Gray,
-            onClick = {navController.navigate("reset_app")}
+            onClick = { /* Navigate to description edit screen */ }
+        ),
+        EditOption(
+            icon = R.drawable.test1,
+            title = stringResource(R.string.change_color),
+            backgroundColor = Color.Gray,
+            onClick = { /* Open color picker dialog */ }
         )
     )
 
@@ -54,7 +52,7 @@ fun SettingsScreen(navController: NavHostController) {
             DividerWithImage()
         },
         header = {
-            Header(stringResource(R.string.settings), modifier = Modifier.padding(bottom = 16.dp))
+            Header(stringResource(R.string.edit_profile), modifier = Modifier.padding(bottom = 16.dp))
         },
         modifier = Modifier
     ) {
@@ -62,6 +60,12 @@ fun SettingsScreen(navController: NavHostController) {
             verticalArrangement = Arrangement.spacedBy(16.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
+            CircledImage( // Avatar
+                bitmap = null,
+                modifier = Modifier,
+                size = 128.dp
+            )
+
             settingsOptions.forEach { option ->
                 CustomButton(
                     name = option.title,
@@ -72,14 +76,9 @@ fun SettingsScreen(navController: NavHostController) {
                             modifier = Modifier
                         )
                     },
-                    onClick = option.onClick
+                    onClick = option.onClick // Pass the specific click action
                 )
             }
         }
     }
-}
-
-@Composable
-fun ButtonIcon(image: Painter, modifier: Modifier) {
-    CircledImage(null, modifier, 48.dp)
 }

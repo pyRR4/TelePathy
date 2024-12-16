@@ -46,7 +46,7 @@ fun formatTime(timestamp: Long): String {
 
 @Composable
 fun ContactText(name: String, isFromUser: Boolean, message: String, timestamp: Long, modifier: Modifier) {
-    val formattedTime = formatTime(timestamp)  // Formatujemy czas do HH:MM
+    val formattedTime = formatTime(timestamp)
     var msg = message
     msg = if (isFromUser) {
         "Ty:\n$msg"
