@@ -39,7 +39,7 @@ fun SettingsScreen(navController: NavHostController) {
             icon = R.drawable.test1,
             title = stringResource(R.string.change_pin),
             backgroundColor = Color.Gray,
-            onClick = {navController.navigate("change_pin")}
+            onClick = {navController.navigate("enter_pin")}
         ),
         SettingOption(
             icon = R.drawable.test1,

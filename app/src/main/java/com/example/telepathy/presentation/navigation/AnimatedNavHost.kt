@@ -15,7 +15,9 @@ import androidx.compose.runtime.*
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
@@ -76,13 +78,13 @@ fun AnimatedNavHost(
         composable(
             route = "edit_profile",
             enterTransition = {
-                slideInHorizontally(initialOffsetX = { it }) + fadeIn()
+                slideInVertically(initialOffsetY = { it }) + fadeIn()
             },
             exitTransition = {
-                slideOutHorizontally(targetOffsetX = { -it }) + fadeOut()
+                slideOutVertically(targetOffsetY = { -it }) + fadeOut()
             }
         ) {
-            EditProfileScreen()
+            EditProfileScreen(navController)
         }
 
         composable(

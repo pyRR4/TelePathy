@@ -10,6 +10,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.example.telepathy.presentation.ui.CustomButton
 import com.example.telepathy.presentation.ui.CircledImage
 import com.example.telepathy.R
@@ -25,7 +26,7 @@ data class EditOption(
 )
 
 @Composable
-fun EditProfileScreen() {
+fun EditProfileScreen(navController: NavHostController) {
     val settingsOptions = listOf(
         EditOption(
             icon = R.drawable.test1,
