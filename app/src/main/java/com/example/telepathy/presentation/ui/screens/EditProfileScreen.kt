@@ -5,16 +5,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.background
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Box
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.navigation.NavHostController
 import com.example.telepathy.presentation.ui.CustomButton
@@ -24,11 +22,16 @@ import com.example.telepathy.data.LocalPreferences.localUser
 import com.example.telepathy.presentation.ui.DividerWithImage
 import com.example.telepathy.presentation.ui.Header
 import com.example.telepathy.presentation.ui.ScreenTemplate
+import android.net.Uri
+import android.provider.MediaStore
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalContext
 
-// Data class for EditOption
 data class EditOption(
-    val iconBitmap: Bitmap? = null,  // Optional Bitmap
-    val iconColor: Color? = null,    // Optional Color
+    val iconBitmap: Bitmap? = null,
+    val iconColor: Color? = null,
     val title: String,
     val backgroundColor: Color,
     val onClick: () -> Unit
@@ -36,13 +39,29 @@ data class EditOption(
 
 @Composable
 fun EditProfileScreen(navController: NavHostController) {
+    val context = LocalContext.current
+
+    // Mutable state for the avatar bitmap
+    var avatarBitmap by remember { mutableStateOf(localUser?.avatar?.asImageBitmap()) }
+
+    // ActivityResultLauncher for image selection
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        if (uri != null) {
+            val bitmap = MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
+            avatarBitmap = bitmap.asImageBitmap()
+            localUser?.avatar = bitmap // Update the user's avatar in LocalPreferences
+        }
+    }
+
     val settingsOptions = listOf(
         EditOption(
-            iconBitmap = null, // Optional bitmap, here we use color instead
-            iconColor = Color.Black, // Color for the icon
+            iconBitmap = avatarBitmap?.asAndroidBitmap(),
+            iconColor = null,
             title = stringResource(R.string.change_avatar),
             backgroundColor = Color.Gray,
-            onClick = { /* Navigate to avatar change screen */ }
+            onClick = { imagePickerLauncher.launch("image/*") } // Launch image picker
         ),
         EditOption(
             iconBitmap = null,
@@ -53,7 +72,7 @@ fun EditProfileScreen(navController: NavHostController) {
         ),
         EditOption(
             iconBitmap = null,
-            iconColor = localUser?.color, // powino byc zawsze
+            iconColor = localUser?.color,
             title = stringResource(R.string.change_color),
             backgroundColor = Color.Gray,
             onClick = { /* Open color picker dialog */ }
@@ -73,9 +92,10 @@ fun EditProfileScreen(navController: NavHostController) {
             verticalArrangement = Arrangement.spacedBy(16.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
-            CircledImage( // Avatar (no bitmap, using default color)
-                bitmap = null,
-                modifier = Modifier,
+            // Display the current avatar
+            CircledImage(
+                bitmap = avatarBitmap?.asAndroidBitmap(),
+                modifier = Modifier.align(Alignment.CenterHorizontally),
                 size = 128.dp
             )
 
@@ -85,10 +105,8 @@ fun EditProfileScreen(navController: NavHostController) {
                     backgroundColor = option.backgroundColor,
                     image = {
                         if (option.iconBitmap != null) {
-                            // If bitmap exists, display it
                             CircledImage(bitmap = option.iconBitmap, size = 48.dp)
                         } else if (option.iconColor != null) {
-                            // If color exists, display a circle with that color
                             CircledImage(bitmap = null, size = 48.dp, defaultColor = option.iconColor)
                         }
                     },
