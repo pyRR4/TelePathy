@@ -102,7 +102,7 @@ fun EditProfileScreen(navController: NavHostController) {
             CircledImage(
                 bitmap = localUser?.avatar,
                 modifier = Modifier.align(Alignment.CenterHorizontally),
-                size = 128.dp
+                size = 156.dp
             )
 
             // Display settings options

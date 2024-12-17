@@ -1,5 +1,6 @@
 package com.example.telepathy.presentation.ui.screens
 
+import android.graphics.Bitmap
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,9 +19,11 @@ import com.example.telepathy.presentation.ui.DividerWithImage
 import com.example.telepathy.presentation.ui.Header
 import com.example.telepathy.presentation.ui.ScreenTemplate
 import androidx.navigation.NavHostController
+import com.example.telepathy.data.LocalPreferences.localUser
 
 data class SettingOption(
-    val icon: Int,
+    val iconBitmap: Bitmap? = null,
+    val iconColor: Color? = null,
     val title: String,
     val backgroundColor: Color,
     val onClick: () -> Unit
@@ -30,21 +33,22 @@ data class SettingOption(
 fun SettingsScreen(navController: NavHostController) {
     val settingsOptions = listOf(
         SettingOption(
-            icon = R.drawable.test1,
+            iconBitmap = localUser?.avatar,
+            iconColor = Color.Black,
             title = stringResource(R.string.edit_profile),
             backgroundColor = Color.Gray,
             onClick = {navController.navigate("edit_profile")}
         ),
         SettingOption(
-            icon = R.drawable.test1,
+            iconColor = Color.Black,
             title = stringResource(R.string.change_pin),
             backgroundColor = Color.Gray,
             onClick = {navController.navigate("enter_pin")}
         ),
         SettingOption(
-            icon = R.drawable.test1,
+            iconColor = Color.Black,
             title = stringResource(R.string.reset_app_data),
-            backgroundColor = Color.Gray,
+            backgroundColor = Color.Red,
             onClick = {navController.navigate("reset_app")}
         )
     )
@@ -67,10 +71,11 @@ fun SettingsScreen(navController: NavHostController) {
                     name = option.title,
                     backgroundColor = option.backgroundColor,
                     image = {
-                        ButtonIcon(
-                            image = painterResource(id = option.icon),
-                            modifier = Modifier
-                        )
+                        if (option.iconBitmap != null) {
+                            CircledImage(bitmap = option.iconBitmap, size = 48.dp)
+                        } else if (option.iconColor != null) {
+                            CircledImage(bitmap = null, size = 48.dp, defaultColor = option.iconColor)
+                        }
                     },
                     onClick = option.onClick
                 )
