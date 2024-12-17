@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory
 
 object LocalPreferences {
     var localUser: User? = null
+    var PIN : String = "0000"
 
     fun loadLocalUser(
         id: Int,
@@ -45,5 +46,6 @@ object LocalPreferences {
     fun clearLocalUser() {
         localUser = null
     }
+
 
 }

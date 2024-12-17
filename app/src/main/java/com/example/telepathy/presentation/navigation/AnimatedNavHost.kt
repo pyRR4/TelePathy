@@ -22,14 +22,14 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.example.telepathy.R
 import com.example.telepathy.presentation.ui.screens.MainScreen
 import com.example.telepathy.presentation.ui.screens.TalkScreen
 import com.example.telepathy.domain.users.UsersRepository
 import com.example.telepathy.presentation.ui.screens.ChangeDescriptionScreen
 import com.example.telepathy.presentation.ui.screens.ChangeNameScreen
 import com.example.telepathy.presentation.ui.screens.EditProfileScreen
-import com.example.telepathy.presentation.ui.screens.pins.EnterPinScreen
+import com.example.telepathy.presentation.ui.screens.EnterNewPinScreen
+import com.example.telepathy.presentation.ui.screens.EnterPinScreen
 
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -115,77 +115,91 @@ fun AnimatedNavHost(
         }
 
         composable(
-            route = "enter_pin",
+            route = "enter_pin_settings",
             enterTransition = {
-                slideInHorizontally(initialOffsetX = { it }) + fadeIn()
+                slideInVertically(initialOffsetY = { it }) + fadeIn()
             },
             exitTransition = {
-                slideOutHorizontally(targetOffsetX = { -it }) + fadeOut()
+                slideOutVertically(targetOffsetY = { -it }) + fadeOut()
             }
         ) {
-            EnterPinScreen(navController)
+            EnterPinScreen(navController, "enter_new_pin", null)
+        }
+
+        composable(
+            route = "enter_new_pin",
+            enterTransition = {
+                slideInVertically(initialOffsetY = { it }) + fadeIn()
+            },
+            exitTransition = {
+                slideOutVertically(targetOffsetY = { -it }) + fadeOut()
+            }
+        ) {
+            EnterNewPinScreen(navController, null, null)
         }
     }
 }
 
+        fun Modifier.swipeToNavigate(
+            coroutineScope: CoroutineScope,
+            onSwipeLeft: (() -> Unit)? = null,
+            onSwipeRight: (() -> Unit)? = null,
+            onSwipeUp: (() -> Unit)? = null,
+            onSwipeDown: (() -> Unit)? = null,
+            isSwipeHandled: MutableState<Boolean>,
+            isNavigating: MutableState<Boolean>
+        ): Modifier = this.pointerInput(Unit) {
+            detectDragGestures { change, dragAmount ->
+                change.consume()
 
-fun Modifier.swipeToNavigate(
-    coroutineScope: CoroutineScope,
-    onSwipeLeft: (() -> Unit)? = null,
-    onSwipeRight: (() -> Unit)? = null,
-    onSwipeUp: (() -> Unit)? = null,
-    onSwipeDown: (() -> Unit)? = null,
-    isSwipeHandled: MutableState<Boolean>,
-    isNavigating: MutableState<Boolean>
-): Modifier = this.pointerInput(Unit) {
-    detectDragGestures { change, dragAmount ->
-        change.consume()
 
+                if (!isSwipeHandled.value && !isNavigating.value) {
+                    Log.d("SwipeGesture", "Drag Amount: x = ${dragAmount.x}, y = ${dragAmount.y}")
+                    when {
+                        dragAmount.x < -100f && onSwipeLeft != null -> {
+                            Log.d("SwipeGesture", "Swipe Left detected")
+                            isNavigating.value = true
+                            coroutineScope.launch {
+                                onSwipeLeft()
+                                delay(200)
+                                isSwipeHandled.value = true
+                                isNavigating.value = false
+                            }
+                        }
 
-        if (!isSwipeHandled.value && !isNavigating.value) {
-            Log.d("SwipeGesture", "Drag Amount: x = ${dragAmount.x}, y = ${dragAmount.y}")
-            when {
-                dragAmount.x < -100f && onSwipeLeft != null -> {
-                    Log.d("SwipeGesture", "Swipe Left detected")
-                    isNavigating.value = true
-                    coroutineScope.launch {
-                        onSwipeLeft()
-                        delay(200)
-                        isSwipeHandled.value = true
-                        isNavigating.value = false
-                    }
-                }
-                dragAmount.y < -100f && onSwipeDown != null -> {
-                    Log.d("SwipeGesture", "Swipe Down detected")
-                    isNavigating.value = true
-                    coroutineScope.launch {
-                        onSwipeDown()
-                        delay(200)
-                        isSwipeHandled.value = true
-                        isNavigating.value = false
-                    }
-                }
-                dragAmount.x > 100f && onSwipeRight != null -> {
-                    Log.d("SwipeGesture", "Swipe Right detected")
-                    isNavigating.value = true
-                    coroutineScope.launch {
-                        onSwipeRight()
-                        delay(200)
-                        isSwipeHandled.value = true
-                        isNavigating.value = false
-                    }
-                }
-                dragAmount.y > 100f && onSwipeUp != null -> {
-                    Log.d("SwipeGesture", "Swipe Up detected")
-                    isNavigating.value = true
-                    coroutineScope.launch {
-                        onSwipeUp()
-                        delay(200)
-                        isSwipeHandled.value = true
-                        isNavigating.value = false
+                        dragAmount.y < -100f && onSwipeDown != null -> {
+                            Log.d("SwipeGesture", "Swipe Down detected")
+                            isNavigating.value = true
+                            coroutineScope.launch {
+                                onSwipeDown()
+                                delay(200)
+                                isSwipeHandled.value = true
+                                isNavigating.value = false
+                            }
+                        }
+
+                        dragAmount.x > 100f && onSwipeRight != null -> {
+                            Log.d("SwipeGesture", "Swipe Right detected")
+                            isNavigating.value = true
+                            coroutineScope.launch {
+                                onSwipeRight()
+                                delay(200)
+                                isSwipeHandled.value = true
+                                isNavigating.value = false
+                            }
+                        }
+
+                        dragAmount.y > 100f && onSwipeUp != null -> {
+                            Log.d("SwipeGesture", "Swipe Up detected")
+                            isNavigating.value = true
+                            coroutineScope.launch {
+                                onSwipeUp()
+                                delay(200)
+                                isSwipeHandled.value = true
+                                isNavigating.value = false
+                            }
+                        }
                     }
                 }
             }
         }
-    }
-}
