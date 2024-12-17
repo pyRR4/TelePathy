@@ -16,13 +16,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.example.telepathy.data.LocalPreferences
 import com.example.telepathy.data.Message
 import com.example.telepathy.data.User
 import com.example.telepathy.presentation.ui.CircledImage
 import com.example.telepathy.presentation.ui.DividerWithImage
 import com.example.telepathy.presentation.ui.ScreenTemplate
 import com.example.telepathy.presentation.navigation.swipeToNavigate
-import com.example.telepathy.domain.users.UserViewModel
 
 
 @Composable
@@ -117,8 +117,6 @@ fun TalkCard(
 @Composable
 fun TalkScreen(navController: NavHostController, user: User) {
     val messages = user.chatHistory
-    val userViewModel: UserViewModel = viewModel()
-    val localUser = userViewModel.localUser
 
     ScreenTemplate(
         navIcon = {

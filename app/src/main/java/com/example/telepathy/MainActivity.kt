@@ -15,6 +15,7 @@ import com.example.telepathy.presentation.navigation.AnimatedNavHost
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
 import com.example.telepathy.data.*
+import com.example.telepathy.presentation.ui.theme.UserColors
 
 
 class MainActivity : ComponentActivity() {
@@ -32,14 +33,14 @@ fun MyApp() {
         val context = LocalContext.current
         val userRepository = UsersRepository()
 
-        val testUser = User( // test local user <---------------------------------------
-            id = 1,
+        LocalPreferences.loadLocalUser( // test lokal user ------------------------
+            id = 0,
             name = "Lokal",
             color = Color(0xFFE81A1A),
-            description = "Jestem Lokalny"
+            description = "Jestem Lokalny",
+            context = context,
+            avatarResId = R.drawable.test2
         )
-
-        LocalPreferences.localUser = testUser // <--------------------------------------
 
         val currentScreen = remember { mutableStateOf("contacts") }
         val navController = rememberNavController()

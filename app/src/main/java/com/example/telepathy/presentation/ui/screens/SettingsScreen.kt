@@ -30,7 +30,7 @@ data class SettingOption(
 fun SettingsScreen(navController: NavHostController) {
     val settingsOptions = listOf(
         SettingOption(
-            icon = R.drawable.test1, // Replace with actual icon resources
+            icon = R.drawable.test1,
             title = stringResource(R.string.edit_profile),
             backgroundColor = Color.Gray,
             onClick = {navController.navigate("edit_profile")}

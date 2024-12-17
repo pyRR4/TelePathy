@@ -40,30 +40,31 @@ import androidx.compose.ui.graphics.asImageBitmap
 
 @Composable
 fun CircledImage(
-    bitmap: Bitmap?,
+    bitmap: Bitmap? = null, // Optional bitmap
     modifier: Modifier = Modifier,
-    size: Dp = 90.dp
+    size: Dp = 90.dp,
+    defaultColor: Color = Color.Black // Kolor kółka, gdy bitmapa jest null
 ) {
     val avatarModifier = modifier
         .size(size)
         .clip(CircleShape)
 
     if (bitmap != null) {
+        // Wyświetlanie obrazka (gdy bitmapa jest dostępna)
         Image(
             bitmap = bitmap.asImageBitmap(),
             contentDescription = "Avatar",
             modifier = avatarModifier,
             contentScale = ContentScale.Crop
         )
-    } else {// defaultowy obraz jak `bitmap` to null
-        Image(
-            painter = painterResource(R.drawable.black),
-            contentDescription = "Default Avatar",
-            modifier = avatarModifier,
-            contentScale = ContentScale.Crop
+    } else {
+        Box(
+            modifier = avatarModifier
+                .background(defaultColor)
         )
     }
 }
+
 
 
 @Composable

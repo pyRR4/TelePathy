@@ -8,7 +8,7 @@ import android.graphics.BitmapFactory
 object LocalPreferences {
     var localUser: User? = null
 
-    fun initializeLocalUser(
+    fun loadLocalUser(
         id: Int,
         name: String,
         color: Color,
