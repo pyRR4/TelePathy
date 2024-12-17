@@ -133,7 +133,9 @@ private fun handleKeyInput(
 ) {
     when (key) {
         "Undo" -> {
-            if (currentPin.isNotEmpty()) {
+            if (currentPin.isEmpty()) {
+                onCancel?.invoke() // Navigate back if pin is empty
+            } else {
                 onPinUpdated(currentPin.dropLast(1))
             }
         }
@@ -150,36 +152,84 @@ private fun handleKeyInput(
     }
 }
 
-// Enter Current PIN Screen
+// Reusable MessageDialog composable for showing messages
+@Composable
+fun MessageDialog(
+    message: String,
+    messageColor: Color,
+    onDismiss: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.6f))
+            .padding(16.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Box(
+            modifier = Modifier
+                .background(messageColor, shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp))
+                .padding(horizontal = 24.dp, vertical = 12.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = message,
+                color = Color.White,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+    }
+
+    // Dismiss message after a delay (optional)
+    LaunchedEffect(true) {
+        kotlinx.coroutines.delay(2000)
+        onDismiss() // Call onDismiss after the delay
+    }
+}
+
+// Enter Current PIN Screen with error handling
 @Composable
 fun EnterPinScreen(
     navController: NavHostController,
-    destinationRoute: String, // The destination route to navigate to
+    destinationRoute: String,
     onCancel: (() -> Unit)?
 ) {
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    var pin by remember { mutableStateOf("") }
+
     PinScreenBase(
         headerText = "Enter Current PIN",
         navController = navController,
-        onPinEntered = { pin ->
-            if (pin == LocalPreferences.PIN) {
-                // Navigate to the provided destination route
+        onPinEntered = { enteredPin ->
+            if (enteredPin == LocalPreferences.PIN) {
                 navController.navigate(destinationRoute)
             } else {
-                // Show error message if PIN is incorrect
-                // You can add a Snackbar or a Toast here to notify the user
+                errorMessage = "Incorrect PIN"
+                pin = "" // Reset PIN
             }
         },
         onCancel = onCancel,
-        onPinUpdated = {}
+        onPinUpdated = { updatedPin ->
+            errorMessage = null // Clear error when PIN is updated
+            pin = updatedPin
+        }
     )
-}
 
+    // Show error message if PIN is incorrect
+    errorMessage?.let {
+        MessageDialog(
+            message = it,
+            messageColor = Color.Red,
+            onDismiss = { errorMessage = null } // Reset error message after dismiss
+        )
+    }
+}
 
 // Enter New PIN Screen
 @Composable
 fun EnterNewPinScreen(
     navController: NavHostController,
-    onPinEntered: ((String) -> Unit)?,
     onCancel: (() -> Unit)?
 ) {
     var pinTemp by remember { mutableStateOf("") }
@@ -196,28 +246,53 @@ fun EnterNewPinScreen(
     )
 }
 
-// Confirm New PIN Screen
 @Composable
 fun ConfirmPinScreen(
     navController: NavHostController,
-    onPinConfirmed: (String) -> Unit,
-    onCancel: () -> Unit,
-    pinTemp: String
+    onCancel: () -> Unit, // Cancel callback
+    pinTemp: String // Temporary PIN to compare with
 ) {
     var confirmPin by remember { mutableStateOf("") }
+    var message by remember { mutableStateOf<String?>(null) }
+    var messageColor by remember { mutableStateOf(Color.Transparent) }
+    var pinsMatch by remember { mutableStateOf(false) }
 
     PinScreenBase(
         headerText = "Confirm New PIN",
         navController = navController,
-        onPinEntered = { confirmPin ->
-            if (confirmPin == pinTemp) {
-                LocalPreferences.PIN = confirmPin // Save the new PIN to LocalPreferences
-                navController.navigate("home")  // Proceed to home or the next screen
+        onPinEntered = { enteredPin ->
+            if (enteredPin == pinTemp) {
+                message = "PINs match! PIN updated successfully."
+                messageColor = Color(0xFF4CAF50) // Green for success
+                LocalPreferences.PIN = enteredPin
+                pinsMatch = true
+
             } else {
-                // Show error message if PINs don't match
+                message = "PINs do not match. Try again."
+                messageColor = Color(0xFFF44336) // Red for error
+                pinsMatch = false
             }
         },
         onCancel = onCancel,
         onPinUpdated = { confirmPin = it }
     )
+
+    // Show success or error message
+    message?.let {
+        MessageDialog(
+            message = it,
+            messageColor = messageColor,
+            onDismiss = { message = null } // Reset message after dismiss
+        )
+    }
+
+    LaunchedEffect(pinsMatch) {
+        if (pinsMatch) {
+            kotlinx.coroutines.delay(2000) // Allow the success message to be visible for 2 seconds
+            navController.navigate("mainscreens")
+        } else if (messageColor == Color(0xFFF44336)) {
+            kotlinx.coroutines.delay(2000) // Allow the error message to be visible for 2 seconds
+            navController.popBackStack()
+        }
+    }
 }

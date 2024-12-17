@@ -27,6 +27,7 @@ import com.example.telepathy.presentation.ui.screens.TalkScreen
 import com.example.telepathy.domain.users.UsersRepository
 import com.example.telepathy.presentation.ui.screens.ChangeDescriptionScreen
 import com.example.telepathy.presentation.ui.screens.ChangeNameScreen
+import com.example.telepathy.presentation.ui.screens.ConfirmPinScreen
 import com.example.telepathy.presentation.ui.screens.EditProfileScreen
 import com.example.telepathy.presentation.ui.screens.EnterNewPinScreen
 import com.example.telepathy.presentation.ui.screens.EnterPinScreen
@@ -115,7 +116,7 @@ fun AnimatedNavHost(
         }
 
         composable(
-            route = "enter_pin_settings",
+            route = "enter_pin_login", // do sprawdzenia
             enterTransition = {
                 slideInVertically(initialOffsetY = { it }) + fadeIn()
             },
@@ -123,7 +124,19 @@ fun AnimatedNavHost(
                 slideOutVertically(targetOffsetY = { -it }) + fadeOut()
             }
         ) {
-            EnterPinScreen(navController, "enter_new_pin", null)
+            MainScreen(navController, userRepository, context, currentScreen)
+        }
+
+        composable(
+            route = "enter_pin_settings", // pin przy probie zmiany pinu
+            enterTransition = {
+                slideInVertically(initialOffsetY = { it }) + fadeIn()
+            },
+            exitTransition = {
+                slideOutVertically(targetOffsetY = { -it }) + fadeOut()
+            }
+        ) {
+            EnterPinScreen(navController, "enter_new_pin", onCancel = { navController.popBackStack() })
         }
 
         composable(
@@ -135,10 +148,34 @@ fun AnimatedNavHost(
                 slideOutVertically(targetOffsetY = { -it }) + fadeOut()
             }
         ) {
-            EnterNewPinScreen(navController, null, null)
+            EnterNewPinScreen(
+                navController = navController,
+                onCancel = { navController.popBackStack() } // Navigate back on cancel
+            )
         }
+
+        composable(
+            route = "confirm_new_pin/{pin}",
+            arguments = listOf(navArgument("pin") { type = NavType.StringType }),
+            enterTransition = {
+                slideInVertically(initialOffsetY = { it }) + fadeIn()
+            },
+            exitTransition = {
+                slideOutVertically(targetOffsetY = { -it }) + fadeOut()
+            }
+        ) { backStackEntry ->
+            val pinTemp = backStackEntry.arguments?.getString("pin") ?: ""
+            ConfirmPinScreen(
+                navController = navController,
+                onCancel = { navController.popBackStack() }, // Navigate back on cancel
+                pinTemp = pinTemp
+            )
+        }
+
     }
-}
+    }
+
+
 
         fun Modifier.swipeToNavigate(
             coroutineScope: CoroutineScope,
