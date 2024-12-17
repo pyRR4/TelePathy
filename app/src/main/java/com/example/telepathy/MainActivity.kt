@@ -36,7 +36,7 @@ fun MyApp() {
         LocalPreferences.loadLocalUser( // test lokal user ------------------------
             id = 0,
             name = "Lokal",
-            color = Color(0xFFE81A1A),
+            color = Color(0xFFE57373),
             description = "Jestem Lokalny",
             context = context,
             avatarResId = R.drawable.test2

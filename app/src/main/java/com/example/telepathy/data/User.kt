@@ -7,8 +7,8 @@ import android.graphics.BitmapFactory
 
 data class User(
     val id: Int,
-    val name: String,
-    val color: Color,
+    var name: String,
+    var color: Color,
     var avatar: Bitmap? = null,
     val chatHistory: MutableList<Message> = mutableListOf(),
     val isLocalUser: Boolean = false,

@@ -29,7 +29,21 @@ object LocalPreferences {
         )
     }
 
+    fun createBasicLocalUser(context: Context) {
+        if (localUser == null) {
+            localUser = User(
+                id = 0,
+                name = "Guest",
+                color = Color(0xFFE57373), // 1 color in table - red
+                avatar = null,
+                isLocalUser = true,
+                description = "Set your descreption"
+            )
+        }
+    }
+
     fun clearLocalUser() {
         localUser = null
     }
+
 }
