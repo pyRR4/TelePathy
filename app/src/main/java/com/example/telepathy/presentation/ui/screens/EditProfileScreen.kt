@@ -1,6 +1,5 @@
 package com.example.telepathy.presentation.ui.screens
 
-import android.graphics.Bitmap
 import android.net.Uri
 import android.provider.MediaStore
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -49,7 +48,7 @@ fun EditProfileScreen(navController: NavHostController) {
     var new_description by remember { mutableStateOf(localUser?.description ?: "") }
     var new_selectedColor by remember { mutableStateOf(localUser?.color ?: Color.Gray) }
     var new_avatarBitmap by remember { mutableStateOf(localUser?.avatar) }
-    var new_isColorPickerDialogVisible by remember { mutableStateOf(false) }
+    var colorPickerVisible by remember { mutableStateOf(false) }
 
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -112,47 +111,45 @@ fun EditProfileScreen(navController: NavHostController) {
         modifier = Modifier
     ) {
         Column(
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            modifier = Modifier.fillMaxWidth()
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
         ) {
-            // Avatar Section
-            Box(
+            // Avatar
+            Box( //centering box
                 modifier = Modifier
                     .fillMaxWidth()
-                    .size(156.dp)
-                    .background(Color.DarkGray, CircleShape)
-                    .clickable { imagePickerLauncher.launch("image/*") },
+                    .size(176.dp),
                 contentAlignment = Alignment.Center
             ) {
-                new_avatarBitmap?.let {
-                    CircledImage(bitmap = it, size = 156.dp)
+                Box( //clickable box
+                    modifier = Modifier
+                        .size(176.dp)
+                        .background(Color.DarkGray, CircleShape)
+                        .clickable { imagePickerLauncher.launch("image/*") },
+                    contentAlignment = Alignment.Center
+                ) {
+                    new_avatarBitmap?.let {
+                        CircledImage(bitmap = it, size = 176.dp)
+                    }
                 }
             }
 
-            // Username Label and TextFieldComposable
-            Text(
-                text = stringResource(R.string.username),
-                style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold),
-                modifier = Modifier.padding(top = 8.dp)
-            )
             TextFieldComposable(
+                label = stringResource(R.string.username),
                 text = new_username,
                 charLimit = 20,
                 onTextChange = { new_username = it },
-                height = 64.dp
+                height = 56.dp
             )
 
-            // Description Label and TextFieldComposable
-            Text(
-                text = stringResource(R.string.description),
-                style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold),
-                modifier = Modifier
-            )
             TextFieldComposable(
+                label = stringResource(R.string.description),
                 text = new_description,
-                charLimit = 100,
+                charLimit = 40,
                 onTextChange = { new_description = it },
-                height = 112.dp
+                height = 124.dp
             )
 
             // Color Circle
@@ -162,15 +159,15 @@ fun EditProfileScreen(navController: NavHostController) {
             ) {
                 Text(
                     text = stringResource(R.string.color),
-                    style = TextStyle(fontSize = 26.sp, fontWeight = FontWeight.Bold),
+                    style = TextStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold),
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
 
                 Box(
                     modifier = Modifier
-                        .size(100.dp)
+                        .size(120.dp)
                         .background(new_selectedColor, CircleShape)
-                        .clickable { new_isColorPickerDialogVisible = true },
+                        .clickable { colorPickerVisible = true },
                     contentAlignment = Alignment.Center
                 ) {}
             }
@@ -178,12 +175,12 @@ fun EditProfileScreen(navController: NavHostController) {
     }
 
     // Color picker dialog
-    if (new_isColorPickerDialogVisible) {
+    if (colorPickerVisible) {
         ColorPickerDialog(
-            currentColor = new_selectedColor, // Pass the state directly
+            currentColor = new_selectedColor,
             onSave = { selectedColor ->
-                new_selectedColor = selectedColor // Update the state
-                new_isColorPickerDialogVisible = false
+                new_selectedColor = selectedColor
+                colorPickerVisible = false
             }
         )
     }
@@ -218,7 +215,7 @@ fun ColorPickerDialog(
                 )
             }
 
-            // Color grid using UserColors
+            // Colors grid
             Column(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 modifier = Modifier.fillMaxWidth()
@@ -231,7 +228,7 @@ fun ColorPickerDialog(
                         rowColors.forEach { color ->
                             Box(
                                 modifier = Modifier
-                                    .size(48.dp)
+                                    .size(46.dp)
                                     .background(color, shape = CircleShape)
                                     .border(
                                         width = if (new_selectedColor == color) 6.dp else 0.dp,
@@ -240,7 +237,7 @@ fun ColorPickerDialog(
                                     )
                                     .clickable {
                                         new_selectedColor = color
-                                        onSave(color) // Save immediately when clicked
+                                        onSave(color)
                                     }
                             )
                         }
@@ -253,6 +250,7 @@ fun ColorPickerDialog(
 
 @Composable
 fun TextFieldComposable(
+    label: String,
     text: String,
     charLimit: Int,
     onTextChange: (String) -> Unit,
@@ -260,30 +258,51 @@ fun TextFieldComposable(
 ) {
     var charactersLeft by remember { mutableStateOf(charLimit - text.length) }
 
-    Box(modifier = Modifier.fillMaxWidth()) {
-        TextField(
-            value = text,
-            onValueChange = {
-                if (it.length <= charLimit) {
-                    onTextChange(it)
-                    charactersLeft = charLimit - it.length
-                }
-            },
+    Column(
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(height)
-                .background(Color(0xFFADADAD), RoundedCornerShape(10.dp)), // Darker background
-            textStyle = TextStyle(fontSize = 20.sp),
-            placeholder = {
-                BasicText("Enter your text here...", style = TextStyle(color = Color.Gray))
-            }
-        )
-        BasicText(
-            text = "$charactersLeft",
-            style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.DarkGray),
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(8.dp)
-        )
+        ) {
+            TextField(
+                value = text,
+                onValueChange = {
+                    if (it.length <= charLimit) {
+                        onTextChange(it)
+                        charactersLeft = charLimit - it.length
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(height)
+                    .background(Color(0xFFADADAD), RoundedCornerShape(10.dp)),
+                textStyle = TextStyle(fontSize = 20.sp),
+                placeholder = {
+                    BasicText("Enter your text here...", style = TextStyle(color = Color.Gray))
+                }
+            )
+
+            // Label in the top-left corner
+            Text(
+                text = label,
+                style = TextStyle(fontSize = 16.sp, color = Color.DarkGray, fontWeight = FontWeight.Medium),
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(2.dp)
+            )
+
+            // Character count in the top-right corner
+            BasicText(
+                text = "$charactersLeft",
+                style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.DarkGray),
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(2.dp)
+            )
+        }
     }
 }
+
+
