@@ -48,18 +48,6 @@ fun AnimatedNavHost(
     ) {
         composable(
             route = "mainscreens",
-            enterTransition = {
-                slideInHorizontally(initialOffsetX = { -it }) + fadeIn()
-            },
-            exitTransition = {
-                slideOutHorizontally(targetOffsetX = { it }) + fadeOut()
-            },
-            popEnterTransition = {
-                slideInHorizontally(initialOffsetX = { it }) + fadeIn()
-            },
-            popExitTransition = {
-                slideOutHorizontally(targetOffsetX = { -it }) + fadeOut()
-            }
         ) {
             MainScreen(navController, userRepository, context, currentScreen)
         }

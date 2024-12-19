@@ -9,34 +9,33 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
 import com.example.telepathy.R
 import com.example.telepathy.data.LocalPreferences
 import com.example.telepathy.data.LocalPreferences.localUser
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.sp
-import com.example.telepathy.presentation.ui.*
+import com.example.telepathy.presentation.ui.CircledImage
+import com.example.telepathy.presentation.ui.ScreenTemplate
+import com.example.telepathy.presentation.ui.Header
+import com.example.telepathy.presentation.ui.theme.DeepPurple
 import com.example.telepathy.presentation.ui.theme.UserColors
-
-data class EditOption(
-    val iconBitmap: Bitmap? = null,
-    val iconColor: Color? = null,
-    val title: String,
-    val backgroundColor: Color,
-    val onClick: () -> Unit
-)
 
 @Composable
 fun EditProfileScreen(navController: NavHostController) {
@@ -46,90 +45,145 @@ fun EditProfileScreen(navController: NavHostController) {
         LocalPreferences.createBasicLocalUser(context)
     }
 
-    var isColorPickerDialogVisible by remember { mutableStateOf(false) }
+    var new_username by remember { mutableStateOf(localUser?.name ?: "") }
+    var new_description by remember { mutableStateOf(localUser?.description ?: "") }
+    var new_selectedColor by remember { mutableStateOf(localUser?.color ?: Color.Gray) }
+    var new_avatarBitmap by remember { mutableStateOf(localUser?.avatar) }
+    var new_isColorPickerDialogVisible by remember { mutableStateOf(false) }
 
-    // Image picker launcher
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         uri?.let {
             val bitmap = MediaStore.Images.Media.getBitmap(context.contentResolver, it)
-            localUser?.avatar = bitmap // Update local user data
+            new_avatarBitmap = bitmap
         }
     }
 
-    // Edit options
-    val settingsOptions = listOf(
-        EditOption(
-            iconBitmap = localUser?.avatar,
-            title = stringResource(R.string.change_avatar),
-            backgroundColor = Color.Gray,
-            onClick = { imagePickerLauncher.launch("image/*") }
-        ),
-        EditOption(
-            title = stringResource(R.string.change_name),
-            backgroundColor = Color.Gray,
-            onClick = { navController.navigate("change_name") }
-        ),
-        EditOption(
-            title = stringResource(R.string.change_desc),
-            backgroundColor = Color.Gray,
-            onClick = { navController.navigate("change_desc") }
-        ),
-        EditOption(
-            iconColor = localUser?.color,
-            title = stringResource(R.string.change_color),
-            backgroundColor = Color.Gray,
-            onClick = { isColorPickerDialogVisible = true }
-        )
-    )
-
     ScreenTemplate(
-        navIcon = { DividerWithImage() },
+        navIcon = {
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+            ) {
+                Button(
+                    onClick = {
+                        navController.popBackStack() // Navigate back
+                    },
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .height(72.dp)
+                        .width(160.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Gray),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(text = stringResource(R.string.cancel), fontSize = 22.sp)
+                }
+
+                Button(
+                    onClick = {
+                        // Save the updated user data
+                        localUser!!.name = new_username
+                        localUser!!.description = new_description
+                        localUser!!.color = new_selectedColor
+                        localUser!!.avatar = new_avatarBitmap
+                        navController.popBackStack()
+                    },
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .height(72.dp)
+                        .width(160.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = DeepPurple),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(text = stringResource(R.string.save), fontSize = 22.sp, color = Color.White)
+                }
+            }
+        },
         header = {
             Header(
-                text = localUser?.name ?: stringResource(R.string.no_username),
+                stringResource(R.string.edit_profile),
                 modifier = Modifier.padding(bottom = 16.dp)
             )
         },
         modifier = Modifier
     ) {
         Column(
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
-            // Display avatar
-            CircledImage(
-                bitmap = localUser?.avatar,
-                modifier = Modifier.align(Alignment.CenterHorizontally),
-                size = 156.dp
+            // Avatar Section
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .size(156.dp)
+                    .background(Color.DarkGray, CircleShape)
+                    .clickable { imagePickerLauncher.launch("image/*") },
+                contentAlignment = Alignment.Center
+            ) {
+                new_avatarBitmap?.let {
+                    CircledImage(bitmap = it, size = 156.dp)
+                }
+            }
+
+            // Username Label and TextFieldComposable
+            Text(
+                text = stringResource(R.string.username),
+                style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold),
+                modifier = Modifier.padding(top = 8.dp)
+            )
+            TextFieldComposable(
+                text = new_username,
+                charLimit = 20,
+                onTextChange = { new_username = it },
+                height = 64.dp
             )
 
-            // Display settings options
-            settingsOptions.forEach { option ->
-                CustomButton(
-                    name = option.title,
-                    backgroundColor = option.backgroundColor,
-                    image = {
-                        if (option.iconBitmap != null) {
-                            CircledImage(bitmap = option.iconBitmap, size = 48.dp)
-                        } else if (option.iconColor != null) {
-                            CircledImage(bitmap = null, size = 48.dp, defaultColor = option.iconColor)
-                        }
-                    },
-                    onClick = option.onClick
+            // Description Label and TextFieldComposable
+            Text(
+                text = stringResource(R.string.description),
+                style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold),
+                modifier = Modifier
+            )
+            TextFieldComposable(
+                text = new_description,
+                charLimit = 100,
+                onTextChange = { new_description = it },
+                height = 112.dp
+            )
+
+            // Color Circle
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = stringResource(R.string.color),
+                    style = TextStyle(fontSize = 26.sp, fontWeight = FontWeight.Bold),
+                    modifier = Modifier.padding(bottom = 8.dp)
                 )
+
+                Box(
+                    modifier = Modifier
+                        .size(100.dp)
+                        .background(new_selectedColor, CircleShape)
+                        .clickable { new_isColorPickerDialogVisible = true },
+                    contentAlignment = Alignment.Center
+                ) {}
             }
         }
     }
 
     // Color picker dialog
-    if (isColorPickerDialogVisible) {
+    if (new_isColorPickerDialogVisible) {
         ColorPickerDialog(
-            currentColor = localUser?.color ?: Color.Black,
+            currentColor = new_selectedColor, // Pass the state directly
             onSave = { selectedColor ->
-                localUser?.color = selectedColor // Update local user data
-                isColorPickerDialogVisible = false
+                new_selectedColor = selectedColor // Update the state
+                new_isColorPickerDialogVisible = false
             }
         )
     }
@@ -140,38 +194,38 @@ fun ColorPickerDialog(
     currentColor: Color,
     onSave: (Color) -> Unit
 ) {
-    var selectedColor by remember { mutableStateOf(currentColor) }
+    var new_selectedColor by remember { mutableStateOf(currentColor) }
 
     Dialog(onDismissRequest = {}) {
         Column(
             modifier = Modifier
-                .padding(24.dp) // Larger padding for better spacing
-                .background(Color.White, shape = RoundedCornerShape(16.dp)) // Slightly larger rounded corners
-                .padding(24.dp) // Increased inner padding
+                .padding(24.dp)
+                .background(
+                    Color.White,
+                    shape = RoundedCornerShape(16.dp)
+                )
+                .padding(24.dp)
         ) {
             // Header
             Box(
                 modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.Center // Center the header text
+                contentAlignment = Alignment.Center
             ) {
-                BasicText(
+                Text(
                     text = "Choose a Color",
-                    style = TextStyle(
-                        fontSize = 24.sp, // Slightly larger font size
-                        fontWeight = FontWeight.Bold
-                    ),
-                    modifier = Modifier.padding(bottom = 24.dp) // Add spacing below the header
+                    style = TextStyle(fontSize = 24.sp, fontWeight = FontWeight.Bold),
+                    modifier = Modifier.padding(bottom = 24.dp)
                 )
             }
 
             // Color grid using UserColors
             Column(
-                verticalArrangement = Arrangement.spacedBy(12.dp), // Increase spacing between rows
+                verticalArrangement = Arrangement.spacedBy(12.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                UserColors.chunked(4).forEach { rowColors -> // Adjusted to 4 colors per row for better sizing
+                UserColors.chunked(4).forEach { rowColors ->
                     Row(
-                        horizontalArrangement = Arrangement.spacedBy(12.dp), // Increased spacing between colors
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         rowColors.forEach { color ->
@@ -180,13 +234,13 @@ fun ColorPickerDialog(
                                     .size(48.dp)
                                     .background(color, shape = CircleShape)
                                     .border(
-                                        width = if (selectedColor == color) 6.dp else 0.dp, // Thicker border for selected color
-                                        color = if (selectedColor == color) Color.Black else Color.Transparent,
+                                        width = if (new_selectedColor == color) 6.dp else 0.dp,
+                                        color = if (new_selectedColor == color) Color.Black else Color.Transparent,
                                         shape = CircleShape
                                     )
                                     .clickable {
-                                        selectedColor = color
-                                        onSave(color)
+                                        new_selectedColor = color
+                                        onSave(color) // Save immediately when clicked
                                     }
                             )
                         }
@@ -194,5 +248,42 @@ fun ColorPickerDialog(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun TextFieldComposable(
+    text: String,
+    charLimit: Int,
+    onTextChange: (String) -> Unit,
+    height: androidx.compose.ui.unit.Dp
+) {
+    var charactersLeft by remember { mutableStateOf(charLimit - text.length) }
+
+    Box(modifier = Modifier.fillMaxWidth()) {
+        TextField(
+            value = text,
+            onValueChange = {
+                if (it.length <= charLimit) {
+                    onTextChange(it)
+                    charactersLeft = charLimit - it.length
+                }
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(height)
+                .background(Color(0xFFADADAD), RoundedCornerShape(10.dp)), // Darker background
+            textStyle = TextStyle(fontSize = 20.sp),
+            placeholder = {
+                BasicText("Enter your text here...", style = TextStyle(color = Color.Gray))
+            }
+        )
+        BasicText(
+            text = "$charactersLeft",
+            style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.DarkGray),
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(8.dp)
+        )
     }
 }
