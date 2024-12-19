@@ -25,8 +25,6 @@ import androidx.navigation.navArgument
 import com.example.telepathy.presentation.ui.screens.MainScreen
 import com.example.telepathy.presentation.ui.screens.TalkScreen
 import com.example.telepathy.domain.users.UsersRepository
-import com.example.telepathy.presentation.ui.screens.ChangeDescriptionScreen
-import com.example.telepathy.presentation.ui.screens.ChangeNameScreen
 import com.example.telepathy.presentation.ui.screens.ConfirmPinScreen
 import com.example.telepathy.presentation.ui.screens.EditProfileScreen
 import com.example.telepathy.presentation.ui.screens.EnterNewPinScreen
@@ -79,29 +77,6 @@ fun AnimatedNavHost(
             EditProfileScreen(navController)
         }
 
-        composable(
-            route = "change_name",
-            enterTransition = {
-                slideInVertically(initialOffsetY = { it }) + fadeIn()
-            },
-            exitTransition = {
-                slideOutVertically(targetOffsetY = { -it }) + fadeOut()
-            }
-        ) {
-            ChangeNameScreen(navController)
-        }
-
-        composable(
-            route = "change_desc",
-            enterTransition = {
-                slideInVertically(initialOffsetY = { it }) + fadeIn()
-            },
-            exitTransition = {
-                slideOutVertically(targetOffsetY = { -it }) + fadeOut()
-            }
-        ) {
-            ChangeDescriptionScreen(navController)
-        }
 
         composable(
             route = "enter_pin_login", // do sprawdzenia
