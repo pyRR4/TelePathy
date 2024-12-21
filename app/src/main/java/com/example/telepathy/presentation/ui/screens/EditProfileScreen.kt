@@ -284,7 +284,7 @@ fun TextFieldComposable(
                 }
             )
 
-            // Label in the top-left corner
+            // Label in top-left
             Text(
                 text = label,
                 style = TextStyle(fontSize = 16.sp, color = Color.DarkGray, fontWeight = FontWeight.Medium),
@@ -293,7 +293,7 @@ fun TextFieldComposable(
                     .padding(2.dp)
             )
 
-            // Character count in the top-right corner
+            // Character count in top-right
             BasicText(
                 text = "$charactersLeft",
                 style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.DarkGray),
