@@ -1,6 +1,7 @@
 package com.example.telepathy.presentation.navigation
 
 
+import android.app.Activity
 import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -16,7 +17,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -46,6 +46,18 @@ fun AnimatedNavHost(
     ) {
         composable(
             route = "mainscreens",
+            enterTransition = {
+                slideInVertically(initialOffsetY = { it })
+            },
+        ) {
+            MainScreen(navController, userRepository, context, currentScreen)
+        }
+
+        composable(
+            route = "mainscreensHorizontal",
+            enterTransition = {
+                    slideInHorizontally()
+            },
         ) {
             MainScreen(navController, userRepository, context, currentScreen)
         }
@@ -57,8 +69,8 @@ fun AnimatedNavHost(
                 slideInHorizontally(initialOffsetX = { it }) + fadeIn()
             },
             exitTransition = {
-                slideOutHorizontally(targetOffsetX = { -it }) + fadeOut()
-            }
+                fadeOut()
+            },
         ) { backStackEntry ->
             val userId = backStackEntry.arguments?.getInt("userId")
             val user = userId?.let { userRepository.getUserById(context, it) }
@@ -68,15 +80,16 @@ fun AnimatedNavHost(
         composable(
             route = "edit_profile",
             enterTransition = {
-                slideInVertically(initialOffsetY = { it }) + fadeIn()
+                slideInVertically(initialOffsetY = { it })
             },
             exitTransition = {
-                slideOutVertically(targetOffsetY = { -it }) + fadeOut()
+                fadeOut()
             }
         ) {
             EditProfileScreen(navController)
         }
 
+        //---------------------- Koniec animacji sprawdzonych ------------------------//
 
         composable(
             route = "enter_pin_login", // do sprawdzenia
