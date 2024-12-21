@@ -17,6 +17,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -47,16 +48,7 @@ fun AnimatedNavHost(
         composable(
             route = "mainscreens",
             enterTransition = {
-                slideInVertically(initialOffsetY = { it })
-            },
-        ) {
-            MainScreen(navController, userRepository, context, currentScreen)
-        }
-
-        composable(
-            route = "mainscreensHorizontal",
-            enterTransition = {
-                    slideInHorizontally()
+                fadeIn()
             },
         ) {
             MainScreen(navController, userRepository, context, currentScreen)

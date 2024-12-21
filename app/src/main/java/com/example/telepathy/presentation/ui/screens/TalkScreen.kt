@@ -134,7 +134,7 @@ fun TalkScreen(navController: NavHostController, user: User) {
             isSwipeHandled = remember { mutableStateOf(false) },
             isNavigating = remember { mutableStateOf(false) },
             coroutineScope = rememberCoroutineScope(),
-            onSwipeRight = { navController.navigate("mainscreensHorizontal") }
+            onSwipeRight = { navController.navigate("mainscreens") }
         )
     ) {
         Column(
