@@ -48,7 +48,7 @@ fun AnimatedNavHost(
         composable(
             route = "mainscreens",
             enterTransition = {
-                fadeIn()
+                slideInVertically(initialOffsetY = { -it })
             },
         ) {
             MainScreen(navController, userRepository, context, currentScreen)
@@ -58,10 +58,10 @@ fun AnimatedNavHost(
             route = "talkscreen/{userId}",
             arguments = listOf(navArgument("userId") { type = NavType.IntType }),
             enterTransition = {
-                slideInHorizontally(initialOffsetX = { it }) + fadeIn()
+                slideInVertically(initialOffsetY = { it })
             },
             exitTransition = {
-                fadeOut()
+                slideOutVertically(targetOffsetY = { it })
             },
         ) { backStackEntry ->
             val userId = backStackEntry.arguments?.getInt("userId")
@@ -75,7 +75,7 @@ fun AnimatedNavHost(
                 slideInVertically(initialOffsetY = { it })
             },
             exitTransition = {
-                fadeOut()
+                slideOutVertically(targetOffsetY = { it })
             }
         ) {
             EditProfileScreen(navController)
@@ -86,10 +86,10 @@ fun AnimatedNavHost(
         composable(
             route = "enter_pin_login", // do sprawdzenia
             enterTransition = {
-                slideInVertically(initialOffsetY = { it }) + fadeIn()
+                slideInVertically(initialOffsetY = { it })
             },
             exitTransition = {
-                slideOutVertically(targetOffsetY = { -it }) + fadeOut()
+                slideOutVertically(targetOffsetY = { it })
             }
         ) {
             MainScreen(navController, userRepository, context, currentScreen)
@@ -98,10 +98,10 @@ fun AnimatedNavHost(
         composable(
             route = "enter_pin_settings", // pin przy probie zmiany pinu
             enterTransition = {
-                slideInVertically(initialOffsetY = { it }) + fadeIn()
+                slideInVertically(initialOffsetY = { it })
             },
             exitTransition = {
-                slideOutVertically(targetOffsetY = { -it }) + fadeOut()
+                slideOutVertically(targetOffsetY = { it })
             }
         ) {
             EnterPinScreen(navController, "enter_new_pin", onCancel = { navController.popBackStack() })
@@ -110,10 +110,10 @@ fun AnimatedNavHost(
         composable(
             route = "enter_new_pin",
             enterTransition = {
-                slideInVertically(initialOffsetY = { it }) + fadeIn()
+                slideInVertically(initialOffsetY = { it })
             },
             exitTransition = {
-                slideOutVertically(targetOffsetY = { -it }) + fadeOut()
+                slideOutVertically(targetOffsetY = { it })
             }
         ) {
             EnterNewPinScreen(
@@ -126,10 +126,10 @@ fun AnimatedNavHost(
             route = "confirm_new_pin/{pin}",
             arguments = listOf(navArgument("pin") { type = NavType.StringType }),
             enterTransition = {
-                slideInVertically(initialOffsetY = { it }) + fadeIn()
+                slideInVertically(initialOffsetY = { it })
             },
             exitTransition = {
-                slideOutVertically(targetOffsetY = { -it }) + fadeOut()
+                slideOutVertically(targetOffsetY = { it })
             }
         ) { backStackEntry ->
             val pinTemp = backStackEntry.arguments?.getString("pin") ?: ""

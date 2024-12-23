@@ -2,10 +2,15 @@ package com.example.telepathy.presentation.ui.screens
 
 import android.graphics.Bitmap
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -14,16 +19,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.telepathy.data.LocalPreferences
+import com.example.telepathy.data.LocalPreferences.localUser
 import com.example.telepathy.data.Message
 import com.example.telepathy.data.User
 import com.example.telepathy.presentation.ui.CircledImage
-import com.example.telepathy.presentation.ui.DividerWithImage
-import com.example.telepathy.presentation.ui.ScreenTemplate
-import com.example.telepathy.presentation.navigation.swipeToNavigate
-
 
 @Composable
 fun MessageBubble(
@@ -69,13 +70,21 @@ fun TalkCard(
     avatarBitmap: Bitmap?,
     name: String,
     description: String,
-    backgroundColor: Color
+    backgroundColor: Color,
+    onClick: () -> Unit
 ) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .height(124.dp)
-            .background(color = backgroundColor, shape = RoundedCornerShape(16.dp)),
+            .background(
+                color = backgroundColor,
+                shape = RoundedCornerShape(
+                    topEnd = 16.dp,
+                    bottomEnd = 16.dp
+                )
+            )
+            .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
         Row(
@@ -117,47 +126,99 @@ fun TalkCard(
 @Composable
 fun TalkScreen(navController: NavHostController, user: User) {
     val messages = user.chatHistory
+    var messageInput by remember { mutableStateOf("") }
 
-    ScreenTemplate(
-        navIcon = {
-            DividerWithImage()
-        },
-        header = {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.DarkGray)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box( // black back box
+                modifier = Modifier
+                    .height(124.dp)
+                    .width(32.dp)
+                    .background(
+                        color = Color.Black,
+                        shape = RoundedCornerShape(
+                            topStart = 16.dp,
+                            bottomStart = 16.dp
+                        )
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                IconButton(onClick = { navController.popBackStack() }) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = "Back",
+                        tint = Color.White
+                    )
+                }
+            }
+
             TalkCard(
                 avatarBitmap = user.avatar,
                 name = user.name,
                 description = user.description,
-                backgroundColor = user.color
+                backgroundColor = user.color,
+                onClick = { /* Handle banner click */ }
             )
-        },
-        modifier = Modifier.swipeToNavigate(
-            isSwipeHandled = remember { mutableStateOf(false) },
-            isNavigating = remember { mutableStateOf(false) },
-            coroutineScope = rememberCoroutineScope(),
-            onSwipeRight = { navController.navigate("mainscreens") }
-        )
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.DarkGray)
-        ) {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(count = messages.size) { index ->
-                    val message = messages[index]
-                    val messageColor = if (message.fromLocalUser) Color(0xFF4CAF50) else user.color
+        }
 
-                    MessageBubble(
-                        message = message,
-                        isLocalUser = message.fromLocalUser,
-                        backgroundColor = messageColor
-                    )
-                }
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(count = messages.size) { index ->
+                val message = messages[index]
+                val messageColor = if (message.fromLocalUser) localUser!!.color  else user.color
+
+                MessageBubble(
+                    message = message,
+                    isLocalUser = message.fromLocalUser,
+                    backgroundColor = messageColor
+                )
+            }
+        }
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = { /* Handle more button */ }) {
+                Icon(
+                    imageVector = Icons.Default.MoreVert,
+                    contentDescription = "More",
+                    tint = Color.White
+                )
+            }
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            TextField(
+                value = messageInput,
+                onValueChange = { messageInput = it },
+                placeholder = { Text("Type a message...") },
+                modifier = Modifier.weight(1f),
+            )
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Button(
+                onClick = { /* Handle send action */ },
+                modifier = Modifier.height(48.dp)
+            ) {
+                Text(text = "Send")
             }
         }
     }
