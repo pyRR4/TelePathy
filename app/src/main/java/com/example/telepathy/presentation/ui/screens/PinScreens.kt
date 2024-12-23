@@ -12,9 +12,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.navigation.NavHostController
 import com.example.telepathy.presentation.ui.ScreenTemplate
 import com.example.telepathy.data.LocalPreferences
+import com.example.telepathy.presentation.ui.DividerWithImage
 
 @Composable
 fun PinScreenBase(
@@ -23,27 +25,39 @@ fun PinScreenBase(
     navController: NavHostController,
     onPinEntered: (String) -> Unit,
     onCancel: (() -> Unit)?,
-    onPinUpdated: (String) -> Unit
+    onPinUpdated: (String) -> Unit,
+    keypadWidth: Dp = 300.dp, // Keypad width as a parameter
+    keypadHeight: Dp = 400.dp // Keypad height as a parameter
 ) {
     var pin by remember { mutableStateOf("") }
 
     ScreenTemplate(
-        navIcon = { },
-        header = {
-            Text(
-                text = headerText,
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
-        },
+        navIcon = { DividerWithImage() },
+        header = null,
         modifier = Modifier
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(24.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier.fillMaxSize()
         ) {
+            // Logo box at the top (currently empty, filling max width)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth() // Logo box fills max width
+                    .height(120.dp) // Example height for the logo box
+                    .background(Color.Gray) // Placeholder color for the logo box
+            )
+            Spacer(Modifier.height(60.dp))
+
+            // Display header text above dots
+            Text(
+                text = headerText,
+                fontSize = 32.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
+
             // Dots to represent PIN
             Row(
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -61,7 +75,7 @@ fun PinScreenBase(
                 }
             }
 
-            // Keypad
+            // Keypad under the logo box
             Keypad(
                 pin = pin,
                 onPinUpdated = { newPin ->
@@ -69,7 +83,9 @@ fun PinScreenBase(
                     onPinUpdated(newPin)
                 },
                 onPinEntered = onPinEntered,
-                onCancel = onCancel
+                onCancel = onCancel,
+                keypadWidth = keypadWidth,
+                keypadHeight = keypadHeight
             )
         }
     }
@@ -80,7 +96,9 @@ fun Keypad(
     pin: String,
     onPinEntered: (String) -> Unit,
     onCancel: (() -> Unit)?,
-    onPinUpdated: (String) -> Unit
+    onPinUpdated: (String) -> Unit,
+    keypadWidth: Dp = 250.dp, // Keypad width as a parameter
+    keypadHeight: Dp = 250.dp // Keypad height as a parameter
 ) {
     val keypadRows = listOf(
         listOf("1", "2", "3"),
@@ -91,7 +109,10 @@ fun Keypad(
 
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .width(keypadWidth) // Set the width of the keypad
+            .height(keypadHeight) // Set the height of the keypad
+            .padding(16.dp)
     ) {
         keypadRows.forEach { row ->
             Row(
@@ -113,7 +134,7 @@ fun Keypad(
                     ) {
                         Text(
                             text = key,
-                            fontSize = 24.sp,
+                            fontSize = 28.sp,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.padding(8.dp)
                         )
@@ -152,7 +173,6 @@ private fun handleKeyInput(
     }
 }
 
-// Reusable MessageDialog composable for showing messages
 @Composable
 fun MessageDialog(
     message: String,
@@ -181,14 +201,12 @@ fun MessageDialog(
         }
     }
 
-    // Dismiss message after a delay (optional)
     LaunchedEffect(true) {
         kotlinx.coroutines.delay(2000)
         onDismiss() // Call onDismiss after the delay
     }
 }
 
-// Enter Current PIN Screen with error handling
 @Composable
 fun EnterPinScreen(
     navController: NavHostController,
@@ -226,7 +244,6 @@ fun EnterPinScreen(
     }
 }
 
-// Enter New PIN Screen
 @Composable
 fun EnterNewPinScreen(
     navController: NavHostController,

@@ -146,10 +146,10 @@ fun BottomImage() {
 
 @Composable
 fun ScreenTemplate(
-    navIcon: @Composable () -> Unit,
-    header: @Composable () -> Unit,
+    navIcon: @Composable (() -> Unit),
+    header: @Composable (() -> Unit)?,
     modifier: Modifier,
-    content: @Composable ColumnScope.() -> Unit
+    content: @Composable (ColumnScope.() -> Unit)
 ) {
     Surface(
         modifier = modifier.fillMaxSize(),
@@ -161,7 +161,7 @@ fun ScreenTemplate(
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            header()
+            header?.invoke()
 
             Column(
                 modifier = Modifier
