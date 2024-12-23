@@ -48,7 +48,7 @@ fun AnimatedNavHost(
         composable(
             route = "mainscreens",
             enterTransition = {
-                fadeIn()
+                slideInVertically(initialOffsetY = { -it })
             },
         ) {
             MainScreen(navController, userRepository, context, currentScreen)
@@ -58,10 +58,10 @@ fun AnimatedNavHost(
             route = "talkscreen/{userId}",
             arguments = listOf(navArgument("userId") { type = NavType.IntType }),
             enterTransition = {
-                slideInHorizontally(initialOffsetX = { it }) + fadeIn()
+                slideInVertically(initialOffsetY = { it })
             },
             exitTransition = {
-                fadeOut()
+                slideOutVertically(targetOffsetY = { it })
             },
         ) { backStackEntry ->
             val userId = backStackEntry.arguments?.getInt("userId")
@@ -75,7 +75,7 @@ fun AnimatedNavHost(
                 slideInVertically(initialOffsetY = { it })
             },
             exitTransition = {
-                fadeOut()
+                slideOutVertically(targetOffsetY = { it })
             }
         ) {
             EditProfileScreen(navController)

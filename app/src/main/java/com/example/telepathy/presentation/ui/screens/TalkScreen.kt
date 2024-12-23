@@ -77,7 +77,13 @@ fun TalkCard(
         modifier = Modifier
             .fillMaxWidth()
             .height(124.dp)
-            .background(color = backgroundColor, shape = RoundedCornerShape(16.dp))
+            .background(
+                color = backgroundColor,
+                shape = RoundedCornerShape(
+                    topEnd = 16.dp,
+                    bottomEnd = 16.dp
+                )
+            )
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
@@ -133,12 +139,18 @@ fun TalkScreen(navController: NavHostController, user: User) {
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Box(
+            Box( // black back box
                 modifier = Modifier
                     .height(124.dp)
-                    .width(36.dp)
-                    .background(color = Color.Black, shape = RoundedCornerShape(16.dp)),
-                contentAlignment = Alignment.Center // Center the icon inside the box
+                    .width(32.dp)
+                    .background(
+                        color = Color.Black,
+                        shape = RoundedCornerShape(
+                            topStart = 16.dp,
+                            bottomStart = 16.dp
+                        )
+                    ),
+                contentAlignment = Alignment.Center
             ) {
                 IconButton(onClick = { navController.popBackStack() }) {
                     Icon(
