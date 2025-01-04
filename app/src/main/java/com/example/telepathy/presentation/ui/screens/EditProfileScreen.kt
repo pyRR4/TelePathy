@@ -85,10 +85,10 @@ fun EditProfileScreen(navController: NavHostController) {
                 Button(
                     onClick = {
                         // Save the updated user data
-                        localUser!!.name = new_username
-                        localUser!!.description = new_description
-                        localUser!!.color = new_selectedColor
-                        localUser!!.avatar = new_avatarBitmap
+//                        localUser!!.name = new_username
+//                        localUser!!.description = new_description
+//                        localUser!!.color = new_selectedColor
+//                        localUser!!.avatar = new_avatarBitmap
                         navController.popBackStack()
                     },
                     modifier = Modifier

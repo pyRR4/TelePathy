@@ -9,17 +9,25 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.telepathy.presentation.ui.ScreenTemplate
 import com.example.telepathy.R
-import com.example.telepathy.data.User
 import com.example.telepathy.presentation.ui.CustomButton
 import com.example.telepathy.presentation.ui.DividerWithImage
 import com.example.telepathy.presentation.ui.Header
+import com.example.telepathy.presentation.viewmodels.ContactsViewModel
 
 
 @Composable
-fun AvailableAroundScreen(navController: NavHostController, availableContacts: List<User>, currentScreen: MutableState<String>) {
+fun AvailableAroundScreen(
+    navController: NavHostController,
+    viewModel: ContactsViewModel = viewModel(),
+    currentScreen: MutableState<String>) {
+
+    val contacts by viewModel.contacts.collectAsState()
+
+    val availableContacts = contacts.keys.toList()
 
     ScreenTemplate(
         navIcon = {

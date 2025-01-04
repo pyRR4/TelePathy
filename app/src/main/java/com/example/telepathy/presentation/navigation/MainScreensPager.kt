@@ -6,11 +6,11 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.telepathy.presentation.ui.screens.AvailableAroundScreen
 import com.example.telepathy.presentation.ui.screens.ContactsScreen
 import com.example.telepathy.presentation.ui.screens.SettingsScreen
-import com.example.telepathy.domain.users.UsersRepository
 
 @Composable
 fun MainScreensPager(
@@ -20,7 +20,7 @@ fun MainScreensPager(
     verticalPagerState: PagerState,
     navController: NavHostController,
     currentScreen: MutableState<String>,
-    userRepository: UsersRepository,
+    localUserId: Int,
     context: Context
 ) {
     VerticalPager(
@@ -37,7 +37,7 @@ fun MainScreensPager(
                         "available" -> {
                             AvailableAroundScreen(
                                 navController,
-                                userRepository.getUsers(context),
+                                viewModel(),
                                 currentScreen
                             )
                             currentScreen.value = "available"
@@ -46,7 +46,8 @@ fun MainScreensPager(
                         "contacts" -> {
                             ContactsScreen(
                                 navController,
-                                userRepository.getUsers(context),
+                                viewModel(),
+                                localUserId,
                                 currentScreen
                             )
                             currentScreen.value = "contacts"

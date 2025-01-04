@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.telepathy.R
 import androidx.compose.ui.res.stringResource
-import com.example.telepathy.data.User
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.telepathy.presentation.ui.CircledImage
 import com.example.telepathy.presentation.ui.DividerWithImage
 import com.example.telepathy.presentation.ui.Header
@@ -36,6 +36,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import com.example.telepathy.presentation.ui.ScreenTemplate
+import com.example.telepathy.presentation.viewmodels.ContactsViewModel
 
 @Composable
 fun formatTime(timestamp: Long): String {
@@ -135,7 +136,17 @@ fun UserCard(
 }
 
 @Composable
-fun ContactsScreen(navController: NavHostController, users: List<User>, currentScreen: MutableState<String>) {
+fun ContactsScreen(
+    navController: NavHostController,
+    viewModel: ContactsViewModel = viewModel(),
+    localUserId: Int,
+    currentScreen: MutableState<String>) {
+
+    val contacts by viewModel.contacts.collectAsState()
+
+    LaunchedEffect(localUserId) {
+        viewModel.loadContacts(localUserId)
+    }
 
     ScreenTemplate(
         navIcon = {
@@ -151,14 +162,15 @@ fun ContactsScreen(navController: NavHostController, users: List<User>, currentS
             modifier = Modifier
                 .fillMaxWidth()
         ) {
-            items(count = users.size) { index ->
-                val user = users[index]
+            val contactEntries = contacts.entries.toList()
+            items(contactEntries.size) { index ->
+                val (user, lastMessage) = contactEntries[index]
                 UserCard(
                     avatarBitmap = user.avatar,
                     name = user.name,
-                    isFromUser = user.chatHistory.lastOrNull()?.fromLocalUser == true,
-                    message = user.chatHistory.lastOrNull()?.content ?: "Brak wiadomości",
-                    time = user.chatHistory.lastOrNull()?.timestamp ?: 0L,
+                    isFromUser = lastMessage.senderId == localUserId,
+                    message = lastMessage.content,
+                    time = lastMessage.timestamp,
                     backgroundColor = user.color,
                     onClick = {navController.navigate("talkscreen/${user.id}")}
                 )

@@ -1,6 +1,7 @@
 package com.example.telepathy
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
@@ -10,12 +11,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
 import com.example.telepathy.presentation.ui.theme.TelePathyTheme
-import com.example.telepathy.domain.users.UsersRepository
 import com.example.telepathy.presentation.navigation.AnimatedNavHost
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
 import com.example.telepathy.data.*
 import com.example.telepathy.presentation.ui.theme.UserColors
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 class MainActivity : ComponentActivity() {
@@ -24,6 +27,11 @@ class MainActivity : ComponentActivity() {
         setContent {
             MyApp()
         }
+        val database = AppDatabase.getDatabase(applicationContext)
+        CoroutineScope(Dispatchers.IO).launch {
+            val users = database.userDao().getAllUsers()
+            Log.d("Seed", "Loaded users: $users")
+        }
     }
 }
 
@@ -31,7 +39,6 @@ class MainActivity : ComponentActivity() {
 fun MyApp() {
     TelePathyTheme {
         val context = LocalContext.current
-        val userRepository = UsersRepository()
 
         LocalPreferences.loadLocalUser( // test lokal user ------------------------
             id = 0,
@@ -48,8 +55,8 @@ fun MyApp() {
         AnimatedNavHost(
             navController = navController,
             startDestination = "mainscreens",
-            userRepository = userRepository,
             context = context,
+            localUserId = 1,
             currentScreen = currentScreen
         )
     }
@@ -59,9 +66,5 @@ fun MyApp() {
 @Composable
 fun TelePathyPreview() {
     TelePathyTheme {
-        val currentScreen = remember { mutableStateOf("contacts") }
-        val userRepository = UsersRepository()
-        val navController = rememberNavController()
-        val context = LocalContext.current
     }
 } 

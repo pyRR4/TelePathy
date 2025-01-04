@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.compose.ui.graphics.Color
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import com.example.telepathy.data.entities.User
 
 object LocalPreferences {
     var localUser: User? = null
@@ -25,7 +26,6 @@ object LocalPreferences {
             name = name,
             color = color,
             avatar = avatar,
-            isLocalUser = true,
             description = description
         )
     }
@@ -37,7 +37,6 @@ object LocalPreferences {
                 name = "Guest",
                 color = Color(0xFFE57373), // 1 color in table - red
                 avatar = null,
-                isLocalUser = true,
                 description = "Set your descreption"
             )
         }

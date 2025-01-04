@@ -1,7 +1,5 @@
 package com.example.telepathy.presentation.navigation
 
-
-import android.app.Activity
 import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -13,19 +11,15 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.runtime.*
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.telepathy.presentation.ui.screens.MainScreen
 import com.example.telepathy.presentation.ui.screens.TalkScreen
-import com.example.telepathy.domain.users.UsersRepository
 import com.example.telepathy.presentation.ui.screens.ConfirmPinScreen
 import com.example.telepathy.presentation.ui.screens.EditProfileScreen
 import com.example.telepathy.presentation.ui.screens.EnterNewPinScreen
@@ -37,9 +31,9 @@ import com.example.telepathy.presentation.ui.screens.EnterPinScreen
 fun AnimatedNavHost(
     navController: NavHostController,
     startDestination: String,
-    userRepository: UsersRepository,
     context: Context,
-    currentScreen: MutableState<String>
+    currentScreen: MutableState<String>,
+    localUserId: Int
 ) {
     androidx.navigation.compose.NavHost(
         navController = navController,
@@ -51,7 +45,7 @@ fun AnimatedNavHost(
                 slideInVertically(initialOffsetY = { -it })
             },
         ) {
-            MainScreen(navController, userRepository, context, currentScreen)
+            MainScreen(navController, context, localUserId, currentScreen)
         }
 
         composable(
@@ -64,9 +58,13 @@ fun AnimatedNavHost(
                 slideOutVertically(targetOffsetY = { it })
             },
         ) { backStackEntry ->
-            val userId = backStackEntry.arguments?.getInt("userId")
-            val user = userId?.let { userRepository.getUserById(context, it) }
-            user?.let { TalkScreen(navController, it) }
+            val userId = backStackEntry.arguments?.getInt("userId") ?: return@composable
+            TalkScreen(
+                navController = navController,
+                localUserId = localUserId,
+                viewModel = viewModel(),
+                remoteUserId = userId
+            )
         }
 
         composable(
@@ -92,7 +90,7 @@ fun AnimatedNavHost(
                 slideOutVertically(targetOffsetY = { it })
             }
         ) {
-            MainScreen(navController, userRepository, context, currentScreen)
+            MainScreen(navController, context, localUserId, currentScreen)
         }
 
         composable(

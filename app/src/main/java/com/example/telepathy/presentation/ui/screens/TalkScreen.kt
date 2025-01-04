@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
@@ -20,11 +19,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.example.telepathy.data.LocalPreferences
 import com.example.telepathy.data.LocalPreferences.localUser
-import com.example.telepathy.data.Message
-import com.example.telepathy.data.User
 import com.example.telepathy.presentation.ui.CircledImage
+import com.example.telepathy.data.entities.Message
+import com.example.telepathy.presentation.viewmodels.ChatViewModel
 
 @Composable
 fun MessageBubble(
@@ -124,9 +122,20 @@ fun TalkCard(
 }
 
 @Composable
-fun TalkScreen(navController: NavHostController, user: User) {
-    val messages = user.chatHistory
+fun TalkScreen(
+    navController: NavHostController,
+    viewModel: ChatViewModel,
+    localUserId: Int,
+    remoteUserId: Int
+) {
+    val user by viewModel.currentUser.collectAsState()
+    val messages by viewModel.chatHistory.collectAsState()
     var messageInput by remember { mutableStateOf("") }
+
+    LaunchedEffect(localUserId, remoteUserId) {
+        viewModel.loadUser(remoteUserId)
+        viewModel.loadChatHistory(localUserId, remoteUserId)
+    }
 
     Column(
         modifier = Modifier
@@ -162,10 +171,10 @@ fun TalkScreen(navController: NavHostController, user: User) {
             }
 
             TalkCard(
-                avatarBitmap = user.avatar,
-                name = user.name,
-                description = user.description,
-                backgroundColor = user.color,
+                avatarBitmap = user?.avatar,
+                name = user?.name ?: "",
+                description = user?.description ?: "",
+                backgroundColor = user?.color ?: Color.DarkGray,
                 onClick = { /* Handle banner click */ }
             )
         }
@@ -179,11 +188,12 @@ fun TalkScreen(navController: NavHostController, user: User) {
         ) {
             items(count = messages.size) { index ->
                 val message = messages[index]
-                val messageColor = if (message.fromLocalUser) localUser!!.color  else user.color
+                val messageColor = if (message.senderId == localUserId) localUser!!.color
+                    else user?.color ?: Color.DarkGray
 
                 MessageBubble(
                     message = message,
-                    isLocalUser = message.fromLocalUser,
+                    isLocalUser = message.senderId == localUserId,
                     backgroundColor = messageColor
                 )
             }

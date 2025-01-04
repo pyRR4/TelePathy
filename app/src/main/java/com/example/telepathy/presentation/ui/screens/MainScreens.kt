@@ -21,13 +21,12 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.telepathy.presentation.navigation.MainScreensPager
-import com.example.telepathy.domain.users.UsersRepository
 
 @Composable
 fun MainScreen(
     navController: NavHostController,
-    userRepository: UsersRepository,
     context: Context,
+    localUserId: Int,
     currentScreen: MutableState<String>
 ) {
     val horizontalScreens = listOf("available", "contacts")
@@ -42,8 +41,8 @@ fun MainScreen(
             horizontalPagerState = horizontalPagerState,
             verticalPagerState = verticalPagerState,
             navController = navController,
-            userRepository = userRepository,
             currentScreen = currentScreen,
+            localUserId = localUserId,
             context = context
         )
 
