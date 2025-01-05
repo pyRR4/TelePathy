@@ -97,10 +97,12 @@ class ChatViewModel(
 class ChatViewModelFactory(current: Context) : ViewModelProvider.Factory {
 
     private val database = AppDatabase.getDatabase(current)
+
     private val userRepositoryInstance = UserRepositoryImpl(
         userDao = database.userDao(),
         contactDao = database.contactDao()
     )
+
     private val messageRepositoryInstance = MessageRepositoryImpl(
         messageDao = database.messageDao()
     )

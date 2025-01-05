@@ -32,7 +32,9 @@ fun MainScreensPager(
         state = verticalPagerState
     ) { page ->
         when (verticalScreens[page]) {
-            "settings" -> SettingsScreen(navController)
+            "settings" -> SettingsScreen(
+                navController
+            )
 
             "contacts" ->
                 HorizontalPager(
@@ -41,9 +43,8 @@ fun MainScreensPager(
                     when (horizontalScreens[horizontalPage]) {
                         "available" -> {
                             AvailableAroundScreen(
-                                navController,
-                                viewModel(),
-                                currentScreen
+                                navController = navController,
+                                currentScreen = currentScreen
                             )
                             currentScreen.value = "available"
                         }

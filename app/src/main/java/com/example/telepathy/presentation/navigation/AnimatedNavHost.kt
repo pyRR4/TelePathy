@@ -13,6 +13,7 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.runtime.*
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -24,6 +25,8 @@ import com.example.telepathy.presentation.ui.screens.ConfirmPinScreen
 import com.example.telepathy.presentation.ui.screens.EditProfileScreen
 import com.example.telepathy.presentation.ui.screens.EnterNewPinScreen
 import com.example.telepathy.presentation.ui.screens.EnterPinScreen
+import com.example.telepathy.presentation.viewmodels.ChatViewModel
+import com.example.telepathy.presentation.viewmodels.ChatViewModelFactory
 
 
 @OptIn(ExperimentalAnimationApi::class)

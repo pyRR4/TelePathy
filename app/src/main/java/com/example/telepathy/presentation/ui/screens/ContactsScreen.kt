@@ -143,11 +143,11 @@ fun UserCard(
 fun ContactsScreen(
     navController: NavHostController,
     localUserId: Int,
+    viewModel: ContactsViewModel = viewModel(
+        factory = ContactsViewModelFactory(LocalContext.current)
+    ),
     currentScreen: MutableState<String>
 ) {
-    val viewModel: ContactsViewModel = viewModel(
-        factory = ContactsViewModelFactory(LocalContext.current)
-    )
 
     val contacts by viewModel.contacts.collectAsState()
 
