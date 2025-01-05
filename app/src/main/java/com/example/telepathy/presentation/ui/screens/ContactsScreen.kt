@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -141,13 +142,11 @@ fun UserCard(
 @Composable
 fun ContactsScreen(
     navController: NavHostController,
-    userRepository: UserRepository,
-    messageRepository: MessageRepository,
     localUserId: Int,
     currentScreen: MutableState<String>
 ) {
     val viewModel: ContactsViewModel = viewModel(
-        factory = ContactsViewModelFactory(userRepository, messageRepository)
+        factory = ContactsViewModelFactory(LocalContext.current)
     )
 
     val contacts by viewModel.contacts.collectAsState()

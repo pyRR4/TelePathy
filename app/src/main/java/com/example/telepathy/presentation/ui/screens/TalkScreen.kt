@@ -14,15 +14,19 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.telepathy.data.LocalPreferences.localUser
 import com.example.telepathy.presentation.ui.CircledImage
 import com.example.telepathy.data.entities.Message
 import com.example.telepathy.presentation.viewmodels.ChatViewModel
+import com.example.telepathy.presentation.viewmodels.ChatViewModelFactory
+import com.example.telepathy.presentation.viewmodels.ContactsViewModelFactory
 
 @Composable
 fun MessageBubble(
@@ -124,7 +128,9 @@ fun TalkCard(
 @Composable
 fun TalkScreen(
     navController: NavHostController,
-    viewModel: ChatViewModel,
+    viewModel: ChatViewModel = viewModel(
+        factory = ChatViewModelFactory(LocalContext.current)
+    ),
     localUserId: Int,
     remoteUserId: Int
 ) {
@@ -189,7 +195,7 @@ fun TalkScreen(
             items(count = messages.size) { index ->
                 val message = messages[index]
                 val messageColor = if (message.senderId == localUserId) localUser!!.color
-                    else user?.color ?: Color.DarkGray
+                else user?.color ?: Color.DarkGray
 
                 MessageBubble(
                     message = message,

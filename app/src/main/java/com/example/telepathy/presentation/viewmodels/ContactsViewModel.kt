@@ -1,11 +1,15 @@
 package com.example.telepathy.presentation.viewmodels
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.telepathy.data.AppDatabase
 import com.example.telepathy.data.entities.Contact
 import com.example.telepathy.data.entities.Message
 import com.example.telepathy.data.entities.User
+import com.example.telepathy.data.repositories.MessageRepositoryImpl
+import com.example.telepathy.data.repositories.UserRepositoryImpl
 import com.example.telepathy.domain.repositories.MessageRepository
 import com.example.telepathy.domain.repositories.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -47,14 +51,19 @@ class ContactsViewModel(
     }
 }
 
-class ContactsViewModelFactory(
-    private val userRepository: UserRepository,
-    private val messageRepository: MessageRepository
-) : ViewModelProvider.Factory {
+class ContactsViewModelFactory(current: Context) : ViewModelProvider.Factory {
 
+    private val database = AppDatabase.getDatabase(current)
+    val userRepositoryInstance = UserRepositoryImpl(
+        userDao = database.userDao(),
+        contactDao = database.contactDao()
+    )
+    val messageRepositoryInstance = MessageRepositoryImpl(
+        messageDao = database.messageDao()
+    )
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(ContactsViewModel::class.java)) {
-            return ContactsViewModel(userRepository, messageRepository) as T
+            return ContactsViewModel(userRepositoryInstance, messageRepositoryInstance) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

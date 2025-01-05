@@ -62,7 +62,6 @@ fun AnimatedNavHost(
             TalkScreen(
                 navController = navController,
                 localUserId = localUserId,
-                viewModel = viewModel(),
                 remoteUserId = userId
             )
         }

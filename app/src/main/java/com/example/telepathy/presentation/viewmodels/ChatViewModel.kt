@@ -1,10 +1,15 @@
 package com.example.telepathy.presentation.viewmodels
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.telepathy.data.AppDatabase
 import com.example.telepathy.data.entities.Contact
 import com.example.telepathy.data.entities.Message
 import com.example.telepathy.data.entities.User
+import com.example.telepathy.data.repositories.MessageRepositoryImpl
+import com.example.telepathy.data.repositories.UserRepositoryImpl
 import com.example.telepathy.domain.repositories.MessageRepository
 import com.example.telepathy.domain.repositories.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,7 +20,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class ChatViewModel (
+class ChatViewModel(
     private val userRepository: UserRepository,
     private val messageRepository: MessageRepository
 ) : ViewModel() {
@@ -86,5 +91,24 @@ class ChatViewModel (
             val contact = Contact(id = 0, userId = userId, contactId = contactId)
             userRepository.addContact(contact)
         }
+    }
+}
+
+class ChatViewModelFactory(current: Context) : ViewModelProvider.Factory {
+
+    private val database = AppDatabase.getDatabase(current)
+    private val userRepositoryInstance = UserRepositoryImpl(
+        userDao = database.userDao(),
+        contactDao = database.contactDao()
+    )
+    private val messageRepositoryInstance = MessageRepositoryImpl(
+        messageDao = database.messageDao()
+    )
+
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(ChatViewModel::class.java)) {
+            return ChatViewModel(userRepositoryInstance, messageRepositoryInstance) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

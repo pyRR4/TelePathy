@@ -28,15 +28,6 @@ fun MainScreensPager(
     localUserId: Int,
     context: Context
 ) {
-    val database = AppDatabase.getDatabase(LocalContext.current) // dodanie bazy
-    val userRepositoryInstance = UserRepositoryImpl(
-        userDao = database.userDao(),
-        contactDao = database.contactDao()
-    )
-    val messageRepositoryInstance = MessageRepositoryImpl(
-        messageDao = database.messageDao()
-    )
-
     VerticalPager(
         state = verticalPagerState
     ) { page ->
@@ -60,8 +51,6 @@ fun MainScreensPager(
                         "contacts" -> {
                             ContactsScreen(
                                 navController = navController,
-                                userRepository = userRepositoryInstance,
-                                messageRepository = messageRepositoryInstance,
                                 localUserId = localUserId,
                                 currentScreen = currentScreen
                             )
