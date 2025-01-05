@@ -1,6 +1,7 @@
 package com.example.telepathy.presentation.viewmodels
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.telepathy.data.entities.Contact
 import com.example.telepathy.data.entities.Message
@@ -12,7 +13,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-@HiltViewModel
 class ContactsViewModel(
     private val userRepository: UserRepository,
     private val messageRepository: MessageRepository
@@ -24,7 +24,7 @@ class ContactsViewModel(
     fun loadContacts(userId: Int) {
         viewModelScope.launch {
             userRepository.getContactsForUser(userId)
-                .collect { contacts -> 
+                .collect { contacts ->
                     contacts.forEach { contactList ->
                         val id = if (contactList.userId == userId)
                             contactList.contactId else contactList.userId
@@ -44,5 +44,18 @@ class ContactsViewModel(
         viewModelScope.launch {
             userRepository.removeContact(contact)
         }
+    }
+}
+
+class ContactsViewModelFactory(
+    private val userRepository: UserRepository,
+    private val messageRepository: MessageRepository
+) : ViewModelProvider.Factory {
+
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(ContactsViewModel::class.java)) {
+            return ContactsViewModel(userRepository, messageRepository) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

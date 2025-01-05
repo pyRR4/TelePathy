@@ -8,9 +8,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.example.telepathy.data.AppDatabase
+import com.example.telepathy.data.repositories.MessageRepositoryImpl
+import com.example.telepathy.data.repositories.UserRepositoryImpl
 import com.example.telepathy.presentation.ui.screens.AvailableAroundScreen
 import com.example.telepathy.presentation.ui.screens.ContactsScreen
 import com.example.telepathy.presentation.ui.screens.SettingsScreen
+import androidx.compose.ui.platform.LocalContext
+
 
 @Composable
 fun MainScreensPager(
@@ -23,6 +28,15 @@ fun MainScreensPager(
     localUserId: Int,
     context: Context
 ) {
+    val database = AppDatabase.getDatabase(LocalContext.current) // dodanie bazy
+    val userRepositoryInstance = UserRepositoryImpl(
+        userDao = database.userDao(),
+        contactDao = database.contactDao()
+    )
+    val messageRepositoryInstance = MessageRepositoryImpl(
+        messageDao = database.messageDao()
+    )
+
     VerticalPager(
         state = verticalPagerState
     ) { page ->
@@ -45,10 +59,11 @@ fun MainScreensPager(
 
                         "contacts" -> {
                             ContactsScreen(
-                                navController,
-                                viewModel(),
-                                localUserId,
-                                currentScreen
+                                navController = navController,
+                                userRepository = userRepositoryInstance,
+                                messageRepository = messageRepositoryInstance,
+                                localUserId = localUserId,
+                                currentScreen = currentScreen
                             )
                             currentScreen.value = "contacts"
                         }

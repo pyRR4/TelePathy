@@ -29,6 +29,8 @@ import androidx.compose.ui.unit.sp
 import com.example.telepathy.R
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.telepathy.domain.repositories.MessageRepository
+import com.example.telepathy.domain.repositories.UserRepository
 import com.example.telepathy.presentation.ui.CircledImage
 import com.example.telepathy.presentation.ui.DividerWithImage
 import com.example.telepathy.presentation.ui.Header
@@ -37,6 +39,7 @@ import java.util.Date
 import java.util.Locale
 import com.example.telepathy.presentation.ui.ScreenTemplate
 import com.example.telepathy.presentation.viewmodels.ContactsViewModel
+import com.example.telepathy.presentation.viewmodels.ContactsViewModelFactory
 
 @Composable
 fun formatTime(timestamp: Long): String {
@@ -138,9 +141,14 @@ fun UserCard(
 @Composable
 fun ContactsScreen(
     navController: NavHostController,
-    viewModel: ContactsViewModel = viewModel(),
+    userRepository: UserRepository,
+    messageRepository: MessageRepository,
     localUserId: Int,
-    currentScreen: MutableState<String>) {
+    currentScreen: MutableState<String>
+) {
+    val viewModel: ContactsViewModel = viewModel(
+        factory = ContactsViewModelFactory(userRepository, messageRepository)
+    )
 
     val contacts by viewModel.contacts.collectAsState()
 
@@ -172,7 +180,7 @@ fun ContactsScreen(
                     message = lastMessage.content,
                     time = lastMessage.timestamp,
                     backgroundColor = user.color,
-                    onClick = {navController.navigate("talkscreen/${user.id}")}
+                    onClick = { navController.navigate("talkscreen/${user.id}") }
                 )
             }
         }
