@@ -231,7 +231,10 @@ fun TalkScreen(
             Spacer(modifier = Modifier.width(8.dp))
 
             Button(
-                onClick = { /* Handle send action */ },
+                onClick = {
+                    viewModel.sendMessage(messageInput, localUserId, remoteUserId)
+                    messageInput = ""
+                },
                 modifier = Modifier.height(48.dp)
             ) {
                 Text(text = "Send")
