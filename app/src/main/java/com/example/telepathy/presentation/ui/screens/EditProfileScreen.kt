@@ -1,5 +1,6 @@
 package com.example.telepathy.presentation.ui.screens
 
+import android.graphics.Bitmap
 import android.net.Uri
 import android.provider.MediaStore
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -26,6 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.telepathy.R
 import com.example.telepathy.data.AppDatabase
@@ -36,24 +38,43 @@ import com.example.telepathy.presentation.ui.ScreenTemplate
 import com.example.telepathy.presentation.ui.Header
 import com.example.telepathy.presentation.ui.theme.DeepPurple
 import com.example.telepathy.presentation.ui.theme.UserColors
+import com.example.telepathy.presentation.viewmodels.EditProfileViewModel
+import com.example.telepathy.presentation.viewmodels.EditProfileViewModel.EditProfileViewModelFactory
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
 @Composable
 fun EditProfileScreen(navController: NavHostController) {
     val context = LocalContext.current
-
     val preferencesManager = PreferencesManager(context)
     val localUserId = preferencesManager.getLocalUserId()
-    val database = AppDatabase.getDatabase(context)
 
-    val localUser by database.userDao().getUser(localUserId).collectAsState(initial = null)
+    val viewModel: EditProfileViewModel = viewModel(
+        factory = EditProfileViewModelFactory(context, localUserId)
+    )
 
-    var new_username by remember { mutableStateOf(localUser?.name ?: "") }
-    var new_description by remember { mutableStateOf(localUser?.description ?: "") }
-    var new_selectedColor by remember { mutableStateOf(localUser?.color ?: Color.Gray) }
-    var new_avatarBitmap by remember { mutableStateOf(localUser?.avatar) }
+    val localUser by viewModel.user.collectAsState()
+
+
+    var isUserLoaded by remember { mutableStateOf(false) }
     var colorPickerVisible by remember { mutableStateOf(false) }
+
+    var new_username by remember { mutableStateOf("") }
+    var new_description by remember { mutableStateOf("") }
+    var new_selectedColor by remember { mutableStateOf(Color.Gray) }
+    var new_avatarBitmap by remember { mutableStateOf<Bitmap?>(null) }
+
+    LaunchedEffect(localUser) {
+        localUser?.let { user ->
+            if (!isUserLoaded) {
+                new_username = user.name
+                new_description = user.description
+                new_selectedColor = user.color
+                new_avatarBitmap = user.avatar
+                isUserLoaded = true
+            }
+        }
+    }
 
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -75,7 +96,7 @@ fun EditProfileScreen(navController: NavHostController) {
             ) {
                 Button(
                     onClick = {
-                        navController.popBackStack() // Navigate back
+                        navController.popBackStack()
                     },
                     modifier = Modifier
                         .padding(8.dp)
@@ -87,8 +108,6 @@ fun EditProfileScreen(navController: NavHostController) {
                     Text(text = stringResource(R.string.cancel), fontSize = 22.sp)
                 }
 
-                val coroutineScope = rememberCoroutineScope()
-
                 Button(
                     onClick = {
                         localUser?.let { existingUser ->
@@ -99,11 +118,8 @@ fun EditProfileScreen(navController: NavHostController) {
                                 avatar = new_avatarBitmap
                             )
 
-                            // zapis danych w bazie
-                            coroutineScope.launch {
-                                database.userDao().update(updatedUser)
-                                navController.popBackStack()
-                            }
+                            viewModel.updateUser(updatedUser)
+                            navController.popBackStack()
                         }
                     },
                     modifier = Modifier
@@ -115,8 +131,6 @@ fun EditProfileScreen(navController: NavHostController) {
                 ) {
                     Text(text = stringResource(R.string.save), fontSize = 22.sp, color = Color.White)
                 }
-
-
             }
         },
         header = {
@@ -134,13 +148,13 @@ fun EditProfileScreen(navController: NavHostController) {
                 .padding(horizontal = 16.dp)
         ) {
             // Avatar
-            Box( //centering box
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .size(176.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Box( //clickable box
+                Box(
                     modifier = Modifier
                         .size(176.dp)
                         .background(Color.DarkGray, CircleShape)
@@ -202,6 +216,7 @@ fun EditProfileScreen(navController: NavHostController) {
         )
     }
 }
+
 
 
 @Composable

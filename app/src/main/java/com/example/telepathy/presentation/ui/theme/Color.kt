@@ -39,4 +39,3 @@ val UserColors = listOf(
     Lime,
     DeepPurple
 )
-

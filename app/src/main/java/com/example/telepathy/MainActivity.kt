@@ -30,7 +30,7 @@ class MainActivity : ComponentActivity() {
         val preferencesManager = PreferencesManager(context)
         val database = AppDatabase.getDatabase(context)
 
-        preferencesManager.setFirstLaunch(true) // Debug: 1 uruchomienie
+        //preferencesManager.setFirstLaunch(true) // Debug: 1 uruchomienie
         logSharedPreferences(context)
 
         CoroutineScope(Dispatchers.IO).launch {
@@ -52,6 +52,9 @@ class MainActivity : ComponentActivity() {
                     )
                     database.userDao().insert(defaultUser)
                     Log.d("Seed", "Created default user: $defaultUser")
+
+                    DatabaseSeeder(database).seed()
+                    Log.d("Seed", "Database seeded with sample data.")
                 } else {
                     Log.d("Seed", "Database already contains users.")
                 }
