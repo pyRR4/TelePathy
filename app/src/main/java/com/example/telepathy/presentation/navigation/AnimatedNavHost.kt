@@ -81,7 +81,7 @@ fun AnimatedNavHost(
         //---------------------- Koniec animacji sprawdzonych ------------------------//
 
         composable(
-            route = "enter_pin_login", // do sprawdzenia
+            route = "enter_pin_login",
             enterTransition = {
                 slideInVertically(initialOffsetY = { it })
             },
@@ -89,7 +89,7 @@ fun AnimatedNavHost(
                 slideOutVertically(targetOffsetY = { it })
             }
         ) {
-            MainScreen(navController, context, localUserId, currentScreen)
+            EnterPinScreen(navController, "mainscreens", onCancel = null)
         }
 
         composable(

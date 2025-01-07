@@ -30,15 +30,17 @@ class MainActivity : ComponentActivity() {
         val preferencesManager = PreferencesManager(context)
         val database = AppDatabase.getDatabase(context)
 
-        preferencesManager.setFirstLaunch(true) // Debug: Symulacja pierwszego uruchomienia
+        preferencesManager.setFirstLaunch(true) // Debug: 1 uruchomienie
         logSharedPreferences(context)
 
         CoroutineScope(Dispatchers.IO).launch {
             if (preferencesManager.isFirstLaunch()) {
+                preferencesManager.setFirstLaunch(false)
+                preferencesManager.savePin(null)
+
                 val usersCount = database.userDao().getAllUsers().first().size
                 if (usersCount == 0) {
-                    preferencesManager.setFirstLaunch(false)
-                    preferencesManager.savePin(null)
+
                     preferencesManager.saveLocalUserId(1)
 
                     val defaultUser = User(
@@ -55,10 +57,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            // Wypisanie zawartości SharedPreferences
             logSharedPreferences(context)
-
-            // Wypisanie wszystkich użytkowników z bazy danych
             logAllUsers(database)
         }
 
@@ -67,7 +66,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    // Funkcja do logowania zawartości SharedPreferences
     private fun logSharedPreferences(context: Context) {
         val sharedPreferences = context.getSharedPreferences("telepathy_prefs", Context.MODE_PRIVATE)
         val allEntries = sharedPreferences.all
@@ -77,7 +75,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    // Funkcja do logowania wszystkich użytkowników z bazy danych
     private suspend fun logAllUsers(database: AppDatabase) {
         val allUsers = database.userDao().getAllUsers().first()
         Log.d("Database", "Zawartość bazy danych (Użytkownicy):")
@@ -99,7 +96,7 @@ fun MyApp() {
 
         AnimatedNavHost(
             navController = navController,
-            startDestination = "mainscreens",
+            startDestination = "enter_pin_login", // "enter_pin_login" "mainscreens"
             context = context,
             localUserId = 2,
             currentScreen = currentScreen

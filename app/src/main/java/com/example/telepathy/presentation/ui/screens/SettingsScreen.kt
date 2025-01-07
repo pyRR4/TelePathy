@@ -49,13 +49,21 @@ fun SettingsScreen(navController: NavHostController) {
             iconColor = Color.Black,
             title = stringResource(R.string.edit_profile),
             backgroundColor = Color.Gray,
-            onClick = {navController.navigate("edit_profile")}
+            onClick = { navController.navigate("edit_profile") }
         ),
         SettingOption(
             iconColor = Color.Black,
             title = stringResource(R.string.change_pin),
             backgroundColor = Color.Gray,
-            onClick = {navController.navigate("enter_pin_settings")}
+            onClick = {
+                val pin = preferencesManager.getPin()
+
+                if (pin == null) {
+                    navController.navigate("enter_new_pin")
+                } else {
+                    navController.navigate("enter_pin_settings")
+                }
+            }
         ),
         SettingOption(
             iconColor = Color.Black,

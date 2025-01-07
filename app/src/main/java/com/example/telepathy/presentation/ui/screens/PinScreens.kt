@@ -28,8 +28,8 @@ fun PinScreenBase(
     onPinEntered: (String) -> Unit,
     onCancel: (() -> Unit)?,
     onPinUpdated: (String) -> Unit,
-    keypadWidth: Dp = 300.dp, // Keypad width as a parameter
-    keypadHeight: Dp = 400.dp // Keypad height as a parameter
+    keypadWidth: Dp = 300.dp,
+    keypadHeight: Dp = 400.dp
 ) {
     var pin by remember { mutableStateOf("") }
 
@@ -43,16 +43,14 @@ fun PinScreenBase(
             verticalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier.fillMaxSize()
         ) {
-            // Logo box at the top (currently empty, filling max width)
             Box(
                 modifier = Modifier
-                    .fillMaxWidth() // Logo box fills max width
-                    .height(120.dp) // Example height for the logo box
+                    .fillMaxWidth()
+                    .height(120.dp)
                     .background(Color.Gray) // Placeholder color for the logo box
             )
             Spacer(Modifier.height(60.dp))
 
-            // Display header text above dots
             Text(
                 text = headerText,
                 fontSize = 32.sp,
@@ -60,7 +58,6 @@ fun PinScreenBase(
                 modifier = Modifier.padding(bottom = 4.dp)
             )
 
-            // Dots to represent PIN
             Row(
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 modifier = Modifier.align(Alignment.CenterHorizontally)
@@ -77,7 +74,6 @@ fun PinScreenBase(
                 }
             }
 
-            // Keypad under the logo box
             Keypad(
                 pin = pin,
                 onPinUpdated = { newPin ->
@@ -99,8 +95,8 @@ fun Keypad(
     onPinEntered: (String) -> Unit,
     onCancel: (() -> Unit)?,
     onPinUpdated: (String) -> Unit,
-    keypadWidth: Dp = 250.dp, // Keypad width as a parameter
-    keypadHeight: Dp = 250.dp // Keypad height as a parameter
+    keypadWidth: Dp = 250.dp,
+    keypadHeight: Dp = 250.dp
 ) {
     val keypadRows = listOf(
         listOf("1", "2", "3"),
@@ -112,8 +108,8 @@ fun Keypad(
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier
-            .width(keypadWidth) // Set the width of the keypad
-            .height(keypadHeight) // Set the height of the keypad
+            .width(keypadWidth)
+            .height(keypadHeight)
             .padding(16.dp)
     ) {
         keypadRows.forEach { row ->
@@ -205,7 +201,7 @@ fun MessageDialog(
 
     LaunchedEffect(true) {
         kotlinx.coroutines.delay(2000)
-        onDismiss() // Call onDismiss after the delay
+        onDismiss()
     }
 }
 
@@ -222,6 +218,12 @@ fun EnterPinScreen(
     val preferencesManager = PreferencesManager(context)
     val PIN = preferencesManager.getPin()
 
+    LaunchedEffect(PIN) {
+        if (PIN == null ) {
+            navController.navigate(destinationRoute)
+        }
+    }
+
     PinScreenBase(
         headerText = "Enter Current PIN",
         navController = navController,
@@ -230,25 +232,25 @@ fun EnterPinScreen(
                 navController.navigate(destinationRoute)
             } else {
                 errorMessage = "Incorrect PIN"
-                pin = "" // Reset PIN
+                pin = ""
             }
         },
         onCancel = onCancel,
         onPinUpdated = { updatedPin ->
-            errorMessage = null // Clear error when PIN is updated
+            errorMessage = null
             pin = updatedPin
         }
     )
 
-    // Show error message if PIN is incorrect
     errorMessage?.let {
         MessageDialog(
             message = it,
             messageColor = Color.Red,
-            onDismiss = { errorMessage = null } // Reset error message after dismiss
+            onDismiss = { errorMessage = null }
         )
     }
 }
+
 
 @Composable
 fun EnterNewPinScreen(
@@ -258,11 +260,11 @@ fun EnterNewPinScreen(
     var pinTemp by remember { mutableStateOf("") }
 
     PinScreenBase(
-        headerText = "Enter New PIN",
+        headerText = "Set New PIN",
         navController = navController,
         onPinEntered = { pin ->
             pinTemp = pin
-            navController.navigate("confirm_new_pin/$pinTemp") // Pass the pinTemp to confirm screen
+            navController.navigate("confirm_new_pin/$pinTemp")
         },
         onCancel = onCancel,
         onPinUpdated = { pinTemp = it }
@@ -272,8 +274,8 @@ fun EnterNewPinScreen(
 @Composable
 fun ConfirmPinScreen(
     navController: NavHostController,
-    onCancel: () -> Unit, // Cancel callback
-    pinTemp: String // Temporary PIN to compare with
+    onCancel: () -> Unit,
+    pinTemp: String
 ) {
     var confirmPin by remember { mutableStateOf("") }
     var message by remember { mutableStateOf<String?>(null) }
@@ -289,13 +291,13 @@ fun ConfirmPinScreen(
         onPinEntered = { enteredPin ->
             if (enteredPin == pinTemp) {
                 message = "PINs match! PIN updated successfully."
-                messageColor = Color(0xFF4CAF50) // Green for success
+                messageColor = Color(0xFF4CAF50)
                 preferencesManager.savePin(enteredPin)
                 pinsMatch = true
 
             } else {
                 message = "PINs do not match. Try again."
-                messageColor = Color(0xFFF44336) // Red for error
+                messageColor = Color(0xFFF44336)
                 pinsMatch = false
             }
         },
@@ -303,21 +305,20 @@ fun ConfirmPinScreen(
         onPinUpdated = { confirmPin = it }
     )
 
-    // Show success or error message
     message?.let {
         MessageDialog(
             message = it,
             messageColor = messageColor,
-            onDismiss = { message = null } // Reset message after dismiss
+            onDismiss = { message = null }
         )
     }
 
     LaunchedEffect(pinsMatch) {
         if (pinsMatch) {
-            kotlinx.coroutines.delay(2000) // Allow the success message to be visible for 2 seconds
+            kotlinx.coroutines.delay(2000)
             navController.navigate("mainscreens")
         } else if (messageColor == Color(0xFFF44336)) {
-            kotlinx.coroutines.delay(2000) // Allow the error message to be visible for 2 seconds
+            kotlinx.coroutines.delay(2000)
             navController.popBackStack()
         }
     }
