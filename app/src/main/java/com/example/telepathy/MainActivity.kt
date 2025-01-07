@@ -18,6 +18,7 @@ import com.example.telepathy.data.entities.User
 import com.example.telepathy.presentation.ui.theme.UserColors
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 
@@ -29,29 +30,36 @@ class MainActivity : ComponentActivity() {
         val preferencesManager = PreferencesManager(context)
         val database = AppDatabase.getDatabase(context)
 
-        preferencesManager.setFirstLaunch(true) // 1 uruchomienie debug
+        preferencesManager.setFirstLaunch(true) // Debug: Symulacja pierwszego uruchomienia
         logSharedPreferences(context)
 
         CoroutineScope(Dispatchers.IO).launch {
             if (preferencesManager.isFirstLaunch()) {
-                // Pierwsze uruchomienie aplikacji
-                preferencesManager.setFirstLaunch(false)
-                preferencesManager.savePin(null)
-                preferencesManager.saveLocalUserId(1)
+                val usersCount = database.userDao().getAllUsers().first().size
+                if (usersCount == 0) {
+                    preferencesManager.setFirstLaunch(false)
+                    preferencesManager.savePin(null)
+                    preferencesManager.saveLocalUserId(1)
 
-                val defaultUser = User(
-                    id = 0,
-                    name = "Default User",
-                    description = "This is the default user",
-                    color = UserColors.random(),
-                    avatar = null
-                )
-                database.userDao().insert(defaultUser)
-                Log.d("Seed", "Created default user: $defaultUser")
+                    val defaultUser = User(
+                        id = 0,
+                        name = "Default User",
+                        description = "This is the default user",
+                        color = UserColors.random(),
+                        avatar = null
+                    )
+                    database.userDao().insert(defaultUser)
+                    Log.d("Seed", "Created default user: $defaultUser")
+                } else {
+                    Log.d("Seed", "Database already contains users.")
+                }
             }
 
             // Wypisanie zawartości SharedPreferences
             logSharedPreferences(context)
+
+            // Wypisanie wszystkich użytkowników z bazy danych
+            logAllUsers(database)
         }
 
         setContent {
@@ -66,6 +74,15 @@ class MainActivity : ComponentActivity() {
         Log.d("SharedPreferences", "Zawartość SharedPreferences:")
         for ((key, value) in allEntries) {
             Log.d("SharedPreferences", "Key: $key, Value: $value")
+        }
+    }
+
+    // Funkcja do logowania wszystkich użytkowników z bazy danych
+    private suspend fun logAllUsers(database: AppDatabase) {
+        val allUsers = database.userDao().getAllUsers().first()
+        Log.d("Database", "Zawartość bazy danych (Użytkownicy):")
+        for (user in allUsers) {
+            Log.d("Database", "User: $user")
         }
     }
 }
