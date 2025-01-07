@@ -5,6 +5,9 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -16,6 +19,9 @@ import com.example.telepathy.presentation.navigation.AnimatedNavHost
 import com.example.telepathy.data.*
 import com.example.telepathy.data.entities.User
 import com.example.telepathy.presentation.ui.theme.UserColors
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import com.example.telepathy.data.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -96,14 +102,17 @@ fun MyApp() {
 
         val currentScreen = remember { mutableStateOf("contacts") }
         val navController = rememberNavController()
-
-        AnimatedNavHost(
-            navController = navController,
-            startDestination = "enter_pin_login", // "enter_pin_login" "mainscreens"
-            context = context,
-            localUserId = 2,
-            currentScreen = currentScreen
-        )
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = MaterialTheme.colorScheme.background
+        ) {
+            AnimatedNavHost(
+                navController = navController,
+                startDestination = "enter_pin_login",
+                localUserId = 1,
+                currentScreen = currentScreen
+            )
+        }
     }
 }
 

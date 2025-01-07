@@ -1,6 +1,7 @@
 package com.example.telepathy.presentation.ui
 
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -18,9 +19,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -28,7 +31,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -36,6 +38,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.telepathy.R
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.painter.BitmapPainter
+import androidx.compose.ui.platform.LocalContext
 
 
 @Composable
@@ -43,7 +47,7 @@ fun CircledImage(
     bitmap: Bitmap? = null, // Optional bitmap
     modifier: Modifier = Modifier,
     size: Dp = 90.dp,
-    defaultColor: Color = Color.Black // Kolor kółka, gdy bitmapa jest null
+    defaultColor: Color = MaterialTheme.colorScheme.secondary // Kolor kółka, gdy bitmapa jest null
 ) {
     val avatarModifier = modifier
         .size(size)
@@ -95,7 +99,7 @@ fun CustomButton(
 
             Text(
                 text = name,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onPrimary,
                 fontSize = 25.sp,
                 textAlign = TextAlign.Center,
                 maxLines = 1,
@@ -110,7 +114,7 @@ fun CustomButton(
 fun Header(text: String, modifier: Modifier = Modifier) {
     Text(
         text = text,
-        color = Color.White,
+        color = MaterialTheme.colorScheme.onPrimary,
         fontSize = 48.sp,
         textAlign = TextAlign.Center,
         modifier = modifier
@@ -124,7 +128,7 @@ fun DividerWithImage() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         HorizontalDivider(
-            color = Color.LightGray,
+            color = MaterialTheme.colorScheme.secondary,
             thickness = 2.dp,
             modifier = Modifier
                 .alpha((0.6).toFloat())
@@ -137,8 +141,13 @@ fun DividerWithImage() {
 
 @Composable
 fun BottomImage() {
+    val res = LocalContext.current.resources
+    val bitmap = remember(res) {
+        BitmapFactory.decodeResource(res, R.drawable.test1)
+    }
+
     Image(
-        painter = painterResource(R.drawable.test1),
+        painter = BitmapPainter(bitmap.asImageBitmap()),
         contentDescription = null,
         modifier = Modifier.size(80.dp)
     )
@@ -153,7 +162,7 @@ fun ScreenTemplate(
 ) {
     Surface(
         modifier = modifier.fillMaxSize(),
-        color = Color.DarkGray
+        color = MaterialTheme.colorScheme.background
     ) {
         Column(
             modifier = Modifier

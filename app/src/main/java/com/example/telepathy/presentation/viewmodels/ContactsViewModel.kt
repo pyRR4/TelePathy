@@ -54,13 +54,16 @@ class ContactsViewModel(
 class ContactsViewModelFactory(current: Context) : ViewModelProvider.Factory {
 
     private val database = AppDatabase.getDatabase(current)
+
     val userRepositoryInstance = UserRepositoryImpl(
         userDao = database.userDao(),
         contactDao = database.contactDao()
     )
+
     val messageRepositoryInstance = MessageRepositoryImpl(
         messageDao = database.messageDao()
     )
+
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(ContactsViewModel::class.java)) {
             return ContactsViewModel(userRepositoryInstance, messageRepositoryInstance) as T

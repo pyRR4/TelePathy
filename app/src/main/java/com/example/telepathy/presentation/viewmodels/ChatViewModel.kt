@@ -64,8 +64,15 @@ class ChatViewModel(
         }
     }
 
-    fun sendMessage(message: Message) {
+    fun sendMessage(content: String, senderId: Int, recipientId: Int) {
         viewModelScope.launch {
+            val timestamp = System.currentTimeMillis()
+            val message = Message(
+                content = content,
+                senderId = senderId,
+                recipientId = recipientId,
+                timestamp = timestamp
+            )
             try {
                 messageRepository.insert(message)
                 _chatHistory.update { it + message }
@@ -97,10 +104,12 @@ class ChatViewModel(
 class ChatViewModelFactory(current: Context) : ViewModelProvider.Factory {
 
     private val database = AppDatabase.getDatabase(current)
+
     private val userRepositoryInstance = UserRepositoryImpl(
         userDao = database.userDao(),
         contactDao = database.contactDao()
     )
+
     private val messageRepositoryInstance = MessageRepositoryImpl(
         messageDao = database.messageDao()
     )

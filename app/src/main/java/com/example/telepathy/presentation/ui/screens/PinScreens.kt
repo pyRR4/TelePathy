@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -18,7 +19,7 @@ import com.example.telepathy.data.PreferencesManager
 import com.example.telepathy.presentation.ui.ScreenTemplate
 import com.example.telepathy.presentation.ui.DividerWithImage
 import androidx.compose.ui.platform.LocalContext
-
+import com.example.telepathy.presentation.ui.theme.DarkButtonsColor
 
 @Composable
 fun PinScreenBase(
@@ -45,9 +46,9 @@ fun PinScreenBase(
         ) {
             Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(120.dp)
-                    .background(Color.Gray) // Placeholder color for the logo box
+                    .fillMaxWidth() // Logo box fills max width
+                    .height(120.dp) // Example height for the logo box
+                    .background(MaterialTheme.colorScheme.secondary) // Placeholder color for the logo box
             )
             Spacer(Modifier.height(60.dp))
 
@@ -67,7 +68,7 @@ fun PinScreenBase(
                         modifier = Modifier
                             .size(16.dp)
                             .background(
-                                color = if (index < pin.length) Color.Black else Color.Gray,
+                                color = if (index < pin.length) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onPrimary,
                                 shape = CircleShape
                             )
                     )
@@ -123,7 +124,7 @@ fun Keypad(
                         modifier = Modifier
                             .weight(1f)
                             .aspectRatio(1f)
-                            .background(Color.LightGray, shape = CircleShape)
+                            .background(DarkButtonsColor, shape = CircleShape)
                             .clickable {
                                 handleKeyInput(key, pin, onPinEntered, onCancel) { newPin ->
                                     onPinUpdated(newPin)
@@ -133,6 +134,7 @@ fun Keypad(
                         Text(
                             text = key,
                             fontSize = 28.sp,
+                            color = MaterialTheme.colorScheme.onPrimary,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.padding(8.dp)
                         )

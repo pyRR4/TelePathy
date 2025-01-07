@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -25,9 +25,11 @@ import com.example.telepathy.data.AppDatabase
 import com.example.telepathy.data.PreferencesManager
 import com.example.telepathy.presentation.ui.CircledImage
 import com.example.telepathy.data.entities.Message
+import com.example.telepathy.presentation.navigation.swipeToNavigate
 import com.example.telepathy.presentation.viewmodels.ChatViewModel
 import com.example.telepathy.presentation.viewmodels.ChatViewModelFactory
-import com.example.telepathy.presentation.viewmodels.ContactsViewModelFactory
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Composable
 fun MessageBubble(
@@ -52,7 +54,7 @@ fun MessageBubble(
         ) {
             Text(
                 text = message.content,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onPrimary,
                 fontSize = 16.sp,
                 lineHeight = 22.sp
             )
@@ -60,7 +62,7 @@ fun MessageBubble(
             Text(
                 text = formatTime(message.timestamp),
                 fontSize = 12.sp,
-                color = Color.White.copy(alpha = 0.6f),
+                color = MaterialTheme.colorScheme.onSecondary,
                 modifier = Modifier.padding(top = 4.dp),
                 textAlign = TextAlign.End
             )
@@ -111,14 +113,14 @@ fun TalkCard(
                     text = name,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onPrimary,
                     maxLines = 1
                 )
 
                 Text(
                     text = description,
                     fontSize = 14.sp,
-                    color = Color.White.copy(alpha = 0.8f),
+                    color = MaterialTheme.colorScheme.onSecondary,
                     modifier = Modifier.padding(top = 4.dp)
                 )
             }
@@ -133,7 +135,8 @@ fun TalkScreen(
         factory = ChatViewModelFactory(LocalContext.current)
     ),
     localUserId: Int,
-    remoteUserId: Int
+    remoteUserId: Int,
+    previousScreen: MutableState<String>
 ) {
     val user by viewModel.currentUser.collectAsState()
     val messages by viewModel.chatHistory.collectAsState()
@@ -149,14 +152,24 @@ fun TalkScreen(
 
 
     LaunchedEffect(localUserId, remoteUserId) {
-        viewModel.loadUser(remoteUserId)
-        viewModel.loadChatHistory(localUserId, remoteUserId)
+        withContext(Dispatchers.Main) {
+            viewModel.loadUser(remoteUserId)
+            viewModel.loadChatHistory(localUserId, remoteUserId)
+        }
     }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.DarkGray)
+            .background(MaterialTheme.colorScheme.background)
+            .swipeToNavigate(
+                onSwipeRight =  {
+                    navController.navigate(previousScreen.value)
+                },
+                coroutineScope = rememberCoroutineScope(),
+                isNavigating = remember { mutableStateOf(false) },
+                isSwipeHandled = remember { mutableStateOf(false) }
+            )
     ) {
         Row(
             modifier = Modifier
@@ -169,19 +182,19 @@ fun TalkScreen(
                     .height(124.dp)
                     .width(32.dp)
                     .background(
-                        color = Color.Black,
+                        color = user?.color ?: MaterialTheme.colorScheme.surface,
                         shape = RoundedCornerShape(
                             topStart = 16.dp,
                             bottomStart = 16.dp
                         )
                     ),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
             ) {
                 IconButton(onClick = { navController.popBackStack() }) {
                     Icon(
-                        imageVector = Icons.Default.ArrowBack,
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Back",
-                        tint = Color.White
+                        tint = MaterialTheme.colorScheme.onPrimary
                     )
                 }
             }
@@ -190,7 +203,7 @@ fun TalkScreen(
                 avatarBitmap = user?.avatar,
                 name = user?.name ?: "",
                 description = user?.description ?: "",
-                backgroundColor = user?.color ?: Color.DarkGray,
+                backgroundColor = user?.color ?: MaterialTheme.colorScheme.surface,
                 onClick = { /* Handle banner click */ }
             )
         }
@@ -205,7 +218,7 @@ fun TalkScreen(
             items(count = messages.size) { index ->
                 val message = messages[index]
                 val messageColor = if (message.senderId == localUserId) localUser!!.color
-                else user?.color ?: Color.DarkGray
+                else user?.color ?: MaterialTheme.colorScheme.surface
 
                 MessageBubble(
                     message = message,
@@ -225,7 +238,7 @@ fun TalkScreen(
                 Icon(
                     imageVector = Icons.Default.MoreVert,
                     contentDescription = "More",
-                    tint = Color.White
+                    tint = MaterialTheme.colorScheme.onPrimary
                 )
             }
 
@@ -241,7 +254,10 @@ fun TalkScreen(
             Spacer(modifier = Modifier.width(8.dp))
 
             Button(
-                onClick = { /* Handle send action */ },
+                onClick = {
+                    viewModel.sendMessage(messageInput, localUserId, remoteUserId)
+                    messageInput = ""
+                },
                 modifier = Modifier.height(48.dp)
             ) {
                 Text(text = "Send")
