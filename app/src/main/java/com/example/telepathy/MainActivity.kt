@@ -1,6 +1,8 @@
 package com.example.telepathy
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -9,35 +11,40 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.navigation.compose.rememberNavController
-import com.example.telepathy.presentation.ui.theme.TelePathyTheme
-import com.example.telepathy.presentation.navigation.AnimatedNavHost
-import com.example.telepathy.data.*
+import com.example.telepathy.data.AppDatabase
+import com.example.telepathy.data.DatabaseSeeder
+import com.example.telepathy.data.PreferencesManager
 import com.example.telepathy.data.entities.User
-import androidx.compose.ui.Modifier
+import com.example.telepathy.presentation.navigation.AnimatedNavHost
 import com.example.telepathy.presentation.ui.theme.DarkUserColors
+import com.example.telepathy.presentation.ui.theme.TelePathyTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
+private const val REQUEST_CODE_BLUETOOTH = 101
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // Żądanie uprawnień Bluetooth
+        getBluetoothPermissions(this)
+
         val context = applicationContext
         val preferencesManager = PreferencesManager(context)
         val database = AppDatabase.getDatabase(context)
 
-        //preferencesManager.setFirstLaunch(true) // Debug: 1 uruchomienie
         logSharedPreferences(context)
 
         CoroutineScope(Dispatchers.IO).launch {
@@ -84,6 +91,21 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQUEST_CODE_BLUETOOTH) {
+            permissions.forEachIndexed { index, permission ->
+                val result = if (grantResults[index] == PackageManager.PERMISSION_GRANTED) "granted" else "denied"
+                Log.d("BluetoothPermissions", "Permission: $permission -> $result")
+            }
+        }
+    }
+
+
     private fun logSharedPreferences(context: Context) {
         val sharedPreferences = context.getSharedPreferences("telepathy_prefs", Context.MODE_PRIVATE)
         val allEntries = sharedPreferences.all
@@ -100,9 +122,31 @@ class MainActivity : ComponentActivity() {
             Log.d("Database", "User: $user")
         }
     }
+
+    private fun getBluetoothPermissions(activity: ComponentActivity) {
+        val requiredPermissions = mutableListOf<String>()
+
+        if (ContextCompat.checkSelfPermission(activity, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
+            requiredPermissions.add(Manifest.permission.BLUETOOTH_SCAN)
+        }
+        if (ContextCompat.checkSelfPermission(activity, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+            requiredPermissions.add(Manifest.permission.BLUETOOTH_CONNECT)
+        }
+        if (ContextCompat.checkSelfPermission(activity, Manifest.permission.BLUETOOTH_ADVERTISE) != PackageManager.PERMISSION_GRANTED) {
+            requiredPermissions.add(Manifest.permission.BLUETOOTH_ADVERTISE)
+        }
+
+        if (requiredPermissions.isNotEmpty()) {
+            ActivityCompat.requestPermissions(
+                activity,
+                requiredPermissions.toTypedArray(),
+                REQUEST_CODE_BLUETOOTH
+            )
+        } else {
+            Log.d("BluetoothPermissions", "All required permissions already granted.")
+        }
+    }
 }
-
-
 
 @Composable
 fun MyApp() {
@@ -131,4 +175,4 @@ fun MyApp() {
 fun TelePathyPreview() {
     TelePathyTheme {
     }
-} 
+}

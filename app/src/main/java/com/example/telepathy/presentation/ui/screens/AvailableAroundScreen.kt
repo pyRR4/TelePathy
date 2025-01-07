@@ -43,6 +43,8 @@ fun AvailableAroundScreen(
     val context = LocalContext.current
     val preferencesManager = PreferencesManager(context)
     val localUserId = preferencesManager.getLocalUserId()
+    val localUserUuid = preferencesManager.getOrCreateUuid()
+
     val localUser = User(id = localUserId, name = "Local User", description = "I am here", color = Color.Blue)
 
     var isVisible by remember { mutableStateOf(false) }

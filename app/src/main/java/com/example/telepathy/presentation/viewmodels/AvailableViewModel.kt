@@ -52,7 +52,7 @@ class AvailableViewModelFactory(private val context: Context) : ViewModelProvide
             contactDao = database.contactDao()
         )
 
-        val bluetoothRepositoryInstance = BluetoothRepository()
+        val bluetoothRepositoryInstance = BluetoothRepository(context)
 
         if (modelClass.isAssignableFrom(AvailableViewModel::class.java)) {
             return AvailableViewModel(bluetoothRepositoryInstance, userRepositoryInstance) as T
