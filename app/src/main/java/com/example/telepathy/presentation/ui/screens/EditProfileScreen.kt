@@ -1,5 +1,7 @@
 package com.example.telepathy.presentation.ui.screens
 
+import android.graphics.ImageDecoder
+import android.graphics.ImageDecoder.decodeBitmap
 import android.net.Uri
 import android.provider.MediaStore
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -13,6 +15,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.*
@@ -33,8 +36,8 @@ import com.example.telepathy.data.LocalPreferences.localUser
 import com.example.telepathy.presentation.ui.CircledImage
 import com.example.telepathy.presentation.ui.ScreenTemplate
 import com.example.telepathy.presentation.ui.Header
-import com.example.telepathy.presentation.ui.theme.DeepPurple
-import com.example.telepathy.presentation.ui.theme.UserColors
+import com.example.telepathy.presentation.ui.theme.DarkButtonsColor
+import com.example.telepathy.presentation.ui.theme.DarkUserColors
 
 @Composable
 fun EditProfileScreen(navController: NavHostController) {
@@ -54,8 +57,8 @@ fun EditProfileScreen(navController: NavHostController) {
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         uri?.let {
-            val bitmap = MediaStore.Images.Media.getBitmap(context.contentResolver, it)
-            new_avatarBitmap = bitmap
+            val bitmap = ImageDecoder.createSource(context.contentResolver, it)
+            new_avatarBitmap = decodeBitmap(bitmap)
         }
     }
 
@@ -76,7 +79,7 @@ fun EditProfileScreen(navController: NavHostController) {
                         .padding(8.dp)
                         .height(72.dp)
                         .width(160.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Gray),
+                    colors = ButtonDefaults.buttonColors(containerColor = DarkButtonsColor),
                     shape = RoundedCornerShape(8.dp)
                 ) {
                     Text(text = stringResource(R.string.cancel), fontSize = 22.sp)
@@ -95,10 +98,10 @@ fun EditProfileScreen(navController: NavHostController) {
                         .padding(8.dp)
                         .height(72.dp)
                         .width(160.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = DeepPurple),
+                    colors = ButtonDefaults.buttonColors(containerColor = DarkButtonsColor),
                     shape = RoundedCornerShape(8.dp)
                 ) {
-                    Text(text = stringResource(R.string.save), fontSize = 22.sp, color = Color.White)
+                    Text(text = stringResource(R.string.save), fontSize = 22.sp, color = MaterialTheme.colorScheme.onPrimary)
                 }
             }
         },
@@ -126,7 +129,7 @@ fun EditProfileScreen(navController: NavHostController) {
                 Box( //clickable box
                     modifier = Modifier
                         .size(176.dp)
-                        .background(Color.DarkGray, CircleShape)
+                        .background(MaterialTheme.colorScheme.background, CircleShape)
                         .clickable { imagePickerLauncher.launch("image/*") },
                     contentAlignment = Alignment.Center
                 ) {
@@ -220,7 +223,7 @@ fun ColorPickerDialog(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                UserColors.chunked(4).forEach { rowColors ->
+                DarkUserColors.chunked(4).forEach { rowColors ->
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                         modifier = Modifier.fillMaxWidth()

@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,7 +31,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -47,7 +47,7 @@ fun CircledImage(
     bitmap: Bitmap? = null, // Optional bitmap
     modifier: Modifier = Modifier,
     size: Dp = 90.dp,
-    defaultColor: Color = Color.Black // Kolor kółka, gdy bitmapa jest null
+    defaultColor: Color = MaterialTheme.colorScheme.secondary // Kolor kółka, gdy bitmapa jest null
 ) {
     val avatarModifier = modifier
         .size(size)
@@ -99,7 +99,7 @@ fun CustomButton(
 
             Text(
                 text = name,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onPrimary,
                 fontSize = 25.sp,
                 textAlign = TextAlign.Center,
                 maxLines = 1,
@@ -114,7 +114,7 @@ fun CustomButton(
 fun Header(text: String, modifier: Modifier = Modifier) {
     Text(
         text = text,
-        color = Color.White,
+        color = MaterialTheme.colorScheme.onPrimary,
         fontSize = 48.sp,
         textAlign = TextAlign.Center,
         modifier = modifier
@@ -128,7 +128,7 @@ fun DividerWithImage() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         HorizontalDivider(
-            color = Color.LightGray,
+            color = MaterialTheme.colorScheme.secondary,
             thickness = 2.dp,
             modifier = Modifier
                 .alpha((0.6).toFloat())
@@ -162,7 +162,7 @@ fun ScreenTemplate(
 ) {
     Surface(
         modifier = modifier.fillMaxSize(),
-        color = Color.DarkGray
+        color = MaterialTheme.colorScheme.background
     ) {
         Column(
             modifier = Modifier

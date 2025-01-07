@@ -53,7 +53,7 @@ fun MessageBubble(
         ) {
             Text(
                 text = message.content,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onPrimary,
                 fontSize = 16.sp,
                 lineHeight = 22.sp
             )
@@ -61,7 +61,7 @@ fun MessageBubble(
             Text(
                 text = formatTime(message.timestamp),
                 fontSize = 12.sp,
-                color = Color.White.copy(alpha = 0.6f),
+                color = MaterialTheme.colorScheme.onSecondary,
                 modifier = Modifier.padding(top = 4.dp),
                 textAlign = TextAlign.End
             )
@@ -112,14 +112,14 @@ fun TalkCard(
                     text = name,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onPrimary,
                     maxLines = 1
                 )
 
                 Text(
                     text = description,
                     fontSize = 14.sp,
-                    color = Color.White.copy(alpha = 0.8f),
+                    color = MaterialTheme.colorScheme.onSecondary,
                     modifier = Modifier.padding(top = 4.dp)
                 )
             }
@@ -151,7 +151,7 @@ fun TalkScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.DarkGray)
+            .background(MaterialTheme.colorScheme.background)
             .swipeToNavigate(
                 onSwipeRight =  {
                     navController.navigate(previousScreen.value)
@@ -172,19 +172,19 @@ fun TalkScreen(
                     .height(124.dp)
                     .width(32.dp)
                     .background(
-                        color = Color.Black,
+                        color = user?.color ?: MaterialTheme.colorScheme.surface,
                         shape = RoundedCornerShape(
                             topStart = 16.dp,
                             bottomStart = 16.dp
                         )
                     ),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
             ) {
                 IconButton(onClick = { navController.popBackStack() }) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Back",
-                        tint = Color.White
+                        tint = MaterialTheme.colorScheme.onPrimary
                     )
                 }
             }
@@ -193,7 +193,7 @@ fun TalkScreen(
                 avatarBitmap = user?.avatar,
                 name = user?.name ?: "",
                 description = user?.description ?: "",
-                backgroundColor = user?.color ?: Color.DarkGray,
+                backgroundColor = user?.color ?: MaterialTheme.colorScheme.surface,
                 onClick = { /* Handle banner click */ }
             )
         }
@@ -208,7 +208,7 @@ fun TalkScreen(
             items(count = messages.size) { index ->
                 val message = messages[index]
                 val messageColor = if (message.senderId == localUserId) localUser!!.color
-                else user?.color ?: Color.DarkGray
+                else user?.color ?: MaterialTheme.colorScheme.surface
 
                 MessageBubble(
                     message = message,
@@ -228,7 +228,7 @@ fun TalkScreen(
                 Icon(
                     imageVector = Icons.Default.MoreVert,
                     contentDescription = "More",
-                    tint = Color.White
+                    tint = MaterialTheme.colorScheme.onPrimary
                 )
             }
 
