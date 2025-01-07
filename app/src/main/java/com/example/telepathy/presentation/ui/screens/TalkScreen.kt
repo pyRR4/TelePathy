@@ -27,6 +27,8 @@ import com.example.telepathy.data.entities.Message
 import com.example.telepathy.presentation.viewmodels.ChatViewModel
 import com.example.telepathy.presentation.viewmodels.ChatViewModelFactory
 import com.example.telepathy.presentation.viewmodels.ContactsViewModelFactory
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Composable
 fun MessageBubble(
@@ -139,8 +141,10 @@ fun TalkScreen(
     var messageInput by remember { mutableStateOf("") }
 
     LaunchedEffect(localUserId, remoteUserId) {
-        viewModel.loadUser(remoteUserId)
-        viewModel.loadChatHistory(localUserId, remoteUserId)
+        withContext(Dispatchers.Main) {
+            viewModel.loadUser(remoteUserId)
+            viewModel.loadChatHistory(localUserId, remoteUserId)
+        }
     }
 
     Column(

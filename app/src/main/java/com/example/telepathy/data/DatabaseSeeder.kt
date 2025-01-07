@@ -1,5 +1,6 @@
 package com.example.telepathy.data
 
+import android.util.Log
 import com.example.telepathy.data.entities.Contact
 import com.example.telepathy.data.entities.Message
 import com.example.telepathy.data.entities.User
@@ -9,6 +10,9 @@ class DatabaseSeeder(
     private val database: AppDatabase
 ) {
     suspend fun seed() {
+
+        Log.d("SEED", "Started seeding...")
+
         val userDao = database.userDao()
         val messageDao = database.messageDao()
         val contactDao = database.contactDao()
@@ -57,6 +61,8 @@ class DatabaseSeeder(
         }
 
         messageDao.insertMessages(messages)
+
+        Log.d("SEED", "Finished seeding.")
     }
 
 }
