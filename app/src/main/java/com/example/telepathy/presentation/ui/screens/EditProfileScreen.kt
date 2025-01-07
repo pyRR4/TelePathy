@@ -28,8 +28,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
 import com.example.telepathy.R
-import com.example.telepathy.data.LocalPreferences
-import com.example.telepathy.data.LocalPreferences.localUser
 import com.example.telepathy.presentation.ui.CircledImage
 import com.example.telepathy.presentation.ui.ScreenTemplate
 import com.example.telepathy.presentation.ui.Header

@@ -40,15 +40,6 @@ fun MyApp() {
     TelePathyTheme {
         val context = LocalContext.current
 
-        LocalPreferences.loadLocalUser( // test lokal user ------------------------
-            id = 0,
-            name = "Lokal",
-            color = Color(0xFFE57373),
-            description = "Jestem Lokalny",
-            context = context,
-            avatarResId = R.drawable.test2
-        )
-
         val currentScreen = remember { mutableStateOf("contacts") }
         val navController = rememberNavController()
 
@@ -56,7 +47,7 @@ fun MyApp() {
             navController = navController,
             startDestination = "mainscreens",
             context = context,
-            localUserId = 1,
+            localUserId = 2,
             currentScreen = currentScreen
         )
     }
