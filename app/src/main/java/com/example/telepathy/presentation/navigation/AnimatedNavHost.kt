@@ -1,9 +1,7 @@
 package com.example.telepathy.presentation.navigation
 
-
-import android.app.Activity
-import android.content.Context
 import android.util.Log
+import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
@@ -12,24 +10,25 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.runtime.*
-import androidx.compose.animation.fadeIn
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
+import androidx.compose.runtime.*
 import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.example.telepathy.presentation.ui.screens.MainScreen
+import com.example.telepathy.presentation.ui.screens.AvailableAroundScreen
 import com.example.telepathy.presentation.ui.screens.TalkScreen
-import com.example.telepathy.domain.users.UsersRepository
 import com.example.telepathy.presentation.ui.screens.ConfirmPinScreen
+import com.example.telepathy.presentation.ui.screens.ContactsScreen
 import com.example.telepathy.presentation.ui.screens.EditProfileScreen
 import com.example.telepathy.presentation.ui.screens.EnterNewPinScreen
 import com.example.telepathy.presentation.ui.screens.EnterPinScreen
+import com.example.telepathy.presentation.ui.screens.SettingsScreen
+import kotlin.math.abs
 
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -37,36 +36,161 @@ import com.example.telepathy.presentation.ui.screens.EnterPinScreen
 fun AnimatedNavHost(
     navController: NavHostController,
     startDestination: String,
-    userRepository: UsersRepository,
-    context: Context,
-    currentScreen: MutableState<String>
+    currentScreen: MutableState<String>,
+    localUserId: Int
 ) {
+
     androidx.navigation.compose.NavHost(
         navController = navController,
         startDestination = startDestination,
     ) {
+
         composable(
-            route = "mainscreens",
+            route = "contactsscreen",
             enterTransition = {
-                slideInVertically(initialOffsetY = { -it })
+                if(initialState.destination.route?.startsWith("talkscreen/") ?: false) {
+                    slideIntoContainer(
+                        towards = AnimatedContentTransitionScope.SlideDirection.Right,
+                        animationSpec = tween(
+                            durationMillis = 250,
+                            easing = LinearEasing
+                        )
+                    )
+                }
+                else if(initialState.destination.route?.startsWith("availablescreen") ?: false) {
+                    slideIntoContainer(
+                        towards = AnimatedContentTransitionScope.SlideDirection.Left,
+                        animationSpec = tween(
+                            durationMillis = 250,
+                            easing = LinearEasing
+                        )
+                    )
+                } else if(initialState.destination.route?.startsWith("settingsscreen") ?: false) {
+                    slideIntoContainer(
+                        towards = AnimatedContentTransitionScope.SlideDirection.Down,
+                        animationSpec = tween(
+                            durationMillis = 250,
+                            easing = LinearEasing
+                        )
+                    )
+                } else {
+                    slideIntoContainer(
+                        towards = AnimatedContentTransitionScope.SlideDirection.Up,
+                        animationSpec = tween(
+                            durationMillis = 250,
+                            easing = LinearEasing
+                        )
+                    )
+                }
             },
+            exitTransition = {
+                fadeOut(
+                    animationSpec = tween(durationMillis = 350)
+                )
+            }
         ) {
-            MainScreen(navController, userRepository, context, currentScreen)
+            ContactsScreen(
+                navController = navController,
+                localUserId = localUserId
+            )
+            currentScreen.value = "contactsscreen"
         }
+
+        composable(
+            route = "availablescreen",
+            enterTransition = {
+                if(initialState.destination.route?.startsWith("talkscreen/") ?: false ||
+                    initialState.destination.route?.startsWith("contactsscreen") ?: false) {
+                    slideIntoContainer(
+                        towards = AnimatedContentTransitionScope.SlideDirection.Right,
+                        animationSpec = tween(
+                            durationMillis = 250,
+                            easing = LinearEasing
+                        )
+                    )
+                } else {
+                    slideIntoContainer(
+                        towards = AnimatedContentTransitionScope.SlideDirection.Down,
+                        animationSpec = tween(
+                            durationMillis = 250,
+                            easing = LinearEasing
+                        )
+                    )
+                }
+            },
+            exitTransition = {
+                fadeOut(
+                    animationSpec = tween(durationMillis = 350)
+                )
+            }
+        ) {
+            AvailableAroundScreen(
+                navController = navController
+            )
+            currentScreen.value = "availablescreen"
+        }
+
+        composable(
+            route = "settingsscreen",
+            enterTransition = {
+                if(initialState.destination.route?.startsWith("availablescreen") ?: false ||
+                    initialState.destination.route?.startsWith("contactsscreen") ?: false) {
+                    slideIntoContainer(
+                        towards = AnimatedContentTransitionScope.SlideDirection.Up,
+                        animationSpec = tween(
+                            durationMillis = 250,
+                            easing = LinearEasing
+                        )
+                    )
+                } else {
+                    slideIntoContainer(
+                        towards = AnimatedContentTransitionScope.SlideDirection.Down,
+                        animationSpec = tween(
+                            durationMillis = 250,
+                            easing = LinearEasing
+                        )
+                    )
+                }
+            },
+            exitTransition = {
+                fadeOut(
+                    animationSpec = tween(durationMillis = 350)
+                )
+            }
+        ) {
+            SettingsScreen(
+                navController,
+                currentScreen
+            )
+        }
+
+
 
         composable(
             route = "talkscreen/{userId}",
             arguments = listOf(navArgument("userId") { type = NavType.IntType }),
             enterTransition = {
-                slideInVertically(initialOffsetY = { it })
+                slideIntoContainer(
+                    towards = AnimatedContentTransitionScope.SlideDirection.Left,
+                    animationSpec = tween(
+                        durationMillis = 250,
+                        easing = LinearEasing
+                    )
+                )
             },
             exitTransition = {
-                slideOutVertically(targetOffsetY = { it })
+                fadeOut(
+                    animationSpec = tween(durationMillis = 350)
+                )
             },
         ) { backStackEntry ->
-            val userId = backStackEntry.arguments?.getInt("userId")
-            val user = userId?.let { userRepository.getUserById(context, it) }
-            user?.let { TalkScreen(navController, it) }
+            val userId = backStackEntry.arguments?.getInt("userId") ?: return@composable
+            TalkScreen(
+                navController = navController,
+                localUserId = localUserId,
+                remoteUserId = userId,
+                previousScreen = currentScreen
+            )
         }
 
         composable(
@@ -84,25 +208,44 @@ fun AnimatedNavHost(
         //---------------------- Koniec animacji sprawdzonych ------------------------//
 
         composable(
-            route = "enter_pin_login", // do sprawdzenia
+            route = "enter_pin_login",
             enterTransition = {
-                slideInVertically(initialOffsetY = { it })
+                slideIntoContainer(
+                    towards = AnimatedContentTransitionScope.SlideDirection.Up,
+                    animationSpec = tween(
+                        durationMillis = 250,
+                        easing = LinearEasing
+                    )
+                )
             },
             exitTransition = {
-                slideOutVertically(targetOffsetY = { it })
-            }
+                fadeOut(
+                    animationSpec = tween(durationMillis = 350)
+                )
+            },
         ) {
-            MainScreen(navController, userRepository, context, currentScreen)
+            ContactsScreen(
+                navController = navController,
+                localUserId = localUserId
+            )
         }
 
         composable(
             route = "enter_pin_settings", // pin przy probie zmiany pinu
             enterTransition = {
-                slideInVertically(initialOffsetY = { it })
+                slideIntoContainer(
+                    towards = AnimatedContentTransitionScope.SlideDirection.Up,
+                    animationSpec = tween(
+                        durationMillis = 250,
+                        easing = LinearEasing
+                    )
+                )
             },
             exitTransition = {
-                slideOutVertically(targetOffsetY = { it })
-            }
+                fadeOut(
+                    animationSpec = tween(durationMillis = 350)
+                )
+            },
         ) {
             EnterPinScreen(navController, "enter_new_pin", onCancel = { navController.popBackStack() })
         }
@@ -110,11 +253,19 @@ fun AnimatedNavHost(
         composable(
             route = "enter_new_pin",
             enterTransition = {
-                slideInVertically(initialOffsetY = { it })
+                slideIntoContainer(
+                    towards = AnimatedContentTransitionScope.SlideDirection.Up,
+                    animationSpec = tween(
+                        durationMillis = 250,
+                        easing = LinearEasing
+                    )
+                )
             },
             exitTransition = {
-                slideOutVertically(targetOffsetY = { it })
-            }
+                fadeOut(
+                    animationSpec = tween(durationMillis = 350)
+                )
+            },
         ) {
             EnterNewPinScreen(
                 navController = navController,
@@ -126,11 +277,19 @@ fun AnimatedNavHost(
             route = "confirm_new_pin/{pin}",
             arguments = listOf(navArgument("pin") { type = NavType.StringType }),
             enterTransition = {
-                slideInVertically(initialOffsetY = { it })
+                slideIntoContainer(
+                    towards = AnimatedContentTransitionScope.SlideDirection.Up,
+                    animationSpec = tween(
+                        durationMillis = 250,
+                        easing = LinearEasing
+                    )
+                )
             },
             exitTransition = {
-                slideOutVertically(targetOffsetY = { it })
-            }
+                fadeOut(
+                    animationSpec = tween(durationMillis = 350)
+                )
+            },
         ) { backStackEntry ->
             val pinTemp = backStackEntry.arguments?.getString("pin") ?: ""
             ConfirmPinScreen(
@@ -145,66 +304,69 @@ fun AnimatedNavHost(
 
 
 
-        fun Modifier.swipeToNavigate(
-            coroutineScope: CoroutineScope,
-            onSwipeLeft: (() -> Unit)? = null,
-            onSwipeRight: (() -> Unit)? = null,
-            onSwipeUp: (() -> Unit)? = null,
-            onSwipeDown: (() -> Unit)? = null,
-            isSwipeHandled: MutableState<Boolean>,
-            isNavigating: MutableState<Boolean>
-        ): Modifier = this.pointerInput(Unit) {
-            detectDragGestures { change, dragAmount ->
-                change.consume()
+fun Modifier.swipeToNavigate(
+    coroutineScope: CoroutineScope,
+    onSwipeLeft: (() -> Unit)? = null,
+    onSwipeRight: (() -> Unit)? = null,
+    onSwipeUp: (() -> Unit)? = null,
+    onSwipeDown: (() -> Unit)? = null,
+    isSwipeHandled: MutableState<Boolean>,
+    isNavigating: MutableState<Boolean>,
+    horizontalThreshold: Float = 25f,
+    verticalThreshold: Float = 25f,
+): Modifier = this.pointerInput(Unit) {
+    detectDragGestures { change, dragAmount ->
+        change.consume()
 
-
-                if (!isSwipeHandled.value && !isNavigating.value) {
-                    Log.d("SwipeGesture", "Drag Amount: x = ${dragAmount.x}, y = ${dragAmount.y}")
-                    when {
-                        dragAmount.x < -100f && onSwipeLeft != null -> {
-                            Log.d("SwipeGesture", "Swipe Left detected")
-                            isNavigating.value = true
-                            coroutineScope.launch {
-                                onSwipeLeft()
-                                delay(200)
-                                isSwipeHandled.value = true
-                                isNavigating.value = false
-                            }
+        if (!isSwipeHandled.value && !isNavigating.value) {
+            Log.d("SwipeGesture", "Drag Amount: x = ${dragAmount.x}, y = ${dragAmount.y}")
+            when {
+                abs(dragAmount.x) > horizontalThreshold -> {
+                    // Handle horizontal swipe (left or right)
+                    if (dragAmount.x < 0f && onSwipeLeft != null) {
+                        Log.d("SwipeGesture", "Swipe Left detected")
+                        isNavigating.value = true
+                        coroutineScope.launch {
+                            onSwipeLeft()
+                            delay(100)
+                            isSwipeHandled.value = true
+                            isNavigating.value = false
                         }
-
-                        dragAmount.y < -100f && onSwipeDown != null -> {
-                            Log.d("SwipeGesture", "Swipe Down detected")
-                            isNavigating.value = true
-                            coroutineScope.launch {
-                                onSwipeDown()
-                                delay(200)
-                                isSwipeHandled.value = true
-                                isNavigating.value = false
-                            }
+                    } else if (dragAmount.x > 0f && onSwipeRight != null) {
+                        Log.d("SwipeGesture", "Swipe Right detected")
+                        isNavigating.value = true
+                        coroutineScope.launch {
+                            onSwipeRight()
+                            delay(100)
+                            isSwipeHandled.value = true
+                            isNavigating.value = false
                         }
-
-                        dragAmount.x > 100f && onSwipeRight != null -> {
-                            Log.d("SwipeGesture", "Swipe Right detected")
-                            isNavigating.value = true
-                            coroutineScope.launch {
-                                onSwipeRight()
-                                delay(200)
-                                isSwipeHandled.value = true
-                                isNavigating.value = false
-                            }
+                    }
+                }
+                abs(dragAmount.y) > verticalThreshold -> {
+                    // Handle vertical swipe (up or down)
+                    if (dragAmount.y < 0f && onSwipeUp != null) {
+                        Log.d("SwipeGesture", "Swipe Up detected")
+                        isNavigating.value = true
+                        coroutineScope.launch {
+                            onSwipeUp()
+                            delay(100)
+                            isSwipeHandled.value = true
+                            isNavigating.value = false
                         }
-
-                        dragAmount.y > 100f && onSwipeUp != null -> {
-                            Log.d("SwipeGesture", "Swipe Up detected")
-                            isNavigating.value = true
-                            coroutineScope.launch {
-                                onSwipeUp()
-                                delay(200)
-                                isSwipeHandled.value = true
-                                isNavigating.value = false
-                            }
+                    } else if (dragAmount.y > 0f && onSwipeDown != null) {
+                        Log.d("SwipeGesture", "Swipe Down detected")
+                        isNavigating.value = true
+                        coroutineScope.launch {
+                            onSwipeDown()
+                            delay(100)
+                            isSwipeHandled.value = true
+                            isNavigating.value = false
                         }
                     }
                 }
             }
         }
+    }
+}
+

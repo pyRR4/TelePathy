@@ -8,23 +8,28 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.example.telepathy.data.LocalPreferences
-import com.example.telepathy.data.LocalPreferences.localUser
-import com.example.telepathy.data.Message
-import com.example.telepathy.data.User
+import com.example.telepathy.data.AppDatabase
+import com.example.telepathy.data.PreferencesManager
 import com.example.telepathy.presentation.ui.CircledImage
+import com.example.telepathy.data.entities.Message
+import com.example.telepathy.presentation.navigation.swipeToNavigate
+import com.example.telepathy.presentation.viewmodels.ChatViewModel
+import com.example.telepathy.presentation.viewmodels.ChatViewModelFactory
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Composable
 fun MessageBubble(
@@ -49,7 +54,7 @@ fun MessageBubble(
         ) {
             Text(
                 text = message.content,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onPrimary,
                 fontSize = 16.sp,
                 lineHeight = 22.sp
             )
@@ -57,7 +62,7 @@ fun MessageBubble(
             Text(
                 text = formatTime(message.timestamp),
                 fontSize = 12.sp,
-                color = Color.White.copy(alpha = 0.6f),
+                color = MaterialTheme.colorScheme.onSecondary,
                 modifier = Modifier.padding(top = 4.dp),
                 textAlign = TextAlign.End
             )
@@ -108,14 +113,14 @@ fun TalkCard(
                     text = name,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onPrimary,
                     maxLines = 1
                 )
 
                 Text(
                     text = description,
                     fontSize = 14.sp,
-                    color = Color.White.copy(alpha = 0.8f),
+                    color = MaterialTheme.colorScheme.onSecondary,
                     modifier = Modifier.padding(top = 4.dp)
                 )
             }
@@ -124,14 +129,47 @@ fun TalkCard(
 }
 
 @Composable
-fun TalkScreen(navController: NavHostController, user: User) {
-    val messages = user.chatHistory
+fun TalkScreen(
+    navController: NavHostController,
+    viewModel: ChatViewModel = viewModel(
+        factory = ChatViewModelFactory(LocalContext.current)
+    ),
+    localUserId: Int,
+    remoteUserId: Int,
+    previousScreen: MutableState<String>
+) {
+    val user by viewModel.currentUser.collectAsState()
+    val messages by viewModel.chatHistory.collectAsState()
     var messageInput by remember { mutableStateOf("") }
+
+    val context = LocalContext.current
+
+    val preferencesManager = PreferencesManager(context)
+    val localUserId = preferencesManager.getLocalUserId()
+    val database = AppDatabase.getDatabase(context)
+
+    val localUser by database.userDao().getUser(localUserId).collectAsState(initial = null)
+
+
+    LaunchedEffect(localUserId, remoteUserId) {
+        withContext(Dispatchers.Main) {
+            viewModel.loadUser(remoteUserId)
+            viewModel.loadChatHistory(localUserId, remoteUserId)
+        }
+    }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.DarkGray)
+            .background(MaterialTheme.colorScheme.background)
+            .swipeToNavigate(
+                onSwipeRight =  {
+                    navController.navigate(previousScreen.value)
+                },
+                coroutineScope = rememberCoroutineScope(),
+                isNavigating = remember { mutableStateOf(false) },
+                isSwipeHandled = remember { mutableStateOf(false) }
+            )
     ) {
         Row(
             modifier = Modifier
@@ -144,28 +182,28 @@ fun TalkScreen(navController: NavHostController, user: User) {
                     .height(124.dp)
                     .width(32.dp)
                     .background(
-                        color = Color.Black,
+                        color = user?.color ?: MaterialTheme.colorScheme.surface,
                         shape = RoundedCornerShape(
                             topStart = 16.dp,
                             bottomStart = 16.dp
                         )
                     ),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
             ) {
                 IconButton(onClick = { navController.popBackStack() }) {
                     Icon(
-                        imageVector = Icons.Default.ArrowBack,
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Back",
-                        tint = Color.White
+                        tint = MaterialTheme.colorScheme.onPrimary
                     )
                 }
             }
 
             TalkCard(
-                avatarBitmap = user.avatar,
-                name = user.name,
-                description = user.description,
-                backgroundColor = user.color,
+                avatarBitmap = user?.avatar,
+                name = user?.name ?: "",
+                description = user?.description ?: "",
+                backgroundColor = user?.color ?: MaterialTheme.colorScheme.surface,
                 onClick = { /* Handle banner click */ }
             )
         }
@@ -179,11 +217,12 @@ fun TalkScreen(navController: NavHostController, user: User) {
         ) {
             items(count = messages.size) { index ->
                 val message = messages[index]
-                val messageColor = if (message.fromLocalUser) localUser!!.color  else user.color
+                val messageColor = if (message.senderId == localUserId) localUser!!.color
+                else user?.color ?: MaterialTheme.colorScheme.surface
 
                 MessageBubble(
                     message = message,
-                    isLocalUser = message.fromLocalUser,
+                    isLocalUser = message.senderId == localUserId,
                     backgroundColor = messageColor
                 )
             }
@@ -199,7 +238,7 @@ fun TalkScreen(navController: NavHostController, user: User) {
                 Icon(
                     imageVector = Icons.Default.MoreVert,
                     contentDescription = "More",
-                    tint = Color.White
+                    tint = MaterialTheme.colorScheme.onPrimary
                 )
             }
 
@@ -215,7 +254,10 @@ fun TalkScreen(navController: NavHostController, user: User) {
             Spacer(modifier = Modifier.width(8.dp))
 
             Button(
-                onClick = { /* Handle send action */ },
+                onClick = {
+                    viewModel.sendMessage(messageInput, localUserId, remoteUserId)
+                    messageInput = ""
+                },
                 modifier = Modifier.height(48.dp)
             ) {
                 Text(text = "Send")

@@ -5,10 +5,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.telepathy.presentation.ui.CircledImage
@@ -18,7 +20,13 @@ import com.example.telepathy.presentation.ui.DividerWithImage
 import com.example.telepathy.presentation.ui.Header
 import com.example.telepathy.presentation.ui.ScreenTemplate
 import androidx.navigation.NavHostController
+import com.example.telepathy.data.AppDatabase
+import com.example.telepathy.data.PreferencesManager
+import com.example.telepathy.data.entities.User
+import kotlinx.coroutines.flow.firstOrNull
 import com.example.telepathy.data.LocalPreferences.localUser
+import com.example.telepathy.presentation.navigation.swipeToNavigate
+import com.example.telepathy.presentation.ui.theme.AlertRed
 
 data class SettingOption(
     val iconBitmap: Bitmap? = null,
@@ -29,26 +37,47 @@ data class SettingOption(
 )
 
 @Composable
-fun SettingsScreen(navController: NavHostController) {
+fun SettingsScreen(
+  navController: NavHostController,
+    previousScreen: MutableState<String>
+) {
+    val context = LocalContext.current
+    val preferencesManager = PreferencesManager(context)
+    val localUserId = preferencesManager.getLocalUserId()
+    val database = AppDatabase.getDatabase(context)
+
+    var localUser by remember { mutableStateOf<User?>(null) }
+
+    LaunchedEffect(Unit) {
+        localUser = database.userDao().getUser(localUserId).firstOrNull()
+    }
     val settingsOptions = listOf(
         SettingOption(
             iconBitmap = localUser?.avatar,
-            iconColor = Color.Black,
+            iconColor = MaterialTheme.colorScheme.secondary,
             title = stringResource(R.string.edit_profile),
             backgroundColor = Color.Gray,
-            onClick = {navController.navigate("edit_profile")}
+            onClick = { navController.navigate("edit_profile") }
         ),
         SettingOption(
-            iconColor = Color.Black,
+            iconColor = MaterialTheme.colorScheme.secondary,
             title = stringResource(R.string.change_pin),
             backgroundColor = Color.Gray,
-            onClick = {navController.navigate("enter_pin_settings")}
+            onClick = {
+                val pin = preferencesManager.getPin()
+
+                if (pin == null) {
+                    navController.navigate("enter_new_pin")
+                } else {
+                    navController.navigate("enter_pin_settings")
+                }
+            }
         ),
         SettingOption(
-            iconColor = Color.Black,
+            iconColor = MaterialTheme.colorScheme.secondary,
             title = stringResource(R.string.reset_app_data),
-            backgroundColor = Color.Red,
-            onClick = {navController.navigate("reset_app")}
+            backgroundColor = AlertRed,
+            onClick = { navController.navigate("reset_app")}
         )
     )
 
@@ -59,7 +88,14 @@ fun SettingsScreen(navController: NavHostController) {
         header = {
             Header(stringResource(R.string.settings), modifier = Modifier.padding(bottom = 16.dp))
         },
-        modifier = Modifier
+        modifier = Modifier.swipeToNavigate(
+            onSwipeDown =  {
+                navController.navigate(previousScreen.value)
+            },
+            coroutineScope = rememberCoroutineScope(),
+            isNavigating = remember { mutableStateOf(false) },
+            isSwipeHandled = remember { mutableStateOf(false) }
+        )
     ) {
         Column(
             verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -82,6 +118,7 @@ fun SettingsScreen(navController: NavHostController) {
         }
     }
 }
+
 
 @Composable
 fun ButtonIcon(image: Painter, modifier: Modifier) {

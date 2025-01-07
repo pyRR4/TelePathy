@@ -20,7 +20,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -28,7 +30,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.telepathy.R
 import androidx.compose.ui.res.stringResource
-import com.example.telepathy.data.User
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.telepathy.presentation.navigation.swipeToNavigate
 import com.example.telepathy.presentation.ui.CircledImage
 import com.example.telepathy.presentation.ui.DividerWithImage
 import com.example.telepathy.presentation.ui.Header
@@ -36,6 +39,10 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import com.example.telepathy.presentation.ui.ScreenTemplate
+import com.example.telepathy.presentation.viewmodels.ContactsViewModel
+import com.example.telepathy.presentation.viewmodels.ContactsViewModelFactory
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Composable
 fun formatTime(timestamp: Long): String {
@@ -66,7 +73,7 @@ fun ContactText(name: String, isFromUser: Boolean, message: String, timestamp: L
                 text = name,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onPrimary,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -74,7 +81,7 @@ fun ContactText(name: String, isFromUser: Boolean, message: String, timestamp: L
             Text(
                 text = msg,
                 fontSize = 14.sp,
-                color = Color.White.copy(alpha = 0.8f),
+                color = MaterialTheme.colorScheme.onSecondary,
                 lineHeight = 18.sp,
                 modifier = Modifier.padding(top = 10.dp),
                 overflow = TextOverflow.Ellipsis
@@ -84,7 +91,7 @@ fun ContactText(name: String, isFromUser: Boolean, message: String, timestamp: L
         Text(
             text = formattedTime,
             fontSize = 14.sp,
-            color = Color.White.copy(alpha = 0.8f),
+            color = MaterialTheme.colorScheme.onSecondary,
             textAlign = TextAlign.End
         )
     }
@@ -135,7 +142,21 @@ fun UserCard(
 }
 
 @Composable
-fun ContactsScreen(navController: NavHostController, users: List<User>, currentScreen: MutableState<String>) {
+fun ContactsScreen(
+    navController: NavHostController,
+    localUserId: Int,
+    viewModel: ContactsViewModel = viewModel(
+        factory = ContactsViewModelFactory(LocalContext.current)
+    )
+) {
+
+    val contacts by viewModel.contacts.collectAsState()
+
+    LaunchedEffect(localUserId) {
+        withContext(Dispatchers.Main) {
+            viewModel.loadContacts(localUserId)
+        }
+    }
 
     ScreenTemplate(
         navIcon = {
@@ -144,23 +165,34 @@ fun ContactsScreen(navController: NavHostController, users: List<User>, currentS
         header = {
             Header(stringResource(R.string.your_contacts), modifier = Modifier.padding(bottom = 16.dp))
         },
-        modifier = Modifier
+        modifier = Modifier.swipeToNavigate(
+            onSwipeUp =  {
+                navController.navigate("settingsscreen")
+            },
+            onSwipeRight = {
+                navController.navigate("availablescreen")
+            },
+            coroutineScope = rememberCoroutineScope(),
+            isNavigating = remember { mutableStateOf(false) },
+            isSwipeHandled = remember { mutableStateOf(false) }
+        )
     ) {
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             modifier = Modifier
                 .fillMaxWidth()
         ) {
-            items(count = users.size) { index ->
-                val user = users[index]
+            val contactEntries = contacts.entries.toList()
+            items(contactEntries.size) { index ->
+                val (user, lastMessage) = contactEntries[index]
                 UserCard(
                     avatarBitmap = user.avatar,
                     name = user.name,
-                    isFromUser = user.chatHistory.lastOrNull()?.fromLocalUser == true,
-                    message = user.chatHistory.lastOrNull()?.content ?: "Brak wiadomości",
-                    time = user.chatHistory.lastOrNull()?.timestamp ?: 0L,
+                    isFromUser = lastMessage.senderId == localUserId,
+                    message = lastMessage.content,
+                    time = lastMessage.timestamp,
                     backgroundColor = user.color,
-                    onClick = {navController.navigate("talkscreen/${user.id}")}
+                    onClick = { navController.navigate("talkscreen/${user.id}") }
                 )
             }
         }

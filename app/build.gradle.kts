@@ -2,7 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    id("com.google.devtools.ksp")
+    id("com.google.devtools.ksp") version "2.1.0-1.0.29"
 }
 
 android {
@@ -38,6 +38,9 @@ android {
     buildFeatures {
         compose = true
     }
+    ksp {
+        arg("room.generateKotlin", "true")
+    }
 }
 
 dependencies {
@@ -46,6 +49,7 @@ dependencies {
 
     // Room runtime library
     implementation("androidx.room:room-runtime:$room_version")
+    implementation("androidx.room:room-ktx:$room_version")
     ksp("androidx.room:room-compiler:$room_version")
 
     // Annotation processor for Room (Java and Kotlin)
@@ -55,6 +59,7 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
+    implementation(libs.accompanist.navigation.animation)
 
     // Jetpack Compose dependencies
     implementation(platform(libs.androidx.compose.bom))
