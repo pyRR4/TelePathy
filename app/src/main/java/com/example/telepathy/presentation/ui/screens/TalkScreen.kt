@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -24,9 +24,9 @@ import androidx.navigation.NavHostController
 import com.example.telepathy.data.LocalPreferences.localUser
 import com.example.telepathy.presentation.ui.CircledImage
 import com.example.telepathy.data.entities.Message
+import com.example.telepathy.presentation.navigation.swipeToNavigate
 import com.example.telepathy.presentation.viewmodels.ChatViewModel
 import com.example.telepathy.presentation.viewmodels.ChatViewModelFactory
-import com.example.telepathy.presentation.viewmodels.ContactsViewModelFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -134,7 +134,8 @@ fun TalkScreen(
         factory = ChatViewModelFactory(LocalContext.current)
     ),
     localUserId: Int,
-    remoteUserId: Int
+    remoteUserId: Int,
+    previousScreen: MutableState<String>
 ) {
     val user by viewModel.currentUser.collectAsState()
     val messages by viewModel.chatHistory.collectAsState()
@@ -151,6 +152,14 @@ fun TalkScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.DarkGray)
+            .swipeToNavigate(
+                onSwipeRight =  {
+                    navController.navigate(previousScreen.value)
+                },
+                coroutineScope = rememberCoroutineScope(),
+                isNavigating = remember { mutableStateOf(false) },
+                isSwipeHandled = remember { mutableStateOf(false) }
+            )
     ) {
         Row(
             modifier = Modifier
@@ -173,7 +182,7 @@ fun TalkScreen(
             ) {
                 IconButton(onClick = { navController.popBackStack() }) {
                     Icon(
-                        imageVector = Icons.Default.ArrowBack,
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Back",
                         tint = Color.White
                     )

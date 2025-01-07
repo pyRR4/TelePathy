@@ -1,5 +1,6 @@
 [versions]
 accompanistPagerIndicators = "0.36.0"
+accompanistNavigationAnimation = "0.31.0-alpha"
 agp = "8.7.1"
 kotlin = "2.1.0"
 coreKtx = "1.13.1"
@@ -13,6 +14,7 @@ navigationCompose = "2.8.3"
 navigationComposeVersion = "2.8.3"
 
 [libraries]
+accompanist-navigation-animation = { module = "com.google.accompanist:accompanist-navigation-animation", version.ref = "accompanistNavigationAnimation" }
 accompanist-pager = { module = "com.google.accompanist:accompanist-pager", version.ref = "accompanistPagerIndicators" }
 accompanist-pager-indicators = { module = "com.google.accompanist:accompanist-pager-indicators", version.ref = "accompanistPagerIndicators" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }

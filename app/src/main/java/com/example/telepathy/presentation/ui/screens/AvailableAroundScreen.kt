@@ -14,6 +14,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.telepathy.presentation.ui.ScreenTemplate
 import com.example.telepathy.R
+import com.example.telepathy.presentation.navigation.swipeToNavigate
 import com.example.telepathy.presentation.ui.CustomButton
 import com.example.telepathy.presentation.ui.DividerWithImage
 import com.example.telepathy.presentation.ui.Header
@@ -26,8 +27,7 @@ fun AvailableAroundScreen(
     navController: NavHostController,
     viewModel: ContactsViewModel = viewModel(
         factory = ContactsViewModelFactory(LocalContext.current)
-    ),
-    currentScreen: MutableState<String>
+    )
 ) {
 
     val contacts by viewModel.contacts.collectAsState()
@@ -41,7 +41,17 @@ fun AvailableAroundScreen(
         header = {
             Header(stringResource(R.string.available_around_you), modifier = Modifier.padding(bottom = 16.dp))
         },
-        modifier = Modifier
+        modifier = Modifier.swipeToNavigate(
+            onSwipeLeft =  {
+                navController.navigate("contactsscreen")
+            },
+            onSwipeUp = {
+                navController.navigate("settingsscreen")
+            },
+            coroutineScope = rememberCoroutineScope(),
+            isNavigating = remember { mutableStateOf(false) },
+            isSwipeHandled = remember { mutableStateOf(false) }
+        )
     ) {
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(16.dp),
