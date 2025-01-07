@@ -9,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.telepathy.presentation.ui.CircledImage
@@ -18,7 +19,9 @@ import com.example.telepathy.presentation.ui.DividerWithImage
 import com.example.telepathy.presentation.ui.Header
 import com.example.telepathy.presentation.ui.ScreenTemplate
 import androidx.navigation.NavHostController
-import com.example.telepathy.data.LocalPreferences.localUser
+import com.example.telepathy.data.AppDatabase
+import com.example.telepathy.data.PreferencesManager
+
 
 data class SettingOption(
     val iconBitmap: Bitmap? = null,
@@ -30,6 +33,16 @@ data class SettingOption(
 
 @Composable
 fun SettingsScreen(navController: NavHostController) {
+
+    val context = LocalContext.current
+
+    val preferencesManager = PreferencesManager(context)
+    val localUserId = preferencesManager.getLocalUserId()
+    val database = AppDatabase.getDatabase(context)
+
+    val localUser by database.userDao().getUser(localUserId).collectAsState(initial = null)
+
+
     val settingsOptions = listOf(
         SettingOption(
             iconBitmap = localUser?.avatar,

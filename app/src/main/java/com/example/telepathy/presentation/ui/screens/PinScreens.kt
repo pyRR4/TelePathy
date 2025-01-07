@@ -14,9 +14,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.navigation.NavHostController
+import com.example.telepathy.data.PreferencesManager
 import com.example.telepathy.presentation.ui.ScreenTemplate
-import com.example.telepathy.data.LocalPreferences
 import com.example.telepathy.presentation.ui.DividerWithImage
+import androidx.compose.ui.platform.LocalContext
+
 
 @Composable
 fun PinScreenBase(
@@ -216,11 +218,15 @@ fun EnterPinScreen(
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var pin by remember { mutableStateOf("") }
 
+    val context = LocalContext.current
+    val preferencesManager = PreferencesManager(context)
+    val PIN = preferencesManager.getPin()
+
     PinScreenBase(
         headerText = "Enter Current PIN",
         navController = navController,
         onPinEntered = { enteredPin ->
-            if (enteredPin == LocalPreferences.PIN) {
+            if (enteredPin == PIN) {
                 navController.navigate(destinationRoute)
             } else {
                 errorMessage = "Incorrect PIN"
@@ -274,6 +280,9 @@ fun ConfirmPinScreen(
     var messageColor by remember { mutableStateOf(Color.Transparent) }
     var pinsMatch by remember { mutableStateOf(false) }
 
+    val context = LocalContext.current
+    val preferencesManager = PreferencesManager(context)
+
     PinScreenBase(
         headerText = "Confirm New PIN",
         navController = navController,
@@ -281,7 +290,7 @@ fun ConfirmPinScreen(
             if (enteredPin == pinTemp) {
                 message = "PINs match! PIN updated successfully."
                 messageColor = Color(0xFF4CAF50) // Green for success
-                LocalPreferences.PIN = enteredPin
+                preferencesManager.savePin(enteredPin)
                 pinsMatch = true
 
             } else {

@@ -21,7 +21,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.example.telepathy.data.LocalPreferences.localUser
+import com.example.telepathy.data.AppDatabase
+import com.example.telepathy.data.PreferencesManager
 import com.example.telepathy.presentation.ui.CircledImage
 import com.example.telepathy.data.entities.Message
 import com.example.telepathy.presentation.viewmodels.ChatViewModel
@@ -137,6 +138,15 @@ fun TalkScreen(
     val user by viewModel.currentUser.collectAsState()
     val messages by viewModel.chatHistory.collectAsState()
     var messageInput by remember { mutableStateOf("") }
+
+    val context = LocalContext.current
+
+    val preferencesManager = PreferencesManager(context)
+    val localUserId = preferencesManager.getLocalUserId()
+    val database = AppDatabase.getDatabase(context)
+
+    val localUser by database.userDao().getUser(localUserId).collectAsState(initial = null)
+
 
     LaunchedEffect(localUserId, remoteUserId) {
         viewModel.loadUser(remoteUserId)

@@ -28,19 +28,26 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
 import com.example.telepathy.R
+import com.example.telepathy.data.AppDatabase
+import com.example.telepathy.data.PreferencesManager
+import com.example.telepathy.data.entities.User
 import com.example.telepathy.presentation.ui.CircledImage
 import com.example.telepathy.presentation.ui.ScreenTemplate
 import com.example.telepathy.presentation.ui.Header
 import com.example.telepathy.presentation.ui.theme.DeepPurple
 import com.example.telepathy.presentation.ui.theme.UserColors
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
 
 @Composable
 fun EditProfileScreen(navController: NavHostController) {
     val context = LocalContext.current
 
-    if (localUser == null) {
-        LocalPreferences.createBasicLocalUser(context)
-    }
+    val preferencesManager = PreferencesManager(context)
+    val localUserId = preferencesManager.getLocalUserId()
+    val database = AppDatabase.getDatabase(context)
+
+    val localUser by database.userDao().getUser(localUserId).collectAsState(initial = null)
 
     var new_username by remember { mutableStateOf(localUser?.name ?: "") }
     var new_description by remember { mutableStateOf(localUser?.description ?: "") }
@@ -80,14 +87,24 @@ fun EditProfileScreen(navController: NavHostController) {
                     Text(text = stringResource(R.string.cancel), fontSize = 22.sp)
                 }
 
+                val coroutineScope = rememberCoroutineScope()
+
                 Button(
                     onClick = {
-                        // Save the updated user data
-//                        localUser!!.name = new_username
-//                        localUser!!.description = new_description
-//                        localUser!!.color = new_selectedColor
-//                        localUser!!.avatar = new_avatarBitmap
-                        navController.popBackStack()
+                        localUser?.let { existingUser ->
+                            val updatedUser = existingUser.copy(
+                                name = new_username,
+                                description = new_description,
+                                color = new_selectedColor,
+                                avatar = new_avatarBitmap
+                            )
+
+                            // zapis danych w bazie
+                            coroutineScope.launch {
+                                database.userDao().update(updatedUser)
+                                navController.popBackStack()
+                            }
+                        }
                     },
                     modifier = Modifier
                         .padding(8.dp)
@@ -98,6 +115,8 @@ fun EditProfileScreen(navController: NavHostController) {
                 ) {
                     Text(text = stringResource(R.string.save), fontSize = 22.sp, color = Color.White)
                 }
+
+
             }
         },
         header = {
@@ -183,6 +202,7 @@ fun EditProfileScreen(navController: NavHostController) {
         )
     }
 }
+
 
 @Composable
 fun ColorPickerDialog(
@@ -285,7 +305,11 @@ fun TextFieldComposable(
             // Label in top-left
             Text(
                 text = label,
-                style = TextStyle(fontSize = 16.sp, color = Color.DarkGray, fontWeight = FontWeight.Medium),
+                style = TextStyle(
+                    fontSize = 16.sp,
+                    color = Color.DarkGray,
+                    fontWeight = FontWeight.Medium
+                ),
                 modifier = Modifier
                     .align(Alignment.TopStart)
                     .padding(2.dp)
@@ -294,7 +318,11 @@ fun TextFieldComposable(
             // Character count in top-right
             BasicText(
                 text = "$charactersLeft",
-                style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.DarkGray),
+                style = TextStyle(
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.DarkGray
+                ),
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .padding(2.dp)
@@ -302,5 +330,4 @@ fun TextFieldComposable(
         }
     }
 }
-
 
