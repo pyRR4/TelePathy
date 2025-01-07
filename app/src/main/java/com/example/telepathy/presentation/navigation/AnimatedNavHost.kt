@@ -17,18 +17,18 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.*
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
-import com.example.telepathy.presentation.ui.screens.MainScreen
+import com.example.telepathy.presentation.ui.screens.AvailableAroundScreen
 import com.example.telepathy.presentation.ui.screens.TalkScreen
 import com.example.telepathy.presentation.ui.screens.ConfirmPinScreen
+import com.example.telepathy.presentation.ui.screens.ContactsScreen
 import com.example.telepathy.presentation.ui.screens.EditProfileScreen
 import com.example.telepathy.presentation.ui.screens.EnterNewPinScreen
 import com.example.telepathy.presentation.ui.screens.EnterPinScreen
+import com.example.telepathy.presentation.ui.screens.SettingsScreen
 import kotlin.math.abs
 
 
@@ -41,7 +41,6 @@ fun AnimatedNavHost(
     currentScreen: MutableState<String>,
     localUserId: Int
 ) {
-    val currentBackSetEntry: NavBackStackEntry? by navController.currentBackStackEntryAsState()
 
     androidx.navigation.compose.NavHost(
         navController = navController,
@@ -49,11 +48,28 @@ fun AnimatedNavHost(
     ) {
 
         composable(
-            route = "mainscreens",
+            route = "contactsscreen",
             enterTransition = {
                 if(initialState.destination.route?.startsWith("talkscreen/") ?: false) {
                     slideIntoContainer(
                         towards = AnimatedContentTransitionScope.SlideDirection.Right,
+                        animationSpec = tween(
+                            durationMillis = 250,
+                            easing = LinearEasing
+                        )
+                    )
+                }
+                else if(initialState.destination.route?.startsWith("availablescreen") ?: false) {
+                    slideIntoContainer(
+                        towards = AnimatedContentTransitionScope.SlideDirection.Left,
+                        animationSpec = tween(
+                            durationMillis = 250,
+                            easing = LinearEasing
+                        )
+                    )
+                } else if(initialState.destination.route?.startsWith("settingsscreen") ?: false) {
+                    slideIntoContainer(
+                        towards = AnimatedContentTransitionScope.SlideDirection.Down,
                         animationSpec = tween(
                             durationMillis = 250,
                             easing = LinearEasing
@@ -70,19 +86,88 @@ fun AnimatedNavHost(
                 }
             },
             exitTransition = {
-                if(currentBackSetEntry?.destination?.route?.startsWith("talkscreen/") ?: false) {
-                    fadeOut(
-                        animationSpec = tween(durationMillis = 500)
-                    )
-                } else {
-                    fadeOut(
-                        animationSpec = tween(durationMillis = 500)
-                    )
-                }
+                fadeOut(
+                    animationSpec = tween(durationMillis = 500)
+                )
             }
         ) {
-            MainScreen(navController, context, localUserId, currentScreen)
+            ContactsScreen(
+                navController = navController,
+                localUserId = localUserId,
+                currentScreen = currentScreen
+            )
+            currentScreen.value = "contactsscreen"
         }
+
+        composable(
+            route = "availablescreen",
+            enterTransition = {
+                if(initialState.destination.route?.startsWith("talkscreen/") ?: false ||
+                    initialState.destination.route?.startsWith("contactsscreen") ?: false) {
+                    slideIntoContainer(
+                        towards = AnimatedContentTransitionScope.SlideDirection.Right,
+                        animationSpec = tween(
+                            durationMillis = 250,
+                            easing = LinearEasing
+                        )
+                    )
+                } else {
+                    slideIntoContainer(
+                        towards = AnimatedContentTransitionScope.SlideDirection.Down,
+                        animationSpec = tween(
+                            durationMillis = 250,
+                            easing = LinearEasing
+                        )
+                    )
+                }
+            },
+            exitTransition = {
+                fadeOut(
+                    animationSpec = tween(durationMillis = 500)
+                )
+            }
+        ) {
+            AvailableAroundScreen(
+                navController = navController
+            )
+            currentScreen.value = "availablescreen"
+        }
+
+        composable(
+            route = "settingsscreen",
+            enterTransition = {
+                if(initialState.destination.route?.startsWith("availablescreen") ?: false ||
+                    initialState.destination.route?.startsWith("contactsscreen") ?: false) {
+                    slideIntoContainer(
+                        towards = AnimatedContentTransitionScope.SlideDirection.Up,
+                        animationSpec = tween(
+                            durationMillis = 250,
+                            easing = LinearEasing
+                        )
+                    )
+                } else {
+                    slideIntoContainer(
+                        towards = AnimatedContentTransitionScope.SlideDirection.Down,
+                        animationSpec = tween(
+                            durationMillis = 250,
+                            easing = LinearEasing
+                        )
+                    )
+                }
+            },
+            exitTransition = {
+                fadeOut(
+                    animationSpec = tween(durationMillis = 500)
+                )
+            }
+        ) {
+            SettingsScreen(
+                navController,
+                currentScreen
+            )
+        }
+
+
 
         composable(
             route = "talkscreen/{userId}",
@@ -106,7 +191,8 @@ fun AnimatedNavHost(
             TalkScreen(
                 navController = navController,
                 localUserId = localUserId,
-                remoteUserId = userId
+                remoteUserId = userId,
+                previousScreen = currentScreen
             )
         }
 
@@ -133,7 +219,11 @@ fun AnimatedNavHost(
                 slideOutVertically(targetOffsetY = { it })
             }
         ) {
-            MainScreen(navController, context, localUserId, currentScreen)
+            ContactsScreen(
+                navController = navController,
+                localUserId = localUserId,
+                currentScreen = currentScreen
+            )
         }
 
         composable(
@@ -194,8 +284,8 @@ fun Modifier.swipeToNavigate(
     onSwipeDown: (() -> Unit)? = null,
     isSwipeHandled: MutableState<Boolean>,
     isNavigating: MutableState<Boolean>,
-    horizontalThreshold: Float = 30f,
-    verticalThreshold: Float = 30f,
+    horizontalThreshold: Float = 25f,
+    verticalThreshold: Float = 25f,
 ): Modifier = this.pointerInput(Unit) {
     detectDragGestures { change, dragAmount ->
         change.consume()

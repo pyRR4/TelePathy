@@ -27,7 +27,6 @@ import com.example.telepathy.data.entities.Message
 import com.example.telepathy.presentation.navigation.swipeToNavigate
 import com.example.telepathy.presentation.viewmodels.ChatViewModel
 import com.example.telepathy.presentation.viewmodels.ChatViewModelFactory
-import com.example.telepathy.presentation.viewmodels.ContactsViewModelFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -135,7 +134,8 @@ fun TalkScreen(
         factory = ChatViewModelFactory(LocalContext.current)
     ),
     localUserId: Int,
-    remoteUserId: Int
+    remoteUserId: Int,
+    previousScreen: MutableState<String>
 ) {
     val user by viewModel.currentUser.collectAsState()
     val messages by viewModel.chatHistory.collectAsState()
@@ -154,7 +154,7 @@ fun TalkScreen(
             .background(Color.DarkGray)
             .swipeToNavigate(
                 onSwipeRight =  {
-                    navController.navigate("mainscreens")
+                    navController.navigate(previousScreen.value)
                 },
                 coroutineScope = rememberCoroutineScope(),
                 isNavigating = remember { mutableStateOf(false) },

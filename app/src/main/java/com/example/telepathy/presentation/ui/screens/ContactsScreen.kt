@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.sp
 import com.example.telepathy.R
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.telepathy.presentation.navigation.swipeToNavigate
 import com.example.telepathy.presentation.ui.CircledImage
 import com.example.telepathy.presentation.ui.DividerWithImage
 import com.example.telepathy.presentation.ui.Header
@@ -164,7 +165,17 @@ fun ContactsScreen(
         header = {
             Header(stringResource(R.string.your_contacts), modifier = Modifier.padding(bottom = 16.dp))
         },
-        modifier = Modifier
+        modifier = Modifier.swipeToNavigate(
+            onSwipeUp =  {
+                navController.navigate("settingsscreen")
+            },
+            onSwipeRight = {
+                navController.navigate("availablescreen")
+            },
+            coroutineScope = rememberCoroutineScope(),
+            isNavigating = remember { mutableStateOf(false) },
+            isSwipeHandled = remember { mutableStateOf(false) }
+        )
     ) {
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(16.dp),
