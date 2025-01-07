@@ -1,48 +1,104 @@
 package com.example.telepathy.presentation.ui.screens
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.example.telepathy.presentation.ui.ScreenTemplate
 import com.example.telepathy.R
-import com.example.telepathy.presentation.navigation.swipeToNavigate
+import com.example.telepathy.data.PreferencesManager
+import com.example.telepathy.data.entities.User
 import com.example.telepathy.presentation.ui.CustomButton
-import com.example.telepathy.presentation.ui.DividerWithImage
 import com.example.telepathy.presentation.ui.Header
-import com.example.telepathy.presentation.viewmodels.ContactsViewModel
-import com.example.telepathy.presentation.viewmodels.ContactsViewModelFactory
-
+import com.example.telepathy.presentation.ui.ScreenTemplate
+import com.example.telepathy.presentation.viewmodels.AvailableViewModel
+import com.example.telepathy.presentation.viewmodels.AvailableViewModelFactory
+import com.example.telepathy.presentation.navigation.swipeToNavigate
+import com.example.telepathy.presentation.ui.BottomImage
+import com.example.telepathy.presentation.ui.CircledImage
 
 @Composable
 fun AvailableAroundScreen(
     navController: NavHostController,
-    viewModel: ContactsViewModel = viewModel(
-        factory = ContactsViewModelFactory(LocalContext.current)
+    viewModel: AvailableViewModel = viewModel(
+        factory = AvailableViewModelFactory(LocalContext.current)
     )
 ) {
+    val context = LocalContext.current
+    val preferencesManager = PreferencesManager(context)
+    val localUserId = preferencesManager.getLocalUserId()
+    val localUser = User(id = localUserId, name = "Local User", description = "I am here", color = Color.Blue)
 
-    val contacts by viewModel.contacts.collectAsState()
-
-    val availableContacts = contacts.keys.toList()
+    var isVisible by remember { mutableStateOf(false) }
+    val discoveredUsers by viewModel.discoveredUsers.collectAsState()
 
     ScreenTemplate(
         navIcon = {
-            DividerWithImage()
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                HorizontalDivider(
+                    color = MaterialTheme.colorScheme.secondary,
+                    thickness = 2.dp,
+                    modifier = Modifier
+                        .alpha((0.6).toFloat())
+                        .padding(vertical = 16.dp)
+                        .width(LocalConfiguration.current.screenWidthDp.dp / 2)
+                )
+                Button(
+                    onClick = {
+                        isVisible = !isVisible
+                        if (isVisible) {
+                            viewModel.startAdvertising(localUser)
+                            viewModel.startScan()
+                        } else {
+                            viewModel.stopAdvertising()
+                            viewModel.stopScan()
+                        }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                        .height(56.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (isVisible) Color.Red else Color.Green
+                    ),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(
+                        text = if (isVisible) "Hide" else "Show me",
+                        fontSize = 18.sp,
+                        color = Color.White
+                    )
+                }
+            }
         },
+
         header = {
-            Header(stringResource(R.string.available_around_you), modifier = Modifier.padding(bottom = 16.dp))
+            Header(
+                text = stringResource(R.string.available_around_you),
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
         },
         modifier = Modifier.swipeToNavigate(
-            onSwipeLeft =  {
+            onSwipeLeft = {
                 navController.navigate("contactsscreen")
             },
             onSwipeUp = {
@@ -55,24 +111,22 @@ fun AvailableAroundScreen(
     ) {
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(16.dp),
-            modifier = Modifier
-                .fillMaxWidth()
+            modifier = Modifier.fillMaxWidth()
         ) {
-            items(availableContacts.size) { index ->
-                val contact = availableContacts[index]
-                CustomButton (
-                    name = contact.name,
+            items(discoveredUsers) { user ->
+                CustomButton(
+                    name = user.name,
                     image = {
-                        ButtonIcon(
-                            image = painterResource(R.drawable.test1),
-                            modifier = Modifier
-                        )
+                        if (user.avatar != null) {
+                            CircledImage(bitmap = user.avatar, size = 48.dp)
+                        } else {
+                            CircledImage(bitmap = null, size = 48.dp)
+                        }
                     },
-                    backgroundColor = contact.color,
-                    onClick = { navController.navigate("talkscreen/${contact.id}") }
+                    backgroundColor = user.color,
+                    onClick = { viewModel.addUserToLocalContacts(user) }
                 )
             }
         }
     }
 }
-
