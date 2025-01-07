@@ -59,6 +59,7 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
+    implementation(libs.accompanist.navigation.animation)
 
     // Jetpack Compose dependencies
     implementation(platform(libs.androidx.compose.bom))

@@ -24,6 +24,7 @@ import androidx.navigation.NavHostController
 import com.example.telepathy.data.LocalPreferences.localUser
 import com.example.telepathy.presentation.ui.CircledImage
 import com.example.telepathy.data.entities.Message
+import com.example.telepathy.presentation.navigation.swipeToNavigate
 import com.example.telepathy.presentation.viewmodels.ChatViewModel
 import com.example.telepathy.presentation.viewmodels.ChatViewModelFactory
 import com.example.telepathy.presentation.viewmodels.ContactsViewModelFactory
@@ -151,6 +152,14 @@ fun TalkScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.DarkGray)
+            .swipeToNavigate(
+                onSwipeRight =  {
+                    navController.navigate("mainscreens")
+                },
+                coroutineScope = rememberCoroutineScope(),
+                isNavigating = remember { mutableStateOf(false) },
+                isSwipeHandled = remember { mutableStateOf(false) }
+            )
     ) {
         Row(
             modifier = Modifier

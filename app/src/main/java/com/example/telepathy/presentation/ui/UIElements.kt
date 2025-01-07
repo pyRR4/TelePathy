@@ -1,6 +1,7 @@
 package com.example.telepathy.presentation.ui
 
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -21,6 +22,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -36,6 +38,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.telepathy.R
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.painter.BitmapPainter
+import androidx.compose.ui.platform.LocalContext
 
 
 @Composable
@@ -137,8 +141,13 @@ fun DividerWithImage() {
 
 @Composable
 fun BottomImage() {
+    val res = LocalContext.current.resources
+    val bitmap = remember(res) {
+        BitmapFactory.decodeResource(res, R.drawable.test1)
+    }
+
     Image(
-        painter = painterResource(R.drawable.test1),
+        painter = BitmapPainter(bitmap.asImageBitmap()),
         contentDescription = null,
         modifier = Modifier.size(80.dp)
     )

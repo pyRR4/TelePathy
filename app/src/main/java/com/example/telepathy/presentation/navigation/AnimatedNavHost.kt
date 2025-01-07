@@ -2,6 +2,7 @@ package com.example.telepathy.presentation.navigation
 
 import android.content.Context
 import android.util.Log
+import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
@@ -10,14 +11,16 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.*
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import com.example.telepathy.presentation.ui.screens.MainScreen
 import com.example.telepathy.presentation.ui.screens.TalkScreen
@@ -25,8 +28,7 @@ import com.example.telepathy.presentation.ui.screens.ConfirmPinScreen
 import com.example.telepathy.presentation.ui.screens.EditProfileScreen
 import com.example.telepathy.presentation.ui.screens.EnterNewPinScreen
 import com.example.telepathy.presentation.ui.screens.EnterPinScreen
-import com.example.telepathy.presentation.viewmodels.ChatViewModel
-import com.example.telepathy.presentation.viewmodels.ChatViewModelFactory
+import kotlin.math.abs
 
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -38,6 +40,9 @@ fun AnimatedNavHost(
     currentScreen: MutableState<String>,
     localUserId: Int
 ) {
+
+    val currentBackSetEntry by navController.currentBackStackEntryAsState()
+
     androidx.navigation.compose.NavHost(
         navController = navController,
         startDestination = startDestination,
@@ -45,8 +50,35 @@ fun AnimatedNavHost(
         composable(
             route = "mainscreens",
             enterTransition = {
-                slideInVertically(initialOffsetY = { -it })
+                if(initialState.destination.route?.startsWith("talkscreen/") ?: false) {
+                    slideIntoContainer(
+                        towards = AnimatedContentTransitionScope.SlideDirection.Right,
+                        animationSpec = tween(
+                            durationMillis = 250,
+                            easing = LinearEasing
+                        )
+                    )
+                } else {
+                    slideIntoContainer(
+                        towards = AnimatedContentTransitionScope.SlideDirection.Up,
+                        animationSpec = tween(
+                            durationMillis = 250,
+                            easing = LinearEasing
+                        )
+                    )
+                }
             },
+            exitTransition = {
+                if(currentBackSetEntry?.destination?.route?.startsWith("talkscreen/") ?: false) {
+                    fadeOut(
+                        animationSpec = tween(durationMillis = 500)
+                    )
+                } else {
+                    fadeOut(
+                        animationSpec = tween(durationMillis = 500)
+                    )
+                }
+            }
         ) {
             MainScreen(navController, context, localUserId, currentScreen)
         }
@@ -55,10 +87,18 @@ fun AnimatedNavHost(
             route = "talkscreen/{userId}",
             arguments = listOf(navArgument("userId") { type = NavType.IntType }),
             enterTransition = {
-                slideInVertically(initialOffsetY = { it })
+                slideIntoContainer(
+                    towards = AnimatedContentTransitionScope.SlideDirection.Left,
+                    animationSpec = tween(
+                        durationMillis = 250,
+                        easing = LinearEasing // interpolator
+                    )
+                )
             },
             exitTransition = {
-                slideOutVertically(targetOffsetY = { it })
+                fadeOut(
+                    animationSpec = tween(durationMillis = 500)
+                )
             },
         ) { backStackEntry ->
             val userId = backStackEntry.arguments?.getInt("userId") ?: return@composable
@@ -145,66 +185,68 @@ fun AnimatedNavHost(
 
 
 
-        fun Modifier.swipeToNavigate(
-            coroutineScope: CoroutineScope,
-            onSwipeLeft: (() -> Unit)? = null,
-            onSwipeRight: (() -> Unit)? = null,
-            onSwipeUp: (() -> Unit)? = null,
-            onSwipeDown: (() -> Unit)? = null,
-            isSwipeHandled: MutableState<Boolean>,
-            isNavigating: MutableState<Boolean>
-        ): Modifier = this.pointerInput(Unit) {
-            detectDragGestures { change, dragAmount ->
-                change.consume()
+fun Modifier.swipeToNavigate(
+    coroutineScope: CoroutineScope,
+    onSwipeLeft: (() -> Unit)? = null,
+    onSwipeRight: (() -> Unit)? = null,
+    onSwipeUp: (() -> Unit)? = null,
+    onSwipeDown: (() -> Unit)? = null,
+    isSwipeHandled: MutableState<Boolean>,
+    isNavigating: MutableState<Boolean>,
+    horizontalThreshold: Float = 100f,
+    verticalThreshold: Float = 100f,
+): Modifier = this.pointerInput(Unit) {
+    detectDragGestures { change, dragAmount ->
+        change.consume()
 
-
-                if (!isSwipeHandled.value && !isNavigating.value) {
-                    Log.d("SwipeGesture", "Drag Amount: x = ${dragAmount.x}, y = ${dragAmount.y}")
-                    when {
-                        dragAmount.x < -100f && onSwipeLeft != null -> {
-                            Log.d("SwipeGesture", "Swipe Left detected")
-                            isNavigating.value = true
-                            coroutineScope.launch {
-                                onSwipeLeft()
-                                delay(200)
-                                isSwipeHandled.value = true
-                                isNavigating.value = false
-                            }
+        if (!isSwipeHandled.value && !isNavigating.value) {
+            Log.d("SwipeGesture", "Drag Amount: x = ${dragAmount.x}, y = ${dragAmount.y}")
+            when {
+                abs(dragAmount.x) > horizontalThreshold -> {
+                    // Handle horizontal swipe (left or right)
+                    if (dragAmount.x < 0f && onSwipeLeft != null) {
+                        Log.d("SwipeGesture", "Swipe Left detected")
+                        isNavigating.value = true
+                        coroutineScope.launch {
+                            onSwipeLeft()
+                            delay(100)
+                            isSwipeHandled.value = true
+                            isNavigating.value = false
                         }
-
-                        dragAmount.y < -100f && onSwipeDown != null -> {
-                            Log.d("SwipeGesture", "Swipe Down detected")
-                            isNavigating.value = true
-                            coroutineScope.launch {
-                                onSwipeDown()
-                                delay(200)
-                                isSwipeHandled.value = true
-                                isNavigating.value = false
-                            }
+                    } else if (dragAmount.x > 0f && onSwipeRight != null) {
+                        Log.d("SwipeGesture", "Swipe Right detected")
+                        isNavigating.value = true
+                        coroutineScope.launch {
+                            onSwipeRight()
+                            delay(100)
+                            isSwipeHandled.value = true
+                            isNavigating.value = false
                         }
-
-                        dragAmount.x > 100f && onSwipeRight != null -> {
-                            Log.d("SwipeGesture", "Swipe Right detected")
-                            isNavigating.value = true
-                            coroutineScope.launch {
-                                onSwipeRight()
-                                delay(200)
-                                isSwipeHandled.value = true
-                                isNavigating.value = false
-                            }
+                    }
+                }
+                abs(dragAmount.y) > verticalThreshold -> {
+                    // Handle vertical swipe (up or down)
+                    if (dragAmount.y < 0f && onSwipeUp != null) {
+                        Log.d("SwipeGesture", "Swipe Up detected")
+                        isNavigating.value = true
+                        coroutineScope.launch {
+                            onSwipeUp()
+                            delay(100)
+                            isSwipeHandled.value = true
+                            isNavigating.value = false
                         }
-
-                        dragAmount.y > 100f && onSwipeUp != null -> {
-                            Log.d("SwipeGesture", "Swipe Up detected")
-                            isNavigating.value = true
-                            coroutineScope.launch {
-                                onSwipeUp()
-                                delay(200)
-                                isSwipeHandled.value = true
-                                isNavigating.value = false
-                            }
+                    } else if (dragAmount.y > 0f && onSwipeDown != null) {
+                        Log.d("SwipeGesture", "Swipe Down detected")
+                        isNavigating.value = true
+                        coroutineScope.launch {
+                            onSwipeDown()
+                            delay(100)
+                            isSwipeHandled.value = true
+                            isNavigating.value = false
                         }
                     }
                 }
             }
         }
+    }
+}
