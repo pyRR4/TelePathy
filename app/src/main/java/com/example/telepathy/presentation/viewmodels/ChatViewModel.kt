@@ -31,6 +31,9 @@ class ChatViewModel(
     private val _currentUser = MutableStateFlow<User?>(null)
     val currentUser: StateFlow<User?> = _currentUser.asStateFlow()
 
+    private val _localUser = MutableStateFlow<User?>(null)
+    val localUser: StateFlow<User?> = _localUser.asStateFlow()
+
     private val _contacts = MutableStateFlow<List<Contact>>(emptyList())
     val contacts: StateFlow<List<Contact>> = _contacts.asStateFlow()
 
@@ -60,6 +63,18 @@ class ChatViewModel(
                 }
                 .collect { user ->
                     _currentUser.value = user
+                }
+        }
+    }
+
+    fun loadLocalUser(userId: Int) {
+        viewModelScope.launch {
+            userRepository.getUser(userId)
+                .catch { e ->
+
+                }
+                .collect { user ->
+                    _localUser.value = user
                 }
         }
     }

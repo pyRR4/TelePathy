@@ -1,6 +1,7 @@
 package com.example.telepathy.presentation.viewmodels
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -29,8 +30,18 @@ class EditProfileViewModel(context: Context, private val localUserId: Int) : Vie
     }
 
     fun updateUser(updatedUser: User) {
+        Log.d("UserUpdate", "Updating user: ${updatedUser.id}, Name: ${updatedUser.name}")
+
         viewModelScope.launch {
-            database.userDao().update(updatedUser)
+            // Optionally, log any additional information about the operation, if needed
+            try {
+                // Update the user in the database
+                database.userDao().update(updatedUser)
+                Log.d("UserUpdate", "User updated successfully: ${updatedUser.id}")
+            } catch (e: Exception) {
+                // Log any error that occurs during the update
+                Log.e("UserUpdate", "Error updating user: ${updatedUser.id}, Error: ${e.message}")
+            }
         }
     }
 

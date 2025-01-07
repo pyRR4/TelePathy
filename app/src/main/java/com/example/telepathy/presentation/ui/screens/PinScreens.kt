@@ -318,7 +318,7 @@ fun ConfirmPinScreen(
     LaunchedEffect(pinsMatch) {
         if (pinsMatch) {
             kotlinx.coroutines.delay(2000)
-            navController.navigate("mainscreens")
+            navController.navigate("contactsscreen")
         } else if (messageColor == Color(0xFFF44336)) {
             kotlinx.coroutines.delay(2000)
             navController.popBackStack()

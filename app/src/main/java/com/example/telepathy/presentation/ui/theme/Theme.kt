@@ -1,9 +1,7 @@
 package com.example.telepathy.presentation.ui.theme
 
-import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 
 
@@ -14,7 +12,7 @@ fun TelePathyTheme(
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = if(darkTheme) DarkThemeColors else LightThemeColors
+    val colorScheme = DarkThemeColors
 
     MaterialTheme(
         colorScheme = colorScheme,

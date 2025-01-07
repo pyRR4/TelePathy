@@ -5,6 +5,8 @@ import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.graphics.ImageDecoder.decodeBitmap
 import android.net.Uri
+import android.provider.MediaStore
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -76,12 +78,25 @@ fun EditProfileScreen(navController: NavHostController) {
         }
     }
 
+//    val imagePickerLauncher = rememberLauncherForActivityResult(
+//        contract = ActivityResultContracts.GetContent()
+//    ) { uri: Uri? ->
+//        uri?.let {
+//            try {
+//                val source = ImageDecoder.createSource(context.contentResolver, it)
+//                val bitmap = decodeBitmap(source)
+//                new_avatarBitmap = bitmap
+//            } catch (e: Exception) {
+//                Log.e("ImagePicker", "Failed to decode image: ${e.message}")
+//            }
+//        }
+//    }
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         uri?.let {
-            val bitmap = ImageDecoder.createSource(context.contentResolver, it)
-            new_avatarBitmap = decodeBitmap(bitmap)
+            val bitmap = MediaStore.Images.Media.getBitmap(context.contentResolver, it)
+            new_avatarBitmap = bitmap
         }
     }
 

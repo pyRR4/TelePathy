@@ -1,6 +1,7 @@
 package com.example.telepathy.presentation.ui.screens
 
 import android.graphics.Bitmap
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -139,24 +140,22 @@ fun TalkScreen(
     previousScreen: MutableState<String>
 ) {
     val user by viewModel.currentUser.collectAsState()
+    val localUser by viewModel.localUser.collectAsState()
     val messages by viewModel.chatHistory.collectAsState()
     var messageInput by remember { mutableStateOf("") }
 
-    val context = LocalContext.current
 
-    val preferencesManager = PreferencesManager(context)
-    val localUserId = preferencesManager.getLocalUserId()
-    val database = AppDatabase.getDatabase(context)
-
-    val localUser by database.userDao().getUser(localUserId).collectAsState(initial = null)
-
+    Log.d("KOLOR LOCALSA", localUserId.toString())
 
     LaunchedEffect(localUserId, remoteUserId) {
         withContext(Dispatchers.Main) {
             viewModel.loadUser(remoteUserId)
+            viewModel.loadLocalUser(localUserId)
             viewModel.loadChatHistory(localUserId, remoteUserId)
         }
     }
+
+    Log.d("KOLOR LOCALSA", localUser.toString())
 
     Column(
         modifier = Modifier
@@ -217,13 +216,13 @@ fun TalkScreen(
         ) {
             items(count = messages.size) { index ->
                 val message = messages[index]
-                val messageColor = if (message.senderId == localUserId) localUser!!.color
+                val messageColor = if (message.senderId == localUserId) localUser?.color
                 else user?.color ?: MaterialTheme.colorScheme.surface
 
                 MessageBubble(
                     message = message,
                     isLocalUser = message.senderId == localUserId,
-                    backgroundColor = messageColor
+                    backgroundColor = messageColor ?: MaterialTheme.colorScheme.surface
                 )
             }
         }

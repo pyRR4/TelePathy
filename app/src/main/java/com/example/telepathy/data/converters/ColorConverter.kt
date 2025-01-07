@@ -8,27 +8,20 @@ class ColorConverter {
 
     @TypeConverter
     fun fromColor(color: Color?): Long? {
-        val colorValue = color?.let {
-            ((it.alpha * 255).toInt().toLong() shl 24) or
-                    ((it.red * 255).toInt().toLong() shl 16) or
-                    ((it.green * 255).toInt().toLong() shl 8) or
-                    (it.blue * 255).toInt().toLong()
-        }
-        Log.d("ColorConverter", "Converting Color to Long: $color -> $colorValue")
-        return colorValue
+        val alpha = ((color?.alpha ?: 0f) * 255).toInt() and 0xFF // Alpha channel (8 bits)
+        val red = ((color?.red ?: 0f) * 255).toInt() and 0xFF     // Red channel (8 bits)
+        val green = ((color?.green ?: 0f) * 255).toInt() and 0xFF // Green channel (8 bits)
+        val blue = ((color?.blue ?: 0f) * 255).toInt() and 0xFF   // Blue channel (8 bits)
+
+        return (alpha.toLong() shl 24) or
+                (red.toLong() shl 16) or
+                (green.toLong() shl 8) or
+                blue.toLong()
     }
 
     @TypeConverter
-    fun toColor(colorValue: Long?): Color {
-        val color = colorValue?.let {
-            val alpha = ((it shr 24) and 0xFF).toFloat() / 255
-            val red = ((it shr 16) and 0xFF).toFloat() / 255
-            val green = ((it shr 8) and 0xFF).toFloat() / 255
-            val blue = (it and 0xFF).toFloat() / 255
-            Color(red, green, blue, alpha)
-        } ?: Color.Gray
-        Log.d("ColorConverter", "Converting Long to Color: $colorValue -> $color")
-        return color
+    fun toColor(colorValue: Long?): Color? {
+        return colorValue?.let { Color(it) }
     }
 }
 
