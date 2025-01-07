@@ -146,8 +146,7 @@ fun ContactsScreen(
     localUserId: Int,
     viewModel: ContactsViewModel = viewModel(
         factory = ContactsViewModelFactory(LocalContext.current)
-    ),
-    currentScreen: MutableState<String>
+    )
 ) {
 
     val contacts by viewModel.contacts.collectAsState()

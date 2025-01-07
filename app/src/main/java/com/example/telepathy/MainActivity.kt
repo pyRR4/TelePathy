@@ -59,7 +59,6 @@ fun MyApp() {
             AnimatedNavHost(
                 navController = navController,
                 startDestination = "contactsscreen",
-                context = context,
                 localUserId = 1,
                 currentScreen = currentScreen
             )

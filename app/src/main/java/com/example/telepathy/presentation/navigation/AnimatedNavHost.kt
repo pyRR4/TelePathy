@@ -37,7 +37,6 @@ import kotlin.math.abs
 fun AnimatedNavHost(
     navController: NavHostController,
     startDestination: String,
-    context: Context,
     currentScreen: MutableState<String>,
     localUserId: Int
 ) {
@@ -93,8 +92,7 @@ fun AnimatedNavHost(
         ) {
             ContactsScreen(
                 navController = navController,
-                localUserId = localUserId,
-                currentScreen = currentScreen
+                localUserId = localUserId
             )
             currentScreen.value = "contactsscreen"
         }
@@ -221,8 +219,7 @@ fun AnimatedNavHost(
         ) {
             ContactsScreen(
                 navController = navController,
-                localUserId = localUserId,
-                currentScreen = currentScreen
+                localUserId = localUserId
             )
         }
 
