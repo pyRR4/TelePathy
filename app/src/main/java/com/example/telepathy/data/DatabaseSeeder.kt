@@ -4,7 +4,10 @@ import android.util.Log
 import com.example.telepathy.data.entities.Contact
 import com.example.telepathy.data.entities.Message
 import com.example.telepathy.data.entities.User
-import androidx.compose.ui.graphics.Color
+import com.example.telepathy.presentation.ui.theme.DarkLightBlue
+import com.example.telepathy.presentation.ui.theme.DarkGreen
+import com.example.telepathy.presentation.ui.theme.DarkTeal
+import com.example.telepathy.presentation.ui.theme.DarkVividBlue
 
 class DatabaseSeeder(
     private val database: AppDatabase
@@ -18,10 +21,10 @@ class DatabaseSeeder(
         val contactDao = database.contactDao()
 
         val users = listOf(
-            User(id = 0, name = "Alice", description = "Loves painting", color = Color.Blue),
-            User(id = 0, name = "Bob", description = "Traveler", color = Color.Green),
-            User(id = 0, name = "Charlie", description = "Gamer", color = Color.Red),
-            User(id = 0, name = "Diana", description = "Chef", color = Color.Yellow)
+            User(id = 0, name = "Alice", description = "Loves painting", color = DarkLightBlue),
+            User(id = 0, name = "Bob", description = "Traveler", color = DarkGreen),
+            User(id = 0, name = "Charlie", description = "Gamer", color = DarkVividBlue),
+            User(id = 0, name = "Diana", description = "Chef", color = DarkTeal)
         )
         userDao.insertUsers(users)
 

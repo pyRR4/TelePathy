@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -72,7 +73,7 @@ fun ContactText(name: String, isFromUser: Boolean, message: String, timestamp: L
                 text = name,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onPrimary,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -80,7 +81,7 @@ fun ContactText(name: String, isFromUser: Boolean, message: String, timestamp: L
             Text(
                 text = msg,
                 fontSize = 14.sp,
-                color = Color.White.copy(alpha = 0.8f),
+                color = MaterialTheme.colorScheme.onSecondary,
                 lineHeight = 18.sp,
                 modifier = Modifier.padding(top = 10.dp),
                 overflow = TextOverflow.Ellipsis
@@ -90,7 +91,7 @@ fun ContactText(name: String, isFromUser: Boolean, message: String, timestamp: L
         Text(
             text = formattedTime,
             fontSize = 14.sp,
-            color = Color.White.copy(alpha = 0.8f),
+            color = MaterialTheme.colorScheme.onSecondary,
             textAlign = TextAlign.End
         )
     }

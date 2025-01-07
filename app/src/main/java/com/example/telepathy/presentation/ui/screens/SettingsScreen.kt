@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -20,6 +21,7 @@ import com.example.telepathy.presentation.ui.ScreenTemplate
 import androidx.navigation.NavHostController
 import com.example.telepathy.data.LocalPreferences.localUser
 import com.example.telepathy.presentation.navigation.swipeToNavigate
+import com.example.telepathy.presentation.ui.theme.AlertRed
 
 data class SettingOption(
     val iconBitmap: Bitmap? = null,
@@ -37,21 +39,21 @@ fun SettingsScreen(
     val settingsOptions = listOf(
         SettingOption(
             iconBitmap = localUser?.avatar,
-            iconColor = Color.Black,
+            iconColor = MaterialTheme.colorScheme.secondary,
             title = stringResource(R.string.edit_profile),
             backgroundColor = Color.Gray,
             onClick = {navController.navigate("edit_profile")}
         ),
         SettingOption(
-            iconColor = Color.Black,
+            iconColor = MaterialTheme.colorScheme.secondary,
             title = stringResource(R.string.change_pin),
             backgroundColor = Color.Gray,
             onClick = {navController.navigate("enter_pin_settings")}
         ),
         SettingOption(
-            iconColor = Color.Black,
+            iconColor = MaterialTheme.colorScheme.secondary,
             title = stringResource(R.string.reset_app_data),
-            backgroundColor = Color.Red,
+            backgroundColor = AlertRed,
             onClick = {navController.navigate("reset_app")}
         )
     )
