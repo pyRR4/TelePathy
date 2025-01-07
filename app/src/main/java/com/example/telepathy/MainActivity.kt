@@ -1,5 +1,6 @@
 package com.example.telepathy
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -28,13 +29,15 @@ class MainActivity : ComponentActivity() {
         val preferencesManager = PreferencesManager(context)
         val database = AppDatabase.getDatabase(context)
 
+        preferencesManager.setFirstLaunch(true) // 1 uruchomienie debug
+        logSharedPreferences(context)
 
         CoroutineScope(Dispatchers.IO).launch {
             if (preferencesManager.isFirstLaunch()) {
                 // Pierwsze uruchomienie aplikacji
                 preferencesManager.setFirstLaunch(false)
                 preferencesManager.savePin(null)
-                preferencesManager.saveLocalUserId(0)
+                preferencesManager.saveLocalUserId(1)
 
                 val defaultUser = User(
                     id = 0,
@@ -46,13 +49,27 @@ class MainActivity : ComponentActivity() {
                 database.userDao().insert(defaultUser)
                 Log.d("Seed", "Created default user: $defaultUser")
             }
+
+            // Wypisanie zawartości SharedPreferences
+            logSharedPreferences(context)
         }
 
         setContent {
             MyApp()
         }
     }
+
+    // Funkcja do logowania zawartości SharedPreferences
+    private fun logSharedPreferences(context: Context) {
+        val sharedPreferences = context.getSharedPreferences("telepathy_prefs", Context.MODE_PRIVATE)
+        val allEntries = sharedPreferences.all
+        Log.d("SharedPreferences", "Zawartość SharedPreferences:")
+        for ((key, value) in allEntries) {
+            Log.d("SharedPreferences", "Key: $key, Value: $value")
+        }
+    }
 }
+
 
 
 @Composable
