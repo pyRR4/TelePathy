@@ -17,6 +17,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.*
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
@@ -40,13 +41,13 @@ fun AnimatedNavHost(
     currentScreen: MutableState<String>,
     localUserId: Int
 ) {
-
-    val currentBackSetEntry by navController.currentBackStackEntryAsState()
+    val currentBackSetEntry: NavBackStackEntry? by navController.currentBackStackEntryAsState()
 
     androidx.navigation.compose.NavHost(
         navController = navController,
         startDestination = startDestination,
     ) {
+
         composable(
             route = "mainscreens",
             enterTransition = {
@@ -193,8 +194,8 @@ fun Modifier.swipeToNavigate(
     onSwipeDown: (() -> Unit)? = null,
     isSwipeHandled: MutableState<Boolean>,
     isNavigating: MutableState<Boolean>,
-    horizontalThreshold: Float = 100f,
-    verticalThreshold: Float = 100f,
+    horizontalThreshold: Float = 30f,
+    verticalThreshold: Float = 30f,
 ): Modifier = this.pointerInput(Unit) {
     detectDragGestures { change, dragAmount ->
         change.consume()
@@ -250,3 +251,4 @@ fun Modifier.swipeToNavigate(
         }
     }
 }
+

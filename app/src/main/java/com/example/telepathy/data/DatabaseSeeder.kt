@@ -17,7 +17,6 @@ class DatabaseSeeder(
         val messageDao = database.messageDao()
         val contactDao = database.contactDao()
 
-        // Przykładowe dane użytkowników
         val users = listOf(
             User(id = 0, name = "Alice", description = "Loves painting", color = Color.Blue),
             User(id = 0, name = "Bob", description = "Traveler", color = Color.Green),
@@ -26,7 +25,6 @@ class DatabaseSeeder(
         )
         userDao.insertUsers(users)
 
-        // Przykładowe dane kontaktów
         val contacts = listOf(
             Contact(id = 0, userId = 1, contactId = 2),
             Contact(id = 0, userId = 1, contactId = 3),
@@ -36,12 +34,10 @@ class DatabaseSeeder(
         )
         contactDao.insertContacts(contacts)
 
-        // Tworzenie wiadomości dla kontaktów
         val messages = contacts.flatMap { contact ->
             val userId = contact.userId
             val contactId = contact.contactId
 
-            // Przykładowe wiadomości między użytkownikiem a kontaktem
             listOf(
                 Message(
                     id = 0, // Auto-generowany
@@ -59,7 +55,6 @@ class DatabaseSeeder(
                 )
             )
         }
-
         messageDao.insertMessages(messages)
 
         Log.d("SEED", "Finished seeding.")

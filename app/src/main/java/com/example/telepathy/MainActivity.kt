@@ -54,7 +54,6 @@ fun MyApp() {
 
         val currentScreen = remember { mutableStateOf("contacts") }
         val navController = rememberNavController()
-
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = Color.DarkGray
@@ -67,9 +66,6 @@ fun MyApp() {
                 currentScreen = currentScreen
             )
         }
-
-
-
     }
 }
 

@@ -6,15 +6,10 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.example.telepathy.data.AppDatabase
-import com.example.telepathy.data.repositories.MessageRepositoryImpl
-import com.example.telepathy.data.repositories.UserRepositoryImpl
 import com.example.telepathy.presentation.ui.screens.AvailableAroundScreen
 import com.example.telepathy.presentation.ui.screens.ContactsScreen
 import com.example.telepathy.presentation.ui.screens.SettingsScreen
-import androidx.compose.ui.platform.LocalContext
 
 
 @Composable
