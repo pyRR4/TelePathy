@@ -1,6 +1,5 @@
 package com.example.telepathy.presentation.navigation
 
-import android.content.Context
 import android.util.Log
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -86,7 +85,7 @@ fun AnimatedNavHost(
             },
             exitTransition = {
                 fadeOut(
-                    animationSpec = tween(durationMillis = 500)
+                    animationSpec = tween(durationMillis = 350)
                 )
             }
         ) {
@@ -121,7 +120,7 @@ fun AnimatedNavHost(
             },
             exitTransition = {
                 fadeOut(
-                    animationSpec = tween(durationMillis = 500)
+                    animationSpec = tween(durationMillis = 350)
                 )
             }
         ) {
@@ -155,7 +154,7 @@ fun AnimatedNavHost(
             },
             exitTransition = {
                 fadeOut(
-                    animationSpec = tween(durationMillis = 500)
+                    animationSpec = tween(durationMillis = 350)
                 )
             }
         ) {
@@ -175,13 +174,13 @@ fun AnimatedNavHost(
                     towards = AnimatedContentTransitionScope.SlideDirection.Left,
                     animationSpec = tween(
                         durationMillis = 250,
-                        easing = LinearEasing // interpolator
+                        easing = LinearEasing
                     )
                 )
             },
             exitTransition = {
                 fadeOut(
-                    animationSpec = tween(durationMillis = 500)
+                    animationSpec = tween(durationMillis = 350)
                 )
             },
         ) { backStackEntry ->
@@ -211,11 +210,19 @@ fun AnimatedNavHost(
         composable(
             route = "enter_pin_login", // do sprawdzenia
             enterTransition = {
-                slideInVertically(initialOffsetY = { it })
+                slideIntoContainer(
+                    towards = AnimatedContentTransitionScope.SlideDirection.Up,
+                    animationSpec = tween(
+                        durationMillis = 250,
+                        easing = LinearEasing
+                    )
+                )
             },
             exitTransition = {
-                slideOutVertically(targetOffsetY = { it })
-            }
+                fadeOut(
+                    animationSpec = tween(durationMillis = 350)
+                )
+            },
         ) {
             ContactsScreen(
                 navController = navController,
@@ -226,11 +233,19 @@ fun AnimatedNavHost(
         composable(
             route = "enter_pin_settings", // pin przy probie zmiany pinu
             enterTransition = {
-                slideInVertically(initialOffsetY = { it })
+                slideIntoContainer(
+                    towards = AnimatedContentTransitionScope.SlideDirection.Up,
+                    animationSpec = tween(
+                        durationMillis = 250,
+                        easing = LinearEasing
+                    )
+                )
             },
             exitTransition = {
-                slideOutVertically(targetOffsetY = { it })
-            }
+                fadeOut(
+                    animationSpec = tween(durationMillis = 350)
+                )
+            },
         ) {
             EnterPinScreen(navController, "enter_new_pin", onCancel = { navController.popBackStack() })
         }
@@ -238,11 +253,19 @@ fun AnimatedNavHost(
         composable(
             route = "enter_new_pin",
             enterTransition = {
-                slideInVertically(initialOffsetY = { it })
+                slideIntoContainer(
+                    towards = AnimatedContentTransitionScope.SlideDirection.Up,
+                    animationSpec = tween(
+                        durationMillis = 250,
+                        easing = LinearEasing
+                    )
+                )
             },
             exitTransition = {
-                slideOutVertically(targetOffsetY = { it })
-            }
+                fadeOut(
+                    animationSpec = tween(durationMillis = 350)
+                )
+            },
         ) {
             EnterNewPinScreen(
                 navController = navController,
@@ -254,11 +277,19 @@ fun AnimatedNavHost(
             route = "confirm_new_pin/{pin}",
             arguments = listOf(navArgument("pin") { type = NavType.StringType }),
             enterTransition = {
-                slideInVertically(initialOffsetY = { it })
+                slideIntoContainer(
+                    towards = AnimatedContentTransitionScope.SlideDirection.Up,
+                    animationSpec = tween(
+                        durationMillis = 250,
+                        easing = LinearEasing
+                    )
+                )
             },
             exitTransition = {
-                slideOutVertically(targetOffsetY = { it })
-            }
+                fadeOut(
+                    animationSpec = tween(durationMillis = 350)
+                )
+            },
         ) { backStackEntry ->
             val pinTemp = backStackEntry.arguments?.getString("pin") ?: ""
             ConfirmPinScreen(
