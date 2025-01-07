@@ -18,10 +18,8 @@ import com.example.telepathy.presentation.ui.theme.TelePathyTheme
 import com.example.telepathy.presentation.navigation.AnimatedNavHost
 import com.example.telepathy.data.*
 import com.example.telepathy.data.entities.User
-import com.example.telepathy.presentation.ui.theme.UserColors
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import com.example.telepathy.data.*
+import com.example.telepathy.presentation.ui.theme.DarkUserColors
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -53,7 +51,7 @@ class MainActivity : ComponentActivity() {
                         id = 0,
                         name = "Default User",
                         description = "This is the default user",
-                        color = UserColors.random(),
+                        color = DarkUserColors.random(),
                         avatar = null
                     )
                     database.userDao().insert(defaultUser)

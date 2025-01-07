@@ -202,7 +202,9 @@ fun AnimatedNavHost(
                 slideOutVertically(targetOffsetY = { it })
             }
         ) {
-            EditProfileScreen(navController)
+            EditProfileScreen(
+                navController
+            )
         }
 
         //---------------------- Koniec animacji sprawdzonych ------------------------//
@@ -224,9 +226,8 @@ fun AnimatedNavHost(
                 )
             },
         ) {
-            ContactsScreen(
-                navController = navController,
-                localUserId = localUserId
+            EnterPinScreen(
+                navController, "contactsscreen", onCancel = null
             )
         }
 

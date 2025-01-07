@@ -34,7 +34,7 @@ abstract class AppDatabase : RoomDatabase() {
             return Instance ?: synchronized(this) {
                 Room.databaseBuilder(context, AppDatabase::class.java, "app_database")
                     .fallbackToDestructiveMigration() // Usuwa dane przy migracji
-                    .addCallback(DatabaseCallback(context))
+                    //.addCallback(DatabaseCallback(context))
                     .build()
                     .also { Instance = it }
             }

@@ -24,7 +24,6 @@ import com.example.telepathy.data.AppDatabase
 import com.example.telepathy.data.PreferencesManager
 import com.example.telepathy.data.entities.User
 import kotlinx.coroutines.flow.firstOrNull
-import com.example.telepathy.data.LocalPreferences.localUser
 import com.example.telepathy.presentation.navigation.swipeToNavigate
 import com.example.telepathy.presentation.ui.theme.AlertRed
 

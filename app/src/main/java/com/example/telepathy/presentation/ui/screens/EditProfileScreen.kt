@@ -1,10 +1,10 @@
 package com.example.telepathy.presentation.ui.screens
 
+import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.graphics.ImageDecoder.decodeBitmap
 import android.net.Uri
-import android.provider.MediaStore
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -33,21 +33,16 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.telepathy.R
-import com.example.telepathy.data.AppDatabase
 import com.example.telepathy.data.PreferencesManager
-import com.example.telepathy.data.entities.User
 import com.example.telepathy.presentation.ui.CircledImage
 import com.example.telepathy.presentation.ui.ScreenTemplate
 import com.example.telepathy.presentation.ui.Header
-import com.example.telepathy.presentation.ui.theme.DeepPurple
-import com.example.telepathy.presentation.ui.theme.UserColors
 import com.example.telepathy.presentation.viewmodels.EditProfileViewModel
 import com.example.telepathy.presentation.viewmodels.EditProfileViewModel.EditProfileViewModelFactory
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.launch
 import com.example.telepathy.presentation.ui.theme.DarkButtonsColor
 import com.example.telepathy.presentation.ui.theme.DarkUserColors
 
+@SuppressLint("NewApi") //TODO
 @Composable
 fun EditProfileScreen(navController: NavHostController) {
     val context = LocalContext.current
