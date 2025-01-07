@@ -25,7 +25,7 @@ class PreferencesManager(context: Context) {
         return sharedPreferences.getInt(KEY_LOCAL_USER_ID, -1)
     }
 
-    fun savePin(pin: String) {
+    fun savePin(pin: String?) {
         sharedPreferences.edit()
             .putString(KEY_PIN, pin)
             .apply()
