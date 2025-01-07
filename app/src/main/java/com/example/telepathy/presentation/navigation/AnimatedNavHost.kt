@@ -208,7 +208,7 @@ fun AnimatedNavHost(
         //---------------------- Koniec animacji sprawdzonych ------------------------//
 
         composable(
-            route = "enter_pin_login", // do sprawdzenia
+            route = "enter_pin_login",
             enterTransition = {
                 slideIntoContainer(
                     towards = AnimatedContentTransitionScope.SlideDirection.Up,

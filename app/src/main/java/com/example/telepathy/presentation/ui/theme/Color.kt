@@ -85,7 +85,6 @@ val LightUserColors = listOf(
     LightLime,
     LightDeepPurple
 )
-
 val LightThemeColors = lightColorScheme(
     primary = Color(0xFF6200EE), // Vibrant primary color for light theme
     secondary = Color(0xFF03DAC5), // Teal secondary

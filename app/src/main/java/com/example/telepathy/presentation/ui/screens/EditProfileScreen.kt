@@ -1,5 +1,6 @@
 package com.example.telepathy.presentation.ui.screens
 
+import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.graphics.ImageDecoder.decodeBitmap
 import android.net.Uri
@@ -29,29 +30,56 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.telepathy.R
-import com.example.telepathy.data.LocalPreferences
-import com.example.telepathy.data.LocalPreferences.localUser
+import com.example.telepathy.data.AppDatabase
+import com.example.telepathy.data.PreferencesManager
+import com.example.telepathy.data.entities.User
 import com.example.telepathy.presentation.ui.CircledImage
 import com.example.telepathy.presentation.ui.ScreenTemplate
 import com.example.telepathy.presentation.ui.Header
+import com.example.telepathy.presentation.ui.theme.DeepPurple
+import com.example.telepathy.presentation.ui.theme.UserColors
+import com.example.telepathy.presentation.viewmodels.EditProfileViewModel
+import com.example.telepathy.presentation.viewmodels.EditProfileViewModel.EditProfileViewModelFactory
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
 import com.example.telepathy.presentation.ui.theme.DarkButtonsColor
 import com.example.telepathy.presentation.ui.theme.DarkUserColors
 
 @Composable
 fun EditProfileScreen(navController: NavHostController) {
     val context = LocalContext.current
+    val preferencesManager = PreferencesManager(context)
+    val localUserId = preferencesManager.getLocalUserId()
 
-    if (localUser == null) {
-        LocalPreferences.createBasicLocalUser(context)
-    }
+    val viewModel: EditProfileViewModel = viewModel(
+        factory = EditProfileViewModelFactory(context, localUserId)
+    )
 
-    var new_username by remember { mutableStateOf(localUser?.name ?: "") }
-    var new_description by remember { mutableStateOf(localUser?.description ?: "") }
-    var new_selectedColor by remember { mutableStateOf(localUser?.color ?: Color.Gray) }
-    var new_avatarBitmap by remember { mutableStateOf(localUser?.avatar) }
+    val localUser by viewModel.user.collectAsState()
+
+
+    var isUserLoaded by remember { mutableStateOf(false) }
     var colorPickerVisible by remember { mutableStateOf(false) }
+
+    var new_username by remember { mutableStateOf("") }
+    var new_description by remember { mutableStateOf("") }
+    var new_selectedColor by remember { mutableStateOf(Color.Gray) }
+    var new_avatarBitmap by remember { mutableStateOf<Bitmap?>(null) }
+
+    LaunchedEffect(localUser) {
+        localUser?.let { user ->
+            if (!isUserLoaded) {
+                new_username = user.name
+                new_description = user.description
+                new_selectedColor = user.color
+                new_avatarBitmap = user.avatar
+                isUserLoaded = true
+            }
+        }
+    }
 
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -73,7 +101,7 @@ fun EditProfileScreen(navController: NavHostController) {
             ) {
                 Button(
                     onClick = {
-                        navController.popBackStack() // Navigate back
+                        navController.popBackStack()
                     },
                     modifier = Modifier
                         .padding(8.dp)
@@ -87,12 +115,17 @@ fun EditProfileScreen(navController: NavHostController) {
 
                 Button(
                     onClick = {
-                        // Save the updated user data
-//                        localUser!!.name = new_username
-//                        localUser!!.description = new_description
-//                        localUser!!.color = new_selectedColor
-//                        localUser!!.avatar = new_avatarBitmap
-                        navController.popBackStack()
+                        localUser?.let { existingUser ->
+                            val updatedUser = existingUser.copy(
+                                name = new_username,
+                                description = new_description,
+                                color = new_selectedColor,
+                                avatar = new_avatarBitmap
+                            )
+
+                            viewModel.updateUser(updatedUser)
+                            navController.popBackStack()
+                        }
                     },
                     modifier = Modifier
                         .padding(8.dp)
@@ -120,13 +153,13 @@ fun EditProfileScreen(navController: NavHostController) {
                 .padding(horizontal = 16.dp)
         ) {
             // Avatar
-            Box( //centering box
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .size(176.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Box( //clickable box
+                Box(
                     modifier = Modifier
                         .size(176.dp)
                         .background(MaterialTheme.colorScheme.background, CircleShape)
@@ -188,6 +221,8 @@ fun EditProfileScreen(navController: NavHostController) {
         )
     }
 }
+
+
 
 @Composable
 fun ColorPickerDialog(
@@ -290,7 +325,11 @@ fun TextFieldComposable(
             // Label in top-left
             Text(
                 text = label,
-                style = TextStyle(fontSize = 16.sp, color = Color.DarkGray, fontWeight = FontWeight.Medium),
+                style = TextStyle(
+                    fontSize = 16.sp,
+                    color = Color.DarkGray,
+                    fontWeight = FontWeight.Medium
+                ),
                 modifier = Modifier
                     .align(Alignment.TopStart)
                     .padding(2.dp)
@@ -299,7 +338,11 @@ fun TextFieldComposable(
             // Character count in top-right
             BasicText(
                 text = "$charactersLeft",
-                style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.DarkGray),
+                style = TextStyle(
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.DarkGray
+                ),
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .padding(2.dp)
@@ -307,5 +350,4 @@ fun TextFieldComposable(
         }
     }
 }
-
 

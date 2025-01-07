@@ -10,6 +10,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.telepathy.presentation.ui.CircledImage
@@ -19,6 +20,10 @@ import com.example.telepathy.presentation.ui.DividerWithImage
 import com.example.telepathy.presentation.ui.Header
 import com.example.telepathy.presentation.ui.ScreenTemplate
 import androidx.navigation.NavHostController
+import com.example.telepathy.data.AppDatabase
+import com.example.telepathy.data.PreferencesManager
+import com.example.telepathy.data.entities.User
+import kotlinx.coroutines.flow.firstOrNull
 import com.example.telepathy.data.LocalPreferences.localUser
 import com.example.telepathy.presentation.navigation.swipeToNavigate
 import com.example.telepathy.presentation.ui.theme.AlertRed
@@ -33,28 +38,46 @@ data class SettingOption(
 
 @Composable
 fun SettingsScreen(
-    navController: NavHostController,
+  navController: NavHostController,
     previousScreen: MutableState<String>
 ) {
+    val context = LocalContext.current
+    val preferencesManager = PreferencesManager(context)
+    val localUserId = preferencesManager.getLocalUserId()
+    val database = AppDatabase.getDatabase(context)
+
+    var localUser by remember { mutableStateOf<User?>(null) }
+
+    LaunchedEffect(Unit) {
+        localUser = database.userDao().getUser(localUserId).firstOrNull()
+    }
     val settingsOptions = listOf(
         SettingOption(
             iconBitmap = localUser?.avatar,
             iconColor = MaterialTheme.colorScheme.secondary,
             title = stringResource(R.string.edit_profile),
             backgroundColor = Color.Gray,
-            onClick = {navController.navigate("edit_profile")}
+            onClick = { navController.navigate("edit_profile") }
         ),
         SettingOption(
             iconColor = MaterialTheme.colorScheme.secondary,
             title = stringResource(R.string.change_pin),
             backgroundColor = Color.Gray,
-            onClick = {navController.navigate("enter_pin_settings")}
+            onClick = {
+                val pin = preferencesManager.getPin()
+
+                if (pin == null) {
+                    navController.navigate("enter_new_pin")
+                } else {
+                    navController.navigate("enter_pin_settings")
+                }
+            }
         ),
         SettingOption(
             iconColor = MaterialTheme.colorScheme.secondary,
             title = stringResource(R.string.reset_app_data),
             backgroundColor = AlertRed,
-            onClick = {navController.navigate("reset_app")}
+            onClick = { navController.navigate("reset_app")}
         )
     )
 
@@ -95,6 +118,7 @@ fun SettingsScreen(
         }
     }
 }
+
 
 @Composable
 fun ButtonIcon(image: Painter, modifier: Modifier) {
