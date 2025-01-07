@@ -21,6 +21,8 @@ import com.example.telepathy.presentation.ui.ScreenTemplate
 import androidx.navigation.NavHostController
 import com.example.telepathy.data.AppDatabase
 import com.example.telepathy.data.PreferencesManager
+import com.example.telepathy.data.entities.User
+import kotlinx.coroutines.flow.firstOrNull
 
 
 data class SettingOption(
@@ -33,15 +35,16 @@ data class SettingOption(
 
 @Composable
 fun SettingsScreen(navController: NavHostController) {
-
     val context = LocalContext.current
-
     val preferencesManager = PreferencesManager(context)
     val localUserId = preferencesManager.getLocalUserId()
     val database = AppDatabase.getDatabase(context)
 
-    val localUser by database.userDao().getUser(localUserId).collectAsState(initial = null)
+    var localUser by remember { mutableStateOf<User?>(null) }
 
+    LaunchedEffect(Unit) {
+        localUser = database.userDao().getUser(localUserId).firstOrNull()
+    }
 
     val settingsOptions = listOf(
         SettingOption(
@@ -69,7 +72,7 @@ fun SettingsScreen(navController: NavHostController) {
             iconColor = Color.Black,
             title = stringResource(R.string.reset_app_data),
             backgroundColor = Color.Red,
-            onClick = {navController.navigate("reset_app")}
+            onClick = { navController.navigate("reset_app") }
         )
     )
 
@@ -103,6 +106,7 @@ fun SettingsScreen(navController: NavHostController) {
         }
     }
 }
+
 
 @Composable
 fun ButtonIcon(image: Painter, modifier: Modifier) {

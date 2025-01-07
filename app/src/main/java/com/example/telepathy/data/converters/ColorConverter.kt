@@ -14,7 +14,7 @@ class ColorConverter {
                     ((it.green * 255).toInt().toLong() shl 8) or
                     (it.blue * 255).toInt().toLong()
         }
-        //Log.d("ColorConverter", "Converting Color to Long: $color -> $colorValue")
+        Log.d("ColorConverter", "Converting Color to Long: $color -> $colorValue")
         return colorValue
     }
 
@@ -27,7 +27,7 @@ class ColorConverter {
             val blue = (it and 0xFF).toFloat() / 255
             Color(red, green, blue, alpha)
         } ?: Color.Gray
-        //Log.d("ColorConverter", "Converting Long to Color: $colorValue -> $color")
+        Log.d("ColorConverter", "Converting Long to Color: $colorValue -> $color")
         return color
     }
 }
