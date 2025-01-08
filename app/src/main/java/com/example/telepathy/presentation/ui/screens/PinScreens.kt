@@ -1,9 +1,13 @@
 package com.example.telepathy.presentation.ui.screens
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -17,9 +21,12 @@ import androidx.compose.ui.unit.Dp
 import androidx.navigation.NavHostController
 import com.example.telepathy.data.PreferencesManager
 import com.example.telepathy.presentation.ui.ScreenTemplate
-import com.example.telepathy.presentation.ui.DividerWithImage
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import com.example.telepathy.presentation.ui.theme.DarkButtonsColor
+import com.example.telepathy.R
+import com.example.telepathy.presentation.ui.StaticFooter
+import com.example.telepathy.presentation.ui.TelePathyLogo
 
 @Composable
 fun PinScreenBase(
@@ -35,8 +42,8 @@ fun PinScreenBase(
     var pin by remember { mutableStateOf("") }
 
     ScreenTemplate(
-        navIcon = { DividerWithImage() },
-        header = null,
+        navIcon = { StaticFooter() },
+        header = { TelePathyLogo() },
         modifier = Modifier
     ) {
         Column(
@@ -44,12 +51,6 @@ fun PinScreenBase(
             verticalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier.fillMaxSize()
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth() // Logo box fills max width
-                    .height(120.dp) // Example height for the logo box
-                    .background(MaterialTheme.colorScheme.secondary) // Placeholder color for the logo box
-            )
             Spacer(Modifier.height(60.dp))
 
             Text(
@@ -119,25 +120,48 @@ fun Keypad(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 row.forEach { key ->
-                    Box(
-                        contentAlignment = Alignment.Center,
+                    Button(
+                        colors = ButtonColors(
+                            contentColor = DarkButtonsColor,
+                            disabledContentColor = DarkButtonsColor,
+                            disabledContainerColor = DarkButtonsColor,
+                            containerColor = DarkButtonsColor
+                        ),
                         modifier = Modifier
                             .weight(1f)
                             .aspectRatio(1f)
-                            .background(DarkButtonsColor, shape = CircleShape)
-                            .clickable {
-                                handleKeyInput(key, pin, onPinEntered, onCancel) { newPin ->
-                                    onPinUpdated(newPin)
-                                }
-                            }
+                            .align(Alignment.CenterVertically),
+                        onClick = { handleKeyInput(key, pin, onPinEntered) { newPin ->
+                            onPinUpdated(newPin)
+                        }},
+                        shape = CircleShape
                     ) {
-                        Text(
-                            text = key,
-                            fontSize = 28.sp,
-                            color = MaterialTheme.colorScheme.onPrimary,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(8.dp)
-                        )
+                        when(key) {
+                            "Undo" -> {
+                                Icon(
+                                    painter = painterResource(R.drawable.delete),
+                                    contentDescription = "Back",
+                                    tint = MaterialTheme.colorScheme.onPrimary,
+                                    modifier = Modifier.size(30.dp)
+                                )
+                            }
+                            "OK" -> {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.Send,
+                                    contentDescription = "Back",
+                                    tint = MaterialTheme.colorScheme.onPrimary
+                                )
+                            }
+                            else -> {
+                                Text(
+                                    text = key,
+                                    fontSize = 28.sp,
+                                    color = MaterialTheme.colorScheme.onPrimary,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.padding(8.dp)
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -149,14 +173,11 @@ private fun handleKeyInput(
     key: String,
     currentPin: String,
     onPinEntered: (String) -> Unit,
-    onCancel: (() -> Unit)?,
     onPinUpdated: (String) -> Unit
 ) {
     when (key) {
         "Undo" -> {
-            if (currentPin.isEmpty()) {
-                onCancel?.invoke() // Navigate back if pin is empty
-            } else {
+            if (!currentPin.isEmpty()) {
                 onPinUpdated(currentPin.dropLast(1))
             }
         }
@@ -188,7 +209,10 @@ fun MessageDialog(
     ) {
         Box(
             modifier = Modifier
-                .background(messageColor, shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp))
+                .background(
+                    messageColor,
+                    shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
+                )
                 .padding(horizontal = 24.dp, vertical = 12.dp),
             contentAlignment = Alignment.Center
         ) {

@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.dp
 import com.example.telepathy.presentation.ui.CircledImage
 import com.example.telepathy.presentation.ui.CustomButton
 import com.example.telepathy.R
-import com.example.telepathy.presentation.ui.DividerWithImage
+import com.example.telepathy.presentation.ui.FooterWithPromptBar
 import com.example.telepathy.presentation.ui.Header
 import com.example.telepathy.presentation.ui.ScreenTemplate
 import androidx.navigation.NavHostController
@@ -37,8 +37,8 @@ data class SettingOption(
 
 @Composable
 fun SettingsScreen(
-  navController: NavHostController,
-    previousScreen: MutableState<String>
+    navController: NavHostController,
+    currentScreen: MutableState<String>
 ) {
     val context = LocalContext.current
     val preferencesManager = PreferencesManager(context)
@@ -82,14 +82,14 @@ fun SettingsScreen(
 
     ScreenTemplate(
         navIcon = {
-            DividerWithImage()
+            FooterWithPromptBar("settingsscreen")
         },
         header = {
             Header(stringResource(R.string.settings), modifier = Modifier.padding(bottom = 16.dp))
         },
         modifier = Modifier.swipeToNavigate(
             onSwipeDown =  {
-                navController.navigate(previousScreen.value)
+                navController.navigate(currentScreen.value)
             },
             coroutineScope = rememberCoroutineScope(),
             isNavigating = remember { mutableStateOf(false) },

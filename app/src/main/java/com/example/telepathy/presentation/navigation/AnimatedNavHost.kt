@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.*
 import androidx.compose.animation.slideInVertically
@@ -39,7 +40,6 @@ fun AnimatedNavHost(
     currentScreen: MutableState<String>,
     localUserId: Int
 ) {
-
     androidx.navigation.compose.NavHost(
         navController = navController,
         startDestination = startDestination,
@@ -91,7 +91,8 @@ fun AnimatedNavHost(
         ) {
             ContactsScreen(
                 navController = navController,
-                localUserId = localUserId
+                localUserId = localUserId,
+                currentScreen = currentScreen
             )
             currentScreen.value = "contactsscreen"
         }
@@ -125,7 +126,8 @@ fun AnimatedNavHost(
             }
         ) {
             AvailableAroundScreen(
-                navController = navController
+                navController = navController,
+                currentScreen = currentScreen
             )
             currentScreen.value = "availablescreen"
         }
@@ -196,11 +198,19 @@ fun AnimatedNavHost(
         composable(
             route = "edit_profile",
             enterTransition = {
-                slideInVertically(initialOffsetY = { it })
+                slideIntoContainer(
+                    towards = AnimatedContentTransitionScope.SlideDirection.Left,
+                    animationSpec = tween(
+                        durationMillis = 250,
+                        easing = LinearEasing
+                    )
+                )
             },
             exitTransition = {
-                slideOutVertically(targetOffsetY = { it })
-            }
+                fadeOut(
+                    animationSpec = tween(durationMillis = 350)
+                )
+            },
         ) {
             EditProfileScreen(
                 navController
@@ -213,7 +223,7 @@ fun AnimatedNavHost(
             route = "enter_pin_login",
             enterTransition = {
                 slideIntoContainer(
-                    towards = AnimatedContentTransitionScope.SlideDirection.Up,
+                    towards = AnimatedContentTransitionScope.SlideDirection.Left,
                     animationSpec = tween(
                         durationMillis = 250,
                         easing = LinearEasing
@@ -278,12 +288,8 @@ fun AnimatedNavHost(
             route = "confirm_new_pin/{pin}",
             arguments = listOf(navArgument("pin") { type = NavType.StringType }),
             enterTransition = {
-                slideIntoContainer(
-                    towards = AnimatedContentTransitionScope.SlideDirection.Up,
-                    animationSpec = tween(
-                        durationMillis = 250,
-                        easing = LinearEasing
-                    )
+                fadeIn(
+                    animationSpec = tween(durationMillis = 350)
                 )
             },
             exitTransition = {
