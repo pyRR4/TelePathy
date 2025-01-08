@@ -2,9 +2,7 @@ package com.example.telepathy.domain.bluetooth
 
 import android.bluetooth.BluetoothSocket
 import android.util.Log
-import com.example.telepathy.data.entities.User
 import com.example.telepathy.domain.serialization.deserializeUser
-import com.example.telepathy.domain.serialization.serializeUser
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

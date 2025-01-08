@@ -170,12 +170,20 @@ class BluetoothRepository(
 
     fun handleReceivedUser(user: User) {
         CoroutineScope(Dispatchers.Main).launch {
+            val newUser = User(
+                id = 0,
+                name = user.name,
+                description = user.description,
+                color = user.color,
+                avatar = user.avatar,
+                deviceId = user.deviceId
+            )
             val updatedList = _discoveredUsers.value.toMutableList().apply {
-                add(user)
+                add(newUser)
             }
             _discoveredUsers.value = updatedList
 
-            Log.d("Bluetooth", "Handling received user: ${user.name}")
+            Log.d("Bluetooth", "Handling received user: ${newUser.name}")
         }
     }
 

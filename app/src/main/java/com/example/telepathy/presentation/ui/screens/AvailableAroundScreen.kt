@@ -31,6 +31,7 @@ import com.example.telepathy.presentation.viewmodels.AvailableViewModel
 import com.example.telepathy.presentation.viewmodels.AvailableViewModelFactory
 import com.example.telepathy.presentation.navigation.swipeToNavigate
 import com.example.telepathy.presentation.ui.CircledImage
+import kotlinx.coroutines.delay
 
 @Composable
 fun AvailableAroundScreen(
@@ -48,7 +49,6 @@ fun AvailableAroundScreen(
 
     LaunchedEffect(isVisible, viewModel.discoveredUsersDeviceIds) {
         Log.d("LAUNCHED EFFECT", "Starting launched effect")
-        viewModel.loadUsers()
         viewModel.loadLocalUser(localUserId)
     }
 
@@ -135,8 +135,9 @@ fun AvailableAroundScreen(
                     },
                     backgroundColor = user.color,
                     onClick = {
-                        navController.navigate("talkscreen/${user.id}")
+                        Log.d("USER", "user: $user")
                         viewModel.addUserToLocalContacts(user)
+                        navController.navigate("talkscreen/${user.id}")
                     }
                 )
             }

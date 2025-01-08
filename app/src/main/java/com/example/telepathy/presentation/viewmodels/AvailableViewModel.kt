@@ -16,6 +16,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.forEach
 
 class AvailableViewModel(
@@ -25,36 +26,19 @@ class AvailableViewModel(
 
     val discoveredUsersDeviceIds: StateFlow<List<User>> = bluetoothRepository.discoveredUsers
 
-    private val _discoveredUsers = MutableStateFlow<List<User>>(emptyList())
-    val discoveredUsers: StateFlow<List<User>> = _discoveredUsers.asStateFlow()
-
     private val _localUser = MutableStateFlow<User?>(null)
     val localUser: StateFlow<User?> = _localUser.asStateFlow()
-
-    fun loadUsers() {
-        viewModelScope.launch {
-            discoveredUsersDeviceIds.collect { users ->
-                users.forEach { user ->
-                        val updatedList = _discoveredUsers.value.toMutableList()
-                        updatedList.add(user)
-                        _discoveredUsers.value = updatedList
-                }
-            }
-        }
-    }
 
     fun loadLocalUser(userId: Int) {
         viewModelScope.launch {
             userRepository.getUser(userId)
                 .catch { e ->
-
                 }
                 .collect { user ->
                     _localUser.value = user
                 }
         }
     }
-
 
     fun startScan() {
         bluetoothRepository.startScan()
