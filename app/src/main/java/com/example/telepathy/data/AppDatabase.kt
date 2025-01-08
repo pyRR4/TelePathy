@@ -14,6 +14,8 @@ import com.example.telepathy.data.daos.ContactDao
 import com.example.telepathy.data.entities.Message
 import com.example.telepathy.data.entities.User
 import com.example.telepathy.data.entities.Contact
+import com.example.telepathy.data.seeding.DatabaseSeeder
+import com.example.telepathy.data.seeding.DefaultUserSeeder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -33,8 +35,8 @@ abstract class AppDatabase : RoomDatabase() {
         fun getDatabase(context: Context): AppDatabase {
             return Instance ?: synchronized(this) {
                 Room.databaseBuilder(context, AppDatabase::class.java, "app_database")
-                    .fallbackToDestructiveMigration() // Usuwa dane przy migracji
-                    //.addCallback(DatabaseCallback(context))
+                    //.fallbackToDestructiveMigration() // Usuwa dane przy migracji
+                    .addCallback(DatabaseCallback(context))
                     .build()
                     .also { Instance = it }
             }
@@ -45,7 +47,8 @@ abstract class AppDatabase : RoomDatabase() {
                 super.onCreate(db)
                 CoroutineScope(Dispatchers.IO).launch {
                     Instance?.let { database ->
-                        DatabaseSeeder(database).seed()
+                        DefaultUserSeeder(database, context).seed()
+                        //DatabaseSeeder(database).seed()
                     }
                 }
             }

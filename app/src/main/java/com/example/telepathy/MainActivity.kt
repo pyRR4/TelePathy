@@ -22,7 +22,6 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.compose.rememberNavController
 import com.example.telepathy.data.AppDatabase
-import com.example.telepathy.data.DatabaseSeeder
 import com.example.telepathy.data.PreferencesManager
 import com.example.telepathy.data.entities.User
 import com.example.telepathy.presentation.navigation.AnimatedNavHost
@@ -32,7 +31,6 @@ import com.fingerprintjs.android.fingerprint.Fingerprinter
 import com.fingerprintjs.android.fingerprint.FingerprinterFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
@@ -42,61 +40,9 @@ class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // Żądanie uprawnień Bluetooth
         getBluetoothPermissions(this)
 
-        val context = applicationContext
-        val preferencesManager = PreferencesManager(context)
-        val database = AppDatabase.getDatabase(context)
-        val fingerprinter = FingerprinterFactory.create(context)
-
-        var deviceId: String = ""
-
-        logSharedPreferences(context)
-
-        CoroutineScope(Dispatchers.IO).launch {
-            fingerprinter.getDeviceId(version = Fingerprinter.Version.V_5) { result ->
-                deviceId = result.deviceId
-            }
-            if (preferencesManager.isFirstLaunch()) {
-                preferencesManager.setFirstLaunch(false)
-                preferencesManager.savePin(null)
-
-                val usersCount = database.userDao().getAllUsers().first().size
-                if (usersCount == 0) {
-
-                    preferencesManager.saveLocalUserId(1)
-
-                    val defaultUser = User(
-                        id = 0,
-                        name = "Default User",
-                        description = "This is the default user",
-                        color = DarkUserColors.random(),
-                        avatar = null,
-                        deviceId = deviceId
-                    )
-                    database.userDao().insert(defaultUser)
-                    Log.d("Seed", "Created default user: $defaultUser")
-
-                    DatabaseSeeder(database).seed()
-                    Log.d("Seed", "Database seeded with sample data.")
-                } else {
-                    Log.d("Seed", "Database already contains users.")
-                }
-            }
-
-            logSharedPreferences(context)
-            logAllUsers(database)
-
-            val locals = MutableStateFlow<User?>(null)
-
-            database.userDao().getUser(preferencesManager.getLocalUserId()).collect { user ->
-                locals.value = user
-            }
-
-            Log.d("locals", locals.value?.name ?: "NIE DZIALA")
-        }
+        val database = AppDatabase.getDatabase(applicationContext)
 
         setContent {
             MyApp()
@@ -117,23 +63,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-
-    private fun logSharedPreferences(context: Context) {
-        val sharedPreferences = context.getSharedPreferences("telepathy_prefs", Context.MODE_PRIVATE)
-        val allEntries = sharedPreferences.all
-        Log.d("SharedPreferences", "Zawartość SharedPreferences:")
-        for ((key, value) in allEntries) {
-            Log.d("SharedPreferences", "Key: $key, Value: $value")
-        }
-    }
-
-    private suspend fun logAllUsers(database: AppDatabase) {
-        val allUsers = database.userDao().getAllUsers().first()
-        Log.d("Database", "Zawartość bazy danych (Użytkownicy):")
-        for (user in allUsers) {
-            Log.d("Database", "User: $user")
-        }
-    }
 
     private fun getBluetoothPermissions(activity: ComponentActivity) {
         val requiredPermissions = mutableListOf<String>()

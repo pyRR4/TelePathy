@@ -66,7 +66,9 @@ fun AvailableAroundScreen(
                     onClick = {
                         isVisible = !isVisible
                         if (isVisible) {
-                            viewModel.startAdvertising(localUser!!)
+                            if (localUser != null) {
+                                viewModel.startAdvertising(localUser!!)
+                            }
                             viewModel.startScan()
                         } else {
                             viewModel.stopAdvertising()

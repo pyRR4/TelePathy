@@ -1,6 +1,7 @@
-package com.example.telepathy.data
+package com.example.telepathy.data.seeding
 
 import android.util.Log
+import com.example.telepathy.data.AppDatabase
 import com.example.telepathy.data.entities.Contact
 import com.example.telepathy.data.entities.Message
 import com.example.telepathy.data.entities.User
@@ -21,10 +22,10 @@ class DatabaseSeeder(
         val contactDao = database.contactDao()
 
         val users = listOf(
-            User(id = 0, name = "Alice", description = "Loves painting", color = DarkLightBlue),
-            User(id = 0, name = "Bob", description = "Traveler", color = DarkGreen),
-            User(id = 0, name = "Charlie", description = "Gamer", color = DarkVividBlue),
-            User(id = 0, name = "Diana", description = "Chef", color = DarkTeal)
+            User(id = 0, name = "Alice", description = "Loves painting", color = DarkLightBlue, deviceId = "Alice"),
+            User(id = 0, name = "Bob", description = "Traveler", color = DarkGreen, deviceId = "Bob"),
+            User(id = 0, name = "Charlie", description = "Gamer", color = DarkVividBlue, deviceId = "Charlie"),
+            User(id = 0, name = "Diana", description = "Chef", color = DarkTeal, deviceId = "Diana")
         )
         userDao.insertUsers(users)
 

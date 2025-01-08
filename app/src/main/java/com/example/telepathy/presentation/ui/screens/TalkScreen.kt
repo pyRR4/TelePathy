@@ -144,9 +144,6 @@ fun TalkScreen(
     val messages by viewModel.chatHistory.collectAsState()
     var messageInput by remember { mutableStateOf("") }
 
-
-    Log.d("KOLOR LOCALSA", localUserId.toString())
-
     LaunchedEffect(localUserId, remoteUserId) {
         withContext(Dispatchers.Main) {
             viewModel.loadUser(remoteUserId)
@@ -154,8 +151,6 @@ fun TalkScreen(
             viewModel.loadChatHistory(localUserId, remoteUserId)
         }
     }
-
-    Log.d("KOLOR LOCALSA", localUser.toString())
 
     Column(
         modifier = Modifier
