@@ -35,7 +35,7 @@ class DefaultUserSeeder(
                 val usersCount = database.userDao().getAllUsers().first().size
                 if (usersCount == 0) {
 
-                    preferencesManager.saveLocalUserId(1)
+                    preferencesManager.saveLocalUserDeviceId(deviceId)
 
                     val defaultUser = User(
                         id = 0,
