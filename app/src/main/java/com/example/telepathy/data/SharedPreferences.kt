@@ -2,6 +2,7 @@ package com.example.telepathy.data
 
 import android.content.Context
 import android.content.SharedPreferences
+import java.util.UUID
 
 class PreferencesManager(context: Context) {
 
@@ -13,6 +14,21 @@ class PreferencesManager(context: Context) {
         private const val KEY_LOCAL_USER_ID = "local_user_id"
         private const val KEY_PIN = "user_pin"
         private const val KEY_IS_FIRST_LAUNCH = "is_first_launch"
+        private const val KEY_UUID = "user_uuid"
+    }
+
+
+    fun getOrCreateUuid(): String {
+        val uuid = sharedPreferences.getString(KEY_UUID, null)
+        return if (uuid == null) {
+            val newUuid = UUID.randomUUID().toString()
+            sharedPreferences.edit()
+                .putString(KEY_UUID, newUuid)
+                .apply()
+            newUuid
+        } else {
+            uuid
+        }
     }
 
     fun saveLocalUserId(userId: Int) {

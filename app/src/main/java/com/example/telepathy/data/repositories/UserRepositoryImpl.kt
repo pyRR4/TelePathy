@@ -30,4 +30,8 @@ class UserRepositoryImpl(
     override fun getContactsForUser(userId: Int): Flow<List<Contact>> {
         return contactDao.getContactsForUser(userId)
     }
+
+    override fun getUserByDeviceId(deviceId: String): Flow<User> {
+        return userDao.getUserByDeviceId(deviceId)
+    }
 }

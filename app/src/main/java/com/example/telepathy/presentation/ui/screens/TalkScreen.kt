@@ -153,7 +153,6 @@ fun TalkScreen(
         }
     }
 
-
     Column(
         modifier = Modifier
             .fillMaxSize()

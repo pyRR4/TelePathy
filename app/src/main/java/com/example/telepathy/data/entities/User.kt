@@ -8,7 +8,10 @@ import androidx.room.TypeConverters
 import com.example.telepathy.data.converters.BitmapConverter
 import com.example.telepathy.data.converters.ColorConverter
 
-@Entity(tableName = "users")
+@Entity(
+    tableName = "users",
+    indices = [androidx.room.Index(value = ["deviceId"], unique = true)]
+)
 data class User(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
@@ -21,5 +24,7 @@ data class User(
     val color: Color,
 
     @field:TypeConverters(BitmapConverter::class)
-    val avatar: Bitmap? = null
+    val avatar: Bitmap? = null,
+
+    val deviceId: String
 )

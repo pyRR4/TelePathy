@@ -127,6 +127,7 @@ fun AnimatedNavHost(
         ) {
             AvailableAroundScreen(
                 navController = navController,
+                localUserId = localUserId
                 currentScreen = currentScreen
             )
             currentScreen.value = "availablescreen"
@@ -216,7 +217,6 @@ fun AnimatedNavHost(
                 navController
             )
         }
-
 
         composable(
             route = "enter_pin_login",
@@ -325,7 +325,6 @@ fun Modifier.swipeToNavigate(
         change.consume()
 
         if (!isSwipeHandled.value && !isNavigating.value) {
-            Log.d("SwipeGesture", "Drag Amount: x = ${dragAmount.x}, y = ${dragAmount.y}")
             when {
                 abs(dragAmount.x) > horizontalThreshold -> {
                     if (dragAmount.x < 0f && onSwipeLeft != null) {
