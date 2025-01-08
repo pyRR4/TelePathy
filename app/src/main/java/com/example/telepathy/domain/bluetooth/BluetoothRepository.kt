@@ -68,7 +68,6 @@ class BluetoothRepository(
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
-
                 serverSocket =
                     bluetoothAdapter.listenUsingRfcommWithServiceRecord("TelepathyService", appUuid)
                 Log.d("Bluetooth", "Advertising started...")
@@ -82,7 +81,6 @@ class BluetoothRepository(
                             startCommunication(it)
                         }
                     }
-                }
             } catch (e: Exception) {
                 Log.e("Bluetooth", "Failed to start advertising", e)
             } finally {
