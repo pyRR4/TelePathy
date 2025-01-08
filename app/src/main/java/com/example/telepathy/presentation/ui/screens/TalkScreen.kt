@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -171,7 +172,7 @@ fun TalkScreen(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Box( // black back box
+            Box(
                 modifier = Modifier
                     .height(124.dp)
                     .width(32.dp)
@@ -198,7 +199,7 @@ fun TalkScreen(
                 name = user?.name ?: "",
                 description = user?.description ?: "",
                 backgroundColor = user?.color ?: MaterialTheme.colorScheme.surface,
-                onClick = { /* Handle banner click */ }
+                onClick = { /* */ }
             )
         }
 
@@ -228,7 +229,7 @@ fun TalkScreen(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(onClick = { /* Handle more button */ }) {
+            IconButton(onClick = { /* */ }) {
                 Icon(
                     imageVector = Icons.Default.MoreVert,
                     contentDescription = "More",
@@ -254,7 +255,11 @@ fun TalkScreen(
                 },
                 modifier = Modifier.height(48.dp)
             ) {
-                Text(text = "Send")
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.Send,
+                    contentDescription = "Back",
+                    tint = MaterialTheme.colorScheme.onPrimary
+                )
             }
         }
     }

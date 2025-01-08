@@ -33,7 +33,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.telepathy.presentation.navigation.swipeToNavigate
 import com.example.telepathy.presentation.ui.CircledImage
-import com.example.telepathy.presentation.ui.DividerWithImage
+import com.example.telepathy.presentation.ui.FooterWithPromptBar
 import com.example.telepathy.presentation.ui.Header
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -147,7 +147,8 @@ fun ContactsScreen(
     localUserId: Int,
     viewModel: ContactsViewModel = viewModel(
         factory = ContactsViewModelFactory(LocalContext.current)
-    )
+    ),
+    currentScreen: MutableState<String>
 ) {
 
     val contacts by viewModel.contacts.collectAsState()
@@ -160,7 +161,7 @@ fun ContactsScreen(
 
     ScreenTemplate(
         navIcon = {
-            DividerWithImage()
+            FooterWithPromptBar(currentScreen.value)
         },
         header = {
             Header(stringResource(R.string.your_contacts), modifier = Modifier.padding(bottom = 16.dp))

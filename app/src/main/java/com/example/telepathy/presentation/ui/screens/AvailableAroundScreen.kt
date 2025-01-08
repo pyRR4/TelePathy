@@ -24,6 +24,7 @@ import androidx.navigation.NavHostController
 import com.example.telepathy.R
 import com.example.telepathy.data.PreferencesManager
 import com.example.telepathy.presentation.ui.CustomButton
+import com.example.telepathy.presentation.ui.FooterWithPromptBar
 import com.example.telepathy.presentation.ui.Header
 import com.example.telepathy.presentation.ui.ScreenTemplate
 import com.example.telepathy.presentation.viewmodels.AvailableViewModel
@@ -36,8 +37,8 @@ fun AvailableAroundScreen(
     navController: NavHostController,
     viewModel: AvailableViewModel = viewModel(
         factory = AvailableViewModelFactory(LocalContext.current)
-    ),
     localUserId: Int
+    currentScreen: MutableState<String>
 ) {
     var isVisible by remember { mutableStateOf(false) }
     val discoveredUsers by viewModel.discoveredUsers.collectAsState()
