@@ -67,9 +67,9 @@ class ChatViewModel(
         }
     }
 
-    fun loadLocalUser(userId: Int) {
+    fun loadLocalUser(localUserId: Int) {
         viewModelScope.launch {
-            userRepository.getUser(userId)
+            userRepository.getUser(localUserId)
                 .catch { e ->
 
                 }

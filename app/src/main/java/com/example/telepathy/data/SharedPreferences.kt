@@ -11,24 +11,10 @@ class PreferencesManager(context: Context) {
 
     companion object {
         private const val PREFS_NAME = "telepathy_prefs"
-        private const val KEY_LOCAL_USER_DEVICE_ID = "local_user_id"
+        private const val KEY_LOCAL_USER_DEVICE_ID = "local_user_device_id"
         private const val KEY_PIN = "user_pin"
         private const val KEY_IS_FIRST_LAUNCH = "is_first_launch"
-        private const val KEY_UUID = "user_uuid"
-    }
-
-
-    fun getOrCreateUuid(): String {
-        val uuid = sharedPreferences.getString(KEY_UUID, null)
-        return if (uuid == null) {
-            val newUuid = UUID.randomUUID().toString()
-            sharedPreferences.edit()
-                .putString(KEY_UUID, newUuid)
-                .apply()
-            newUuid
-        } else {
-            uuid
-        }
+        private const val KEY_LOCAL_USER_ID = "local_user_id"
     }
 
     fun saveLocalUserDeviceId(userDeviceId: String) {
@@ -37,8 +23,18 @@ class PreferencesManager(context: Context) {
             .apply()
     }
 
+    fun getLocalUserDeviceId(): String {
+        return sharedPreferences.getString(KEY_LOCAL_USER_DEVICE_ID, "") ?: ""
+    }
+
+    fun saveLocalUserId(userId: Int) {
+        sharedPreferences.edit()
+            .putInt(KEY_LOCAL_USER_ID, userId)
+            .apply()
+    }
+
     fun getLocalUserId(): Int {
-        return sharedPreferences.getInt(KEY_LOCAL_USER_DEVICE_ID, -1)
+        return sharedPreferences.getInt(KEY_LOCAL_USER_ID, -1)
     }
 
     fun savePin(pin: String?) {

@@ -38,7 +38,7 @@ fun AnimatedNavHost(
     navController: NavHostController,
     startDestination: String,
     currentScreen: MutableState<String>,
-    localUserId: Int
+    localUserDeviceId: String
 ) {
     androidx.navigation.compose.NavHost(
         navController = navController,
@@ -91,7 +91,6 @@ fun AnimatedNavHost(
         ) {
             ContactsScreen(
                 navController = navController,
-                localUserId = localUserId,
                 currentScreen = currentScreen
             )
             currentScreen.value = "contactsscreen"
@@ -127,7 +126,6 @@ fun AnimatedNavHost(
         ) {
             AvailableAroundScreen(
                 navController = navController,
-                localUserId = localUserId,
                 currentScreen = currentScreen
             )
             currentScreen.value = "availablescreen"
@@ -190,7 +188,7 @@ fun AnimatedNavHost(
             val userId = backStackEntry.arguments?.getInt("userId") ?: return@composable
             TalkScreen(
                 navController = navController,
-                localUserId = localUserId,
+                localUserDeviceId = localUserDeviceId,
                 remoteUserId = userId,
                 previousScreen = currentScreen
             )

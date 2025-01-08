@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.sp
 import com.example.telepathy.R
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.telepathy.data.PreferencesManager
 import com.example.telepathy.presentation.navigation.swipeToNavigate
 import com.example.telepathy.presentation.ui.CircledImage
 import com.example.telepathy.presentation.ui.FooterWithPromptBar
@@ -144,7 +145,6 @@ fun UserCard(
 @Composable
 fun ContactsScreen(
     navController: NavHostController,
-    localUserId: Int,
     viewModel: ContactsViewModel = viewModel(
         factory = ContactsViewModelFactory(LocalContext.current)
     ),
@@ -152,6 +152,7 @@ fun ContactsScreen(
 ) {
 
     val contacts by viewModel.contacts.collectAsState()
+    val localUserId = PreferencesManager(LocalContext.current).getLocalUserId()
 
     LaunchedEffect(localUserId) {
         withContext(Dispatchers.Main) {

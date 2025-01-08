@@ -136,7 +136,7 @@ fun TalkScreen(
     viewModel: ChatViewModel = viewModel(
         factory = ChatViewModelFactory(LocalContext.current)
     ),
-    localUserId: Int,
+    localUserDeviceId: String,
     remoteUserId: Int,
     previousScreen: MutableState<String>
 ) {
@@ -144,8 +144,9 @@ fun TalkScreen(
     val localUser by viewModel.localUser.collectAsState()
     val messages by viewModel.chatHistory.collectAsState()
     var messageInput by remember { mutableStateOf("") }
+    val localUserId = PreferencesManager(LocalContext.current).getLocalUserId()
 
-    LaunchedEffect(localUserId, remoteUserId) {
+    LaunchedEffect(localUserDeviceId, remoteUserId) {
         withContext(Dispatchers.Main) {
             viewModel.loadUser(remoteUserId)
             viewModel.loadLocalUser(localUserId)
@@ -212,12 +213,12 @@ fun TalkScreen(
         ) {
             items(count = messages.size) { index ->
                 val message = messages[index]
-                val messageColor = if (message.senderId == localUserId) localUser?.color
+                val messageColor = if (message.senderId == localUser?.id) localUser?.color
                 else user?.color ?: MaterialTheme.colorScheme.surface
 
                 MessageBubble(
                     message = message,
-                    isLocalUser = message.senderId == localUserId,
+                    isLocalUser = message.senderId == localUser?.id,
                     backgroundColor = messageColor ?: MaterialTheme.colorScheme.surface
                 )
             }
@@ -250,7 +251,9 @@ fun TalkScreen(
 
             Button(
                 onClick = {
-                    viewModel.sendMessage(messageInput, localUserId, remoteUserId)
+                    if(localUser != null) {
+                        viewModel.sendMessage(messageInput, localUser!!.id, remoteUserId)
+                    }
                     messageInput = ""
                 },
                 modifier = Modifier.height(48.dp)

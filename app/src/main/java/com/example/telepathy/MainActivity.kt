@@ -95,7 +95,7 @@ fun MyApp() {
                 navController = navController,
                 startDestination = "enter_pin_login",
                 currentScreen = currentScreen,
-                localUserId = preferencesManager.getLocalUserId()
+                localUserDeviceId = preferencesManager.getLocalUserDeviceId()
             )
         }
     }

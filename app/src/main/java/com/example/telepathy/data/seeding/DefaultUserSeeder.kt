@@ -46,6 +46,11 @@ class DefaultUserSeeder(
                         deviceId = deviceId
                     )
                     database.userDao().insert(defaultUser)
+                    var localUser: User
+                    database.userDao().getUserByDeviceId(deviceId).collect { user ->
+                        localUser = user
+                        preferencesManager.saveLocalUserId(localUser.id)
+                    }
                     Log.d("Seed", "Created default user: $defaultUser")
                 } else {
                     Log.d("Seed", "Database already contains users.")
