@@ -67,6 +67,9 @@ class MainActivity : ComponentActivity() {
         if (ContextCompat.checkSelfPermission(activity, Manifest.permission.BLUETOOTH_ADVERTISE) != PackageManager.PERMISSION_GRANTED) {
             requiredPermissions.add(Manifest.permission.BLUETOOTH_ADVERTISE)
         }
+        if (ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            requiredPermissions.add(Manifest.permission.ACCESS_COARSE_LOCATION)
+        }
         if (ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             requiredPermissions.add(Manifest.permission.ACCESS_FINE_LOCATION)
         }

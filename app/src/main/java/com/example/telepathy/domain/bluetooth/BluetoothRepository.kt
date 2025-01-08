@@ -19,6 +19,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
 import java.util.UUID
@@ -42,25 +43,43 @@ class BluetoothRepository(
 
     @SuppressLint("MissingPermission")
     fun startAdvertising(localUser: User) {
+        Log.d("Bluetooth", "isAdvertising: $isAdvertising")
         if (isAdvertising) return
         if (!hasPermission(Manifest.permission.BLUETOOTH_CONNECT)) {
             Log.e("Bluetooth", "Missing permission: BLUETOOTH_CONNECT")
             return
         }
+        if (!hasPermission(Manifest.permission.BLUETOOTH_ADVERTISE)) {
+            Log.e("Bluetooth", "Missing permission: BLUETOOTH_ADVERTISE")
+            return
+        }
+        if (!bluetoothAdapter.isEnabled) {
+            Log.e("Bluetooth", "Bluetooth is not enabled.")
+            return
+        }
+        Log.d("Bluetooth", "Using UUID: $appUuid")
+
         isAdvertising = true
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                serverSocket = bluetoothAdapter.listenUsingRfcommWithServiceRecord("TelepathyService", appUuid)
-                Log.d("Bluetooth", "Advertising started...")
-                while (isAdvertising) {
-                    val socket = serverSocket?.accept()
-                    socket?.let {
-                        Log.d("Bluetooth", "Connection accepted from ${it.remoteDevice.name}")
+                serverSocket = try {
+                    bluetoothAdapter.listenUsingRfcommWithServiceRecord("TelepathyService", appUuid)
+                } catch (e: IOException) {
+                    Log.e("Bluetooth", "Failed to create server socket", e)
+                    null
+                }
+                if (serverSocket != null) {
+                    Log.d("Bluetooth", "Advertising started...")
+                    while (isAdvertising) {
+                        val socket = serverSocket?.accept()
+                        socket?.let {
+                            Log.d("Bluetooth", "Connection accepted from ${it.remoteDevice.name}")
 
-                        sendUser(it, localUser)
+                            sendUser(it, localUser)
 
-                        startCommunication(it)
+                            startCommunication(it)
+                        }
                     }
                 }
             } catch (e: Exception) {
@@ -96,7 +115,7 @@ class BluetoothRepository(
             onDeviceFound = { device ->
                 val name = device.name ?: "Unknown Device"
                 val address = device.address
-                Log.d("Bluetooth", "Discovered device: $name, $address")
+                Log.d("Bluetooth", "Discovered device: $name, $address, ${device.uuids}")
 
                 device.fetchUuidsWithSdp()
             },
