@@ -6,10 +6,8 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
@@ -24,7 +22,6 @@ import com.example.telepathy.presentation.ui.theme.DarkUserColors
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
@@ -110,8 +107,8 @@ fun MyApp() {
         val context = LocalContext.current
 
         val preferencesManager = PreferencesManager(context)
-        val currentScreen = remember { mutableStateOf("contacts") }
         val navController = rememberNavController()
+        val currentScreen = remember { mutableStateOf("contacts") }
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
@@ -119,8 +116,8 @@ fun MyApp() {
             AnimatedNavHost(
                 navController = navController,
                 startDestination = "enter_pin_login",
-                localUserId = preferencesManager.getLocalUserId(),
-                currentScreen = currentScreen
+                currentScreen = currentScreen,
+                localUserId = preferencesManager.getLocalUserId()
             )
         }
     }
@@ -131,4 +128,4 @@ fun MyApp() {
 fun TelePathyPreview() {
     TelePathyTheme {
     }
-} 
+}

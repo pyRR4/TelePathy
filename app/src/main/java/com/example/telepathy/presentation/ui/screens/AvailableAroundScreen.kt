@@ -16,7 +16,7 @@ import com.example.telepathy.presentation.ui.ScreenTemplate
 import com.example.telepathy.R
 import com.example.telepathy.presentation.navigation.swipeToNavigate
 import com.example.telepathy.presentation.ui.CustomButton
-import com.example.telepathy.presentation.ui.DividerWithImage
+import com.example.telepathy.presentation.ui.FooterWithPromptBar
 import com.example.telepathy.presentation.ui.Header
 import com.example.telepathy.presentation.viewmodels.ContactsViewModel
 import com.example.telepathy.presentation.viewmodels.ContactsViewModelFactory
@@ -27,7 +27,8 @@ fun AvailableAroundScreen(
     navController: NavHostController,
     viewModel: ContactsViewModel = viewModel(
         factory = ContactsViewModelFactory(LocalContext.current)
-    )
+    ),
+    currentScreen: MutableState<String>
 ) {
 
     val contacts by viewModel.contacts.collectAsState()
@@ -36,7 +37,7 @@ fun AvailableAroundScreen(
 
     ScreenTemplate(
         navIcon = {
-            DividerWithImage()
+            FooterWithPromptBar(currentScreen.value)
         },
         header = {
             Header(stringResource(R.string.available_around_you), modifier = Modifier.padding(bottom = 16.dp))
