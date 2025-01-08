@@ -37,7 +37,8 @@ fun AvailableAroundScreen(
     navController: NavHostController,
     viewModel: AvailableViewModel = viewModel(
         factory = AvailableViewModelFactory(LocalContext.current)
-    localUserId: Int
+    ),
+    localUserId: Int,
     currentScreen: MutableState<String>
 ) {
     var isVisible by remember { mutableStateOf(false) }
