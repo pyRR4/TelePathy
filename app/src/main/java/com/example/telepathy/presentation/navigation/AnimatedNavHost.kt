@@ -217,7 +217,6 @@ fun AnimatedNavHost(
             )
         }
 
-        //---------------------- Koniec animacji sprawdzonych ------------------------//
 
         composable(
             route = "enter_pin_login",
@@ -242,7 +241,7 @@ fun AnimatedNavHost(
         }
 
         composable(
-            route = "enter_pin_settings", // pin przy probie zmiany pinu
+            route = "enter_pin_settings",
             enterTransition = {
                 slideIntoContainer(
                     towards = AnimatedContentTransitionScope.SlideDirection.Up,
@@ -280,7 +279,7 @@ fun AnimatedNavHost(
         ) {
             EnterNewPinScreen(
                 navController = navController,
-                onCancel = { navController.popBackStack() } // Navigate back on cancel
+                onCancel = { navController.popBackStack() }
             )
         }
 
@@ -301,7 +300,7 @@ fun AnimatedNavHost(
             val pinTemp = backStackEntry.arguments?.getString("pin") ?: ""
             ConfirmPinScreen(
                 navController = navController,
-                onCancel = { navController.popBackStack() }, // Navigate back on cancel
+                onCancel = { navController.popBackStack() },
                 pinTemp = pinTemp
             )
         }
@@ -329,7 +328,6 @@ fun Modifier.swipeToNavigate(
             Log.d("SwipeGesture", "Drag Amount: x = ${dragAmount.x}, y = ${dragAmount.y}")
             when {
                 abs(dragAmount.x) > horizontalThreshold -> {
-                    // Handle horizontal swipe (left or right)
                     if (dragAmount.x < 0f && onSwipeLeft != null) {
                         Log.d("SwipeGesture", "Swipe Left detected")
                         isNavigating.value = true
@@ -351,7 +349,6 @@ fun Modifier.swipeToNavigate(
                     }
                 }
                 abs(dragAmount.y) > verticalThreshold -> {
-                    // Handle vertical swipe (up or down)
                     if (dragAmount.y < 0f && onSwipeUp != null) {
                         Log.d("SwipeGesture", "Swipe Up detected")
                         isNavigating.value = true

@@ -60,14 +60,13 @@ fun CircledImage(
     bitmap: Bitmap? = null, // Optional bitmap
     modifier: Modifier = Modifier,
     size: Dp = 90.dp,
-    defaultColor: Color = MaterialTheme.colorScheme.secondary // Kolor kółka, gdy bitmapa jest null
+    defaultColor: Color = MaterialTheme.colorScheme.secondary
 ) {
     val avatarModifier = modifier
         .size(size)
         .clip(CircleShape)
 
     if (bitmap != null) {
-        // Wyświetlanie obrazka (gdy bitmapa jest dostępna)
         Image(
             bitmap = bitmap.asImageBitmap(),
             contentDescription = "Avatar",
@@ -223,10 +222,10 @@ fun ScreenTemplate(
 @Composable
 fun TelePathyLogo() {
     val gradientBrush = Brush.horizontalGradient(
-        listOf(MaterialTheme.colorScheme.onSecondary, DarkPurple) // You can customize the gradient colors
+        listOf(MaterialTheme.colorScheme.onSecondary, DarkPurple)
     )
     val gradientBrush1 = Brush.horizontalGradient(
-        listOf(DarkPurple, MaterialTheme.colorScheme.onSecondary) // You can customize the gradient colors
+        listOf(DarkPurple, MaterialTheme.colorScheme.onSecondary)
     )
 
     Row(
@@ -238,10 +237,10 @@ fun TelePathyLogo() {
                 fontSize = 35.sp,
                 fontWeight = FontWeight.ExtraBold,
                 brush = gradientBrush1,
-                drawStyle = Stroke(  // Outline settings
-                    width = 4f,       // Outline width
-                    miter = 10f,      // Miter join for sharp corners
-                    join = StrokeJoin.Round  // Rounded corners for the outline
+                drawStyle = Stroke(
+                    width = 4f,
+                    miter = 10f,
+                    join = StrokeJoin.Round
                 )
             ),
             textAlign = TextAlign.Start
@@ -254,10 +253,10 @@ fun TelePathyLogo() {
                 fontWeight = FontWeight.ExtraBold,
                 fontStyle = FontStyle.Italic,
                 brush = gradientBrush,
-                drawStyle = Stroke(  // Outline settings
-                    width = 4f,       // Outline width
-                    miter = 10f,      // Miter join for sharp corners
-                    join = StrokeJoin.Round,  // Rounded corners for the outline
+                drawStyle = Stroke(
+                    width = 4f,
+                    miter = 10f,
+                    join = StrokeJoin.Round,
                 )
             ),
             textAlign = TextAlign.End

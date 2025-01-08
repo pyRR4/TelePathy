@@ -33,13 +33,10 @@ class EditProfileViewModel(context: Context, private val localUserId: Int) : Vie
         Log.d("UserUpdate", "Updating user: ${updatedUser.id}, Name: ${updatedUser.name}")
 
         viewModelScope.launch {
-            // Optionally, log any additional information about the operation, if needed
             try {
-                // Update the user in the database
                 database.userDao().update(updatedUser)
                 Log.d("UserUpdate", "User updated successfully: ${updatedUser.id}")
             } catch (e: Exception) {
-                // Log any error that occurs during the update
                 Log.e("UserUpdate", "Error updating user: ${updatedUser.id}, Error: ${e.message}")
             }
         }

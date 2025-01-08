@@ -200,7 +200,7 @@ fun TalkScreen(
                 name = user?.name ?: "",
                 description = user?.description ?: "",
                 backgroundColor = user?.color ?: MaterialTheme.colorScheme.surface,
-                onClick = { /* Handle banner click */ }
+                onClick = { /* */ }
             )
         }
 
@@ -230,7 +230,7 @@ fun TalkScreen(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(onClick = { /* Handle more button */ }) {
+            IconButton(onClick = { /* */ }) {
                 Icon(
                     imageVector = Icons.Default.MoreVert,
                     contentDescription = "More",
