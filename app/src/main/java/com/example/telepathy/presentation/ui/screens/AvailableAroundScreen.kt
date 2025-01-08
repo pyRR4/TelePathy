@@ -1,5 +1,6 @@
 package com.example.telepathy.presentation.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -40,12 +41,13 @@ fun AvailableAroundScreen(
     currentScreen: MutableState<String>
 ) {
     var isVisible by remember { mutableStateOf(false) }
-    val discoveredUsers by viewModel.discoveredUsers.collectAsState()
+    val discoveredUsers by viewModel.discoveredUsersDeviceIds.collectAsState()
     val localUser by viewModel.localUser.collectAsState()
     val localUserId = PreferencesManager(LocalContext.current).getLocalUserId()
 
 
     LaunchedEffect(isVisible, viewModel.discoveredUsersDeviceIds) {
+        Log.d("LAUNCHED EFFECT", "Starting launched effect")
         viewModel.loadUsers()
         viewModel.loadLocalUser(localUserId)
     }

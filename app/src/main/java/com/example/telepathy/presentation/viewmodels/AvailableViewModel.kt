@@ -23,7 +23,7 @@ class AvailableViewModel(
     private val userRepository: UserRepository
 ) : ViewModel() {
 
-    val discoveredUsersDeviceIds: StateFlow<List<String>> = bluetoothRepository.discoveredUsers
+    val discoveredUsersDeviceIds: StateFlow<List<User>> = bluetoothRepository.discoveredUsers
 
     private val _discoveredUsers = MutableStateFlow<List<User>>(emptyList())
     val discoveredUsers: StateFlow<List<User>> = _discoveredUsers.asStateFlow()
@@ -33,15 +33,11 @@ class AvailableViewModel(
 
     fun loadUsers() {
         viewModelScope.launch {
-            discoveredUsersDeviceIds.collect { ids ->
-                ids.forEach { id ->
-                    val user = userRepository.getUserByDeviceId(id).collect { user ->
-                        user?.let {
-                            val updatedList = _discoveredUsers.value.toMutableList()
-                            updatedList.add(it)
-                            _discoveredUsers.value = updatedList
-                        }
-                    }
+            discoveredUsersDeviceIds.collect { users ->
+                users.forEach { user ->
+                        val updatedList = _discoveredUsers.value.toMutableList()
+                        updatedList.add(user)
+                        _discoveredUsers.value = updatedList
                 }
             }
         }

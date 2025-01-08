@@ -6,14 +6,12 @@ import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothServerSocket
 import android.bluetooth.BluetoothSocket
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.util.Log
 import androidx.core.content.ContextCompat
 import com.example.telepathy.data.entities.User
-import com.example.telepathy.domain.repositories.UserRepository
 import com.example.telepathy.domain.serialization.deserializeUser
 import com.example.telepathy.domain.serialization.serializeUser
 import kotlinx.coroutines.CoroutineScope
@@ -31,8 +29,8 @@ class BluetoothRepository(
 ) {
 
     private val bluetoothAdapter: BluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
-    private val _discoveredUsers = MutableStateFlow<List<String>>(emptyList())
-    val discoveredUsers: StateFlow<List<String>> = _discoveredUsers
+    private val _discoveredUsers = MutableStateFlow<List<User>>(emptyList())
+    val discoveredUsers: StateFlow<List<User>> = _discoveredUsers
 
     private var serverSocket: BluetoothServerSocket? = null
     private var isAdvertising = false
@@ -123,8 +121,16 @@ class BluetoothRepository(
 
                 if (uuids.contains(targetUuid)) {
                     CoroutineScope(Dispatchers.Main).launch {
-                        discoveredDevices.add(device.address)
-                        _discoveredUsers.value = discoveredDevices.toList()
+                        try {
+                            val socket = device.createRfcommSocketToServiceRecord(targetUuid)
+                            socket.connect()
+                            Log.d("Bluetooth", "Connected to device: $device")
+
+                            receiveUser(socket)
+                            stopScan()
+                        } catch (e: IOException) {
+                            Log.e("Bluetooth", "Failed to connect to device: ${device.name}", e)
+                        }
                     }
                     Log.d("Bluetooth", "Device ${device.name} matches the app's UUID!")
                 }
@@ -158,6 +164,46 @@ class BluetoothRepository(
                 Log.e("Bluetooth", "Error during communication", e)
             } finally {
                 socket.close()
+            }
+        }
+    }
+
+    fun handleReceivedUser(user: User) {
+        CoroutineScope(Dispatchers.Main).launch {
+            val updatedList = _discoveredUsers.value.toMutableList().apply {
+                add(user)
+            }
+            _discoveredUsers.value = updatedList
+
+            Log.d("Bluetooth", "Handling received user: ${user.name}")
+        }
+    }
+
+    fun sendUser(socket: BluetoothSocket, user: User) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val outputStream = socket.outputStream
+                val userJson = serializeUser(user)
+                outputStream.write(userJson.toByteArray())
+                Log.d("Bluetooth", "User sent: $userJson")
+            } catch (e: Exception) {
+                Log.e("Bluetooth", "Failed to send user data", e)
+            }
+        }
+    }
+
+    fun receiveUser(socket: BluetoothSocket) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val inputStream = socket.inputStream
+                val buffer = ByteArray(1024)
+                val bytesRead = inputStream.read(buffer)
+                val userJson = String(buffer, 0, bytesRead)
+                val user = deserializeUser(userJson)
+                Log.d("Bluetooth", "User received: $user")
+                handleReceivedUser(user)
+            } catch (e: Exception) {
+                Log.e("Bluetooth", "Failed to receive user data", e)
             }
         }
     }

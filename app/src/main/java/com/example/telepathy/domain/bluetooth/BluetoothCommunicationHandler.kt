@@ -27,7 +27,6 @@ fun receiveData(socket: BluetoothSocket) {
                         val user = deserializeUser(userJson)
                         Log.d("Bluetooth", "User received: $user")
                         // Obsłuż dane użytkownika
-                        handleReceivedUser(user)
                     }
 
                     message.startsWith("MSG:") -> {
@@ -48,11 +47,6 @@ fun receiveData(socket: BluetoothSocket) {
     }
 }
 
-fun handleReceivedUser(user: User) {
-
-    Log.d("Bluetooth", "Handling received user: ${user.name}")
-}
-
 fun handleReceivedMessage(message: String) {
 
     Log.d("Bluetooth", "Handling received message: $message")
@@ -67,34 +61,6 @@ fun sendMessage(socket: BluetoothSocket, message: String) {
             Log.d("Bluetooth", "Message sent: $message")
         } catch (e: Exception) {
             Log.e("Bluetooth", "Failed to send message", e)
-        }
-    }
-}
-
-fun sendUser(socket: BluetoothSocket, user: User) {
-    CoroutineScope(Dispatchers.IO).launch {
-        try {
-            val outputStream = socket.outputStream
-            val userJson = serializeUser(user)
-            outputStream.write(userJson.toByteArray())
-            Log.d("Bluetooth", "User sent: $userJson")
-        } catch (e: Exception) {
-            Log.e("Bluetooth", "Failed to send user data", e)
-        }
-    }
-}
-
-fun receiveUser(socket: BluetoothSocket) {
-    CoroutineScope(Dispatchers.IO).launch {
-        try {
-            val inputStream = socket.inputStream
-            val buffer = ByteArray(1024)
-            val bytesRead = inputStream.read(buffer)
-            val userJson = String(buffer, 0, bytesRead)
-            val user = deserializeUser(userJson)
-            Log.d("Bluetooth", "User received: $user")
-        } catch (e: Exception) {
-            Log.e("Bluetooth", "Failed to receive user data", e)
         }
     }
 }
