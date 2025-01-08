@@ -1,5 +1,6 @@
 package com.example.telepathy.presentation.ui.screens
 
+import android.R.attr.start
 import android.R.color.white
 import android.graphics.Bitmap
 import androidx.compose.foundation.layout.Arrangement
@@ -44,6 +45,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import android.media.MediaPlayer
+
 
 
 data class SettingOption(
@@ -167,20 +170,25 @@ fun GifBackgroundButton(
 ) {
     val context = LocalContext.current
     val gifPainter = rememberAsyncImagePainter(
-            ImageRequest.Builder(context)
-                .data(resourceId)
-                .decoderFactory(GifDecoder.Factory())
-                .build()
-        )
+        ImageRequest.Builder(context)
+            .data(resourceId)
+            .decoderFactory(GifDecoder.Factory())
+            .build()
+    )
 
     Box(
         modifier = modifier
-            .clickable { onClick() }
+            .clickable {
+                val mediaPlayer = MediaPlayer.create(context, R.raw.glitch)
+                mediaPlayer?.start()
+                mediaPlayer?.setOnCompletionListener { mp -> mp.release() }
+
+                onClick()
+            }
             .fillMaxWidth()
             .height(82.dp)
             .clip(RoundedCornerShape(8.dp))
     ) {
-
         Image(
             painter = gifPainter,
             contentDescription = null,

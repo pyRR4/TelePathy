@@ -55,6 +55,9 @@ dependencies {
     // Annotation processor for Room (Java and Kotlin)
     annotationProcessor("androidx.room:room-compiler:$room_version")
 
+    implementation (libs.kotlin.stdlib)
+
+
     // Core Android dependencies
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
