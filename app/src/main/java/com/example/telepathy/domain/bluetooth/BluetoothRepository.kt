@@ -2,11 +2,13 @@ package com.example.telepathy.domain.bluetooth
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothServerSocket
 import android.bluetooth.BluetoothSocket
 import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.util.Log
 import androidx.core.content.ContextCompat
@@ -37,11 +39,15 @@ class BluetoothRepository(
 
 
     private fun hasPermission(permission: String): Boolean {
-        return ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
+        return ContextCompat.checkSelfPermission(
+            context,
+            permission
+        ) == PackageManager.PERMISSION_GRANTED
     }
 
     @SuppressLint("MissingPermission")
     fun startAdvertising(localUser: User) {
+        enableDiscoverable()
         if (isAdvertising) return
         if (!hasPermission(Manifest.permission.BLUETOOTH_CONNECT)) {
             Log.e("Bluetooth", "Missing permission: BLUETOOTH_CONNECT")
@@ -51,7 +57,8 @@ class BluetoothRepository(
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                serverSocket = bluetoothAdapter.listenUsingRfcommWithServiceRecord("TelepathyService", appUuid)
+                serverSocket =
+                    bluetoothAdapter.listenUsingRfcommWithServiceRecord("TelepathyService", appUuid)
                 Log.d("Bluetooth", "Advertising started...")
                 while (isAdvertising) {
                     val socket = serverSocket?.accept()
@@ -141,6 +148,24 @@ class BluetoothRepository(
             } finally {
                 socket.close()
             }
+        }
+    }
+
+    fun enableDiscoverable(duration: Int = 300) {
+        if (!bluetoothAdapter.isEnabled) {
+            Log.e("Bluetooth", "Bluetooth is not enabled")
+            return
+        }
+
+        val discoverableIntent = Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE).apply {
+            putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, duration)
+        }
+
+        if (context is Activity) {
+            context.startActivity(discoverableIntent)
+            Log.d("Bluetooth", "Device is now discoverable for $duration seconds")
+        } else {
+            Log.e("Bluetooth", "Context is not an Activity. Cannot start discoverable intent.")
         }
     }
 }
