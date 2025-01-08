@@ -1,5 +1,6 @@
 package com.example.telepathy.presentation.ui.screens
 
+import android.R.color.white
 import android.graphics.Bitmap
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -32,6 +33,17 @@ import coil.request.ImageRequest
 import androidx.compose.foundation.Image
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 
 
 data class SettingOption(
@@ -108,35 +120,33 @@ fun SettingsScreen(
             modifier = Modifier.fillMaxWidth()
         ) {
             settingsOptions.forEach { option ->
-                CustomButton(
-                    name = option.title,
-                    backgroundColor = option.backgroundColor,
-                    image = {
-                        if (option.iconBitmap != null) {
-                            CircledImage(bitmap = option.iconBitmap, size = 48.dp)
-                        } else if (option.iconColor != null) {
-                            CircledImage(bitmap = null, size = 48.dp, defaultColor = option.iconColor)
-                        }
-                    },
-                    onClick = option.onClick
-                )
+                if (option.title == stringResource(R.string.reset_app_data)) {
+                    GifBackgroundButton(
+                        text = option.title,
+                        resourceId = R.drawable.matrix,
+                        onClick = option.onClick,
+                        modifier = Modifier
+                    )
+                } else {
+                    CustomButton(
+                        name = option.title,
+                        backgroundColor = option.backgroundColor,
+                        image = {
+                            if (option.iconBitmap != null) {
+                                CircledImage(bitmap = option.iconBitmap, size = 48.dp)
+                            } else if (option.iconColor != null) {
+                                CircledImage(
+                                    bitmap = null,
+                                    size = 48.dp,
+                                    defaultColor = option.iconColor
+                                )
+                            }
+                        },
+                        onClick = option.onClick
+                    )
+                }
             }
 
-            val painter = rememberAsyncImagePainter(
-                ImageRequest.Builder(LocalContext.current)
-                    .data(R.drawable.matrix)
-                    .decoderFactory(GifDecoder.Factory())
-                    .build()
-            )
-
-            Image(
-                painter = painter,
-                contentDescription = "Matrix",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(4.dp),
-                contentScale = ContentScale.FillWidth
-            )
         }
     }
 }
@@ -145,4 +155,47 @@ fun SettingsScreen(
 @Composable
 fun ButtonIcon(image: Painter, modifier: Modifier) {
     CircledImage(null, modifier, 48.dp)
+}
+
+
+@Composable
+fun GifBackgroundButton(
+    text: String,
+    resourceId: Int,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+    val gifPainter = rememberAsyncImagePainter(
+            ImageRequest.Builder(context)
+                .data(resourceId)
+                .decoderFactory(GifDecoder.Factory())
+                .build()
+        )
+
+    Box(
+        modifier = modifier
+            .clickable { onClick() }
+            .fillMaxWidth()
+            .height(82.dp)
+            .clip(RoundedCornerShape(8.dp))
+    ) {
+
+        Image(
+            painter = gifPainter,
+            contentDescription = null,
+            modifier = Modifier.matchParentSize(),
+            contentScale = ContentScale.Crop
+        )
+
+        Text(
+            text = text,
+            color = Color.White,
+            style = MaterialTheme.typography.titleLarge.copy(
+                fontWeight = FontWeight.Black,
+                fontSize = 48.sp
+            ),
+            modifier = Modifier.align(Alignment.Center)
+        )
+    }
 }
