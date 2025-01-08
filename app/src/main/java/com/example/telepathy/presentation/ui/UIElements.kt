@@ -313,18 +313,20 @@ fun LeftIcon(currentScreen: String) {
         horizontalArrangement = Arrangement.Absolute.Left,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(
-            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-            contentDescription = "Search",
-            modifier = Modifier.size(24.dp)
-        )
         when(currentScreen){
             "settingsscreen" -> PlaceholderIcon()
-            "contactsscreen" -> Icon(
-                imageVector = Icons.Default.Search,
-                contentDescription = "Arrow Left",
-                modifier = Modifier.size(24.dp)
-            )
+            "contactsscreen" ->{
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = "Arrow Left",
+                    modifier = Modifier.size(24.dp)
+                )
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                    contentDescription = "Search",
+                    modifier = Modifier.size(24.dp)
+                )
+            }
             "availablescreen" -> PlaceholderIcon()
         }
     }
@@ -336,23 +338,35 @@ fun RightIcon(currentScreen: String) {
         horizontalArrangement = Arrangement.Absolute.Right,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        when(currentScreen){
+        when(currentScreen) {
             "settingsscreen" -> PlaceholderIcon()
-            "contactsscreen" -> Icon(
-                imageVector = Icons.AutoMirrored.Filled.Send,
-                contentDescription = "Arrow Left",
-                modifier = Modifier.size(24.dp)
-            )
-            "availablescreen" -> Icon(
-                imageVector = Icons.AutoMirrored.Outlined.List,
-                contentDescription = "Arrow Left",
-                modifier = Modifier.size(24.dp)
-            )
+            "contactsscreen" -> {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.Send,
+                    contentDescription = "Arrow Left",
+                    modifier = Modifier.size(24.dp)
+                )
+
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    contentDescription = "Arrow Right",
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+
+            "availablescreen" -> {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Outlined.List,
+                    contentDescription = "Arrow Left",
+                    modifier = Modifier.size(24.dp)
+                )
+
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    contentDescription = "Arrow Right",
+                    modifier = Modifier.size(24.dp)
+                )
+            }
         }
-        Icon(
-            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-            contentDescription = "Arrow Right",
-            modifier = Modifier.size(24.dp)
-        )
     }
 }

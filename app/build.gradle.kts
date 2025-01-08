@@ -81,4 +81,11 @@ dependencies {
     // Debugging
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    // Podstawowa biblioteka Coil
+    implementation (libs.coil.kt.coil.compose)
+
+    // Dekoder GIF dla Coil
+    implementation (libs.coil.gif)
+
 }

@@ -26,6 +26,13 @@ import com.example.telepathy.data.entities.User
 import kotlinx.coroutines.flow.firstOrNull
 import com.example.telepathy.presentation.navigation.swipeToNavigate
 import com.example.telepathy.presentation.ui.theme.AlertRed
+import coil.compose.rememberAsyncImagePainter
+import coil.decode.GifDecoder
+import coil.request.ImageRequest
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.layout.ContentScale
+
 
 data class SettingOption(
     val iconBitmap: Bitmap? = null,
@@ -76,7 +83,7 @@ fun SettingsScreen(
             iconColor = MaterialTheme.colorScheme.secondary,
             title = stringResource(R.string.reset_app_data),
             backgroundColor = AlertRed,
-            onClick = { navController.navigate("reset_app")}
+            onClick = {} //{ navController.navigate("reset_app")}
         )
     )
 
@@ -114,6 +121,22 @@ fun SettingsScreen(
                     onClick = option.onClick
                 )
             }
+
+            val painter = rememberAsyncImagePainter(
+                ImageRequest.Builder(LocalContext.current)
+                    .data(R.drawable.matrix)
+                    .decoderFactory(GifDecoder.Factory())
+                    .build()
+            )
+
+            Image(
+                painter = painter,
+                contentDescription = "Matrix",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(4.dp),
+                contentScale = ContentScale.FillWidth
+            )
         }
     }
 }
