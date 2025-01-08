@@ -127,7 +127,7 @@ fun AnimatedNavHost(
         ) {
             AvailableAroundScreen(
                 navController = navController,
-                localUserId = localUserId
+                localUserId = localUserId,
                 currentScreen = currentScreen
             )
             currentScreen.value = "availablescreen"

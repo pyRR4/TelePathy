@@ -1,7 +1,6 @@
 package com.example.telepathy
 
 import android.Manifest
-import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -22,17 +21,8 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.compose.rememberNavController
 import com.example.telepathy.data.AppDatabase
 import com.example.telepathy.data.PreferencesManager
-import com.example.telepathy.data.entities.User
 import com.example.telepathy.presentation.navigation.AnimatedNavHost
-import com.example.telepathy.presentation.ui.theme.DarkUserColors
 import com.example.telepathy.presentation.ui.theme.TelePathyTheme
-import com.fingerprintjs.android.fingerprint.Fingerprinter
-import com.fingerprintjs.android.fingerprint.FingerprinterFactory
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
 
 private const val REQUEST_CODE_BLUETOOTH = 101
 
