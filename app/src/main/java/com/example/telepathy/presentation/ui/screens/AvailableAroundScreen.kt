@@ -104,9 +104,13 @@ fun AvailableAroundScreen(
         modifier = Modifier.swipeToNavigate(
             onSwipeLeft = {
                 navController.navigate("contactsscreen")
+                viewModel.stopAdvertising()
+                viewModel.stopScan()
             },
             onSwipeUp = {
                 navController.navigate("settingsscreen")
+                viewModel.stopAdvertising()
+                viewModel.stopScan()
             },
             coroutineScope = rememberCoroutineScope(),
             isNavigating = remember { mutableStateOf(false) },

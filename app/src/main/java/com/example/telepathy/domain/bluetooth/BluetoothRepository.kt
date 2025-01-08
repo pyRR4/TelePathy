@@ -83,6 +83,10 @@ class BluetoothRepository(
             Log.e("Bluetooth", "Missing permission: BLUETOOTH_SCAN")
             return
         }
+        if (!hasPermission(Manifest.permission.ACCESS_FINE_LOCATION)) {
+            Log.e("Bluetooth", "Missing permission: ACCESS_FINE_LOCATION")
+            return
+        }
 
         Log.d("Bluetooth", "Started scanning...")
         val discoveredDevices = mutableSetOf<String>()

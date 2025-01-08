@@ -54,6 +54,7 @@ class MainActivity : ComponentActivity() {
     }
 
 
+    @RequiresApi(Build.VERSION_CODES.S)
     private fun getBluetoothPermissions(activity: ComponentActivity) {
         val requiredPermissions = mutableListOf<String>()
 
@@ -65,6 +66,9 @@ class MainActivity : ComponentActivity() {
         }
         if (ContextCompat.checkSelfPermission(activity, Manifest.permission.BLUETOOTH_ADVERTISE) != PackageManager.PERMISSION_GRANTED) {
             requiredPermissions.add(Manifest.permission.BLUETOOTH_ADVERTISE)
+        }
+        if (ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            requiredPermissions.add(Manifest.permission.ACCESS_FINE_LOCATION)
         }
 
         if (requiredPermissions.isNotEmpty()) {
