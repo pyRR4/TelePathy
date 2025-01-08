@@ -19,4 +19,6 @@ interface UserRepository {
     suspend fun removeContact(contact: Contact)
 
     fun getContactsForUser(userId: Int): Flow<List<Contact>>
+
+    fun getUserByDeviceId(deviceId: String): Flow<User>
 }

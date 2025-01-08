@@ -1,16 +1,19 @@
-package com.example.telepathy.data.repositories
+package com.example.telepathy.domain.bluetooth
 
 import android.Manifest
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
-import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothServerSocket
 import android.bluetooth.BluetoothSocket
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.pm.PackageManager
 import android.util.Log
 import androidx.core.content.ContextCompat
 import com.example.telepathy.data.entities.User
+import com.example.telepathy.domain.repositories.UserRepository
+import com.example.telepathy.domain.serialization.deserializeUser
+import com.example.telepathy.domain.serialization.serializeUser
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,11 +23,13 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.util.UUID
 
-class BluetoothRepository(private val context: Context) {
+class BluetoothRepository(
+    private val context: Context
+) {
 
     private val bluetoothAdapter: BluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
-    private val _discoveredUsers = MutableStateFlow<List<User>>(emptyList())
-    val discoveredUsers: StateFlow<List<User>> = _discoveredUsers
+    private val _discoveredUsers = MutableStateFlow<List<String>>(emptyList())
+    val discoveredUsers: StateFlow<List<String>> = _discoveredUsers
 
     private var serverSocket: BluetoothServerSocket? = null
     private var isAdvertising = false
@@ -52,6 +57,9 @@ class BluetoothRepository(private val context: Context) {
                     val socket = serverSocket?.accept()
                     socket?.let {
                         Log.d("Bluetooth", "Connection accepted from ${it.remoteDevice.name}")
+
+                        sendUser(it, localUser)
+
                         startCommunication(it)
                     }
                 }
@@ -75,13 +83,38 @@ class BluetoothRepository(private val context: Context) {
             Log.e("Bluetooth", "Missing permission: BLUETOOTH_SCAN")
             return
         }
+
+        val discoveredDevices = mutableSetOf<String>() // Używamy zbioru, aby unikać duplikatów.
+        val targetUuid = UUID.fromString("12345678-1234-5678-1234-567812345678") // UUID Twojej aplikacji.
+
+        val discoveryReceiver = BluetoothDiscoveryReceiver(
+            onDeviceFound = { device ->
+                val name = device.name ?: "Unknown Device"
+                val address = device.address
+                Log.d("Bluetooth", "Discovered device: $name, $address")
+
+                // Wywołanie fetchUuidsWithSdp dla znalezionego urządzenia.
+                device.fetchUuidsWithSdp()
+            },
+            onUuidFetched = { device, uuids ->
+                Log.d("Bluetooth", "Fetched UUIDs for device ${device.name}: $uuids")
+
+                // Sprawdź, czy urządzenie obsługuje UUID aplikacji.
+                if (uuids.contains(targetUuid)) {
+                    CoroutineScope(Dispatchers.Main).launch {
+                        discoveredDevices.add(device.address)
+                        _discoveredUsers.value = discoveredDevices.toList()
+                    }
+                    Log.d("Bluetooth", "Device ${device.name} matches the app's UUID!")
+                }
+            }
+        )
+
+        // Rejestracja odbiornika
+        context.registerReceiver(discoveryReceiver, BluetoothDiscoveryReceiver.Companion.filter)
         bluetoothAdapter.startDiscovery()
-        val discoveryReceiver = BluetoothDiscoveryReceiver { device ->
-            Log.d("Bluetooth", "Discovered device: ${device.name}, ${device.address}")
-            // Dodaj logikę dodawania użytkownika do listy discoveredUsers
-        }
-        context.registerReceiver(discoveryReceiver, BluetoothDiscoveryReceiver.filter)
     }
+
 
     @SuppressLint("MissingPermission")
     fun stopScan() {
@@ -91,7 +124,6 @@ class BluetoothRepository(private val context: Context) {
 
     private fun startCommunication(socket: BluetoothSocket) {
         val inputStream: InputStream = socket.inputStream
-        val outputStream: OutputStream = socket.outputStream
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
@@ -106,17 +138,6 @@ class BluetoothRepository(private val context: Context) {
                 Log.e("Bluetooth", "Error during communication", e)
             } finally {
                 socket.close()
-            }
-        }
-
-        fun sendMessage(message: String) {
-            CoroutineScope(Dispatchers.IO).launch {
-                try {
-                    outputStream.write(message.toByteArray())
-                    Log.d("Bluetooth", "Message sent: $message")
-                } catch (e: Exception) {
-                    Log.e("Bluetooth", "Failed to send message", e)
-                }
             }
         }
     }

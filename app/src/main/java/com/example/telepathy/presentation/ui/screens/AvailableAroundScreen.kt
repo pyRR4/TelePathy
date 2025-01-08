@@ -23,14 +23,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.telepathy.R
 import com.example.telepathy.data.PreferencesManager
-import com.example.telepathy.data.entities.User
 import com.example.telepathy.presentation.ui.CustomButton
 import com.example.telepathy.presentation.ui.Header
 import com.example.telepathy.presentation.ui.ScreenTemplate
 import com.example.telepathy.presentation.viewmodels.AvailableViewModel
 import com.example.telepathy.presentation.viewmodels.AvailableViewModelFactory
 import com.example.telepathy.presentation.navigation.swipeToNavigate
-import com.example.telepathy.presentation.ui.BottomImage
 import com.example.telepathy.presentation.ui.CircledImage
 
 @Composable
@@ -38,17 +36,17 @@ fun AvailableAroundScreen(
     navController: NavHostController,
     viewModel: AvailableViewModel = viewModel(
         factory = AvailableViewModelFactory(LocalContext.current)
-    )
+    ),
+    localUserId: Int
 ) {
-    val context = LocalContext.current
-    val preferencesManager = PreferencesManager(context)
-    val localUserId = preferencesManager.getLocalUserId()
-    val localUserUuid = preferencesManager.getOrCreateUuid()
-
-    val localUser = User(id = localUserId, name = "Local User", description = "I am here", color = Color.Blue)
-
     var isVisible by remember { mutableStateOf(false) }
     val discoveredUsers by viewModel.discoveredUsers.collectAsState()
+    val localUser by viewModel.localUser.collectAsState()
+
+    LaunchedEffect(isVisible, viewModel.discoveredUsersDeviceIds) {
+        viewModel.loadUsers()
+        viewModel.loadLocalUser(localUserId)
+    }
 
     ScreenTemplate(
         navIcon = {
@@ -68,7 +66,7 @@ fun AvailableAroundScreen(
                     onClick = {
                         isVisible = !isVisible
                         if (isVisible) {
-                            viewModel.startAdvertising(localUser)
+                            viewModel.startAdvertising(localUser!!)
                             viewModel.startScan()
                         } else {
                             viewModel.stopAdvertising()
@@ -126,7 +124,10 @@ fun AvailableAroundScreen(
                         }
                     },
                     backgroundColor = user.color,
-                    onClick = { viewModel.addUserToLocalContacts(user) }
+                    onClick = {
+                        navController.navigate("talkscreen/${user.id}")
+                        viewModel.addUserToLocalContacts(user)
+                    }
                 )
             }
         }

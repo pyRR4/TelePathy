@@ -3,10 +3,12 @@ package com.example.telepathy
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -26,6 +28,8 @@ import com.example.telepathy.data.entities.User
 import com.example.telepathy.presentation.navigation.AnimatedNavHost
 import com.example.telepathy.presentation.ui.theme.DarkUserColors
 import com.example.telepathy.presentation.ui.theme.TelePathyTheme
+import com.fingerprintjs.android.fingerprint.Fingerprinter
+import com.fingerprintjs.android.fingerprint.FingerprinterFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,6 +39,7 @@ import kotlinx.coroutines.launch
 private const val REQUEST_CODE_BLUETOOTH = 101
 
 class MainActivity : ComponentActivity() {
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -44,10 +49,16 @@ class MainActivity : ComponentActivity() {
         val context = applicationContext
         val preferencesManager = PreferencesManager(context)
         val database = AppDatabase.getDatabase(context)
+        val fingerprinter = FingerprinterFactory.create(context)
+
+        var deviceId: String = ""
 
         logSharedPreferences(context)
 
         CoroutineScope(Dispatchers.IO).launch {
+            fingerprinter.getDeviceId(version = Fingerprinter.Version.V_5) { result ->
+                deviceId = result.deviceId
+            }
             if (preferencesManager.isFirstLaunch()) {
                 preferencesManager.setFirstLaunch(false)
                 preferencesManager.savePin(null)
@@ -62,7 +73,8 @@ class MainActivity : ComponentActivity() {
                         name = "Default User",
                         description = "This is the default user",
                         color = DarkUserColors.random(),
-                        avatar = null
+                        avatar = null,
+                        deviceId = deviceId
                     )
                     database.userDao().insert(defaultUser)
                     Log.d("Seed", "Created default user: $defaultUser")

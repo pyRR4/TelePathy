@@ -71,6 +71,10 @@ dependencies {
     // Navigation Compose
     implementation(libs.androidx.navigation.compose)
 
+    implementation(libs.gson)
+    implementation(libs.fingerprint.android)
+    implementation(libs.androidx.appcompat)
+
     // Test dependencies (podstawowe)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
