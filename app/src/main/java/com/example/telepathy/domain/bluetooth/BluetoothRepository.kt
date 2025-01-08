@@ -84,8 +84,9 @@ class BluetoothRepository(
             return
         }
 
-        val discoveredDevices = mutableSetOf<String>() // Używamy zbioru, aby unikać duplikatów.
-        val targetUuid = UUID.fromString("12345678-1234-5678-1234-567812345678") // UUID Twojej aplikacji.
+        Log.d("Bluetooth", "Started scanning...")
+        val discoveredDevices = mutableSetOf<String>()
+        val targetUuid = UUID.fromString("12345678-1234-5678-1234-567812345678")
 
         val discoveryReceiver = BluetoothDiscoveryReceiver(
             onDeviceFound = { device ->
@@ -93,13 +94,11 @@ class BluetoothRepository(
                 val address = device.address
                 Log.d("Bluetooth", "Discovered device: $name, $address")
 
-                // Wywołanie fetchUuidsWithSdp dla znalezionego urządzenia.
                 device.fetchUuidsWithSdp()
             },
             onUuidFetched = { device, uuids ->
                 Log.d("Bluetooth", "Fetched UUIDs for device ${device.name}: $uuids")
 
-                // Sprawdź, czy urządzenie obsługuje UUID aplikacji.
                 if (uuids.contains(targetUuid)) {
                     CoroutineScope(Dispatchers.Main).launch {
                         discoveredDevices.add(device.address)
@@ -110,7 +109,6 @@ class BluetoothRepository(
             }
         )
 
-        // Rejestracja odbiornika
         context.registerReceiver(discoveryReceiver, BluetoothDiscoveryReceiver.Companion.filter)
         bluetoothAdapter.startDiscovery()
     }
