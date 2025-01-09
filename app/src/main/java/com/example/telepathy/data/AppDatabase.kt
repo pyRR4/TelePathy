@@ -10,23 +10,20 @@ import com.example.telepathy.data.converters.BitmapConverter
 import com.example.telepathy.data.converters.ColorConverter
 import com.example.telepathy.data.daos.MessageDao
 import com.example.telepathy.data.daos.UserDao
-import com.example.telepathy.data.daos.ContactDao
 import com.example.telepathy.data.entities.Message
 import com.example.telepathy.data.entities.User
-import com.example.telepathy.data.entities.Contact
 import com.example.telepathy.data.seeding.DatabaseSeeder
 import com.example.telepathy.data.seeding.DefaultUserSeeder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@Database(entities = [User::class, Message::class, Contact::class], version = 2, exportSchema = false)
+@Database(entities = [User::class, Message::class], version = 3, exportSchema = false)
 @TypeConverters(ColorConverter::class, BitmapConverter::class)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun messageDao(): MessageDao
     abstract fun userDao(): UserDao
-    abstract fun contactDao(): ContactDao
 
     companion object {
         @Volatile
@@ -48,7 +45,7 @@ abstract class AppDatabase : RoomDatabase() {
                 CoroutineScope(Dispatchers.IO).launch {
                     Instance?.let { database ->
                         DefaultUserSeeder(database, context).seed()
-                        //DatabaseSeeder(database).seed()
+                        DatabaseSeeder(database).seed()
                     }
                 }
             }

@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.telepathy.data.AppDatabase
-import com.example.telepathy.data.entities.Contact
 import com.example.telepathy.data.entities.Message
 import com.example.telepathy.data.entities.User
 import com.example.telepathy.data.repositories.MessageRepositoryImpl
@@ -33,9 +32,6 @@ class ChatViewModel(
 
     private val _localUser = MutableStateFlow<User?>(null)
     val localUser: StateFlow<User?> = _localUser.asStateFlow()
-
-    private val _contacts = MutableStateFlow<List<Contact>>(emptyList())
-    val contacts: StateFlow<List<Contact>> = _contacts.asStateFlow()
 
     fun loadChatHistory(localUserId: Int, remoteUserId: Int) {
         viewModelScope.launch {
@@ -107,13 +103,6 @@ class ChatViewModel(
             }
         }
     }
-
-    fun addContact(userId: Int, contactId: Int) {
-        viewModelScope.launch {
-            val contact = Contact(id = 0, userId = userId, contactId = contactId)
-            userRepository.addContact(contact)
-        }
-    }
 }
 
 class ChatViewModelFactory(current: Context) : ViewModelProvider.Factory {
@@ -121,8 +110,7 @@ class ChatViewModelFactory(current: Context) : ViewModelProvider.Factory {
     private val database = AppDatabase.getDatabase(current)
 
     private val userRepositoryInstance = UserRepositoryImpl(
-        userDao = database.userDao(),
-        contactDao = database.contactDao()
+        userDao = database.userDao()
     )
 
     private val messageRepositoryInstance = MessageRepositoryImpl(

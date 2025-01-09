@@ -2,7 +2,6 @@ package com.example.telepathy.data.seeding
 
 import android.util.Log
 import com.example.telepathy.data.AppDatabase
-import com.example.telepathy.data.entities.Contact
 import com.example.telepathy.data.entities.Message
 import com.example.telepathy.data.entities.User
 import com.example.telepathy.presentation.ui.theme.DarkLightBlue
@@ -19,7 +18,6 @@ class DatabaseSeeder(
 
         val userDao = database.userDao()
         val messageDao = database.messageDao()
-        val contactDao = database.contactDao()
 
         val users = listOf(
             User(id = 0, name = "Alice", description = "Loves painting", color = DarkLightBlue, deviceId = "Alice"),
@@ -30,17 +28,16 @@ class DatabaseSeeder(
         userDao.insertUsers(users)
 
         val contacts = listOf(
-            Contact(id = 0, userId = 1, contactId = 2),
-            Contact(id = 0, userId = 1, contactId = 3),
-            Contact(id = 0, userId = 2, contactId = 3),
-            Contact(id = 0, userId = 2, contactId = 4),
-            Contact(id = 0, userId = 3, contactId = 4)
+            listOf(1, 2),
+            listOf(1, 3),
+            listOf(2, 3),
+            listOf(2, 4),
+            listOf(3, 4),
         )
-        contactDao.insertContacts(contacts)
 
         val messages = contacts.flatMap { contact ->
-            val userId = contact.userId
-            val contactId = contact.contactId
+            val userId = contact[0]
+            val contactId = contact[1]
 
             listOf(
                 Message(

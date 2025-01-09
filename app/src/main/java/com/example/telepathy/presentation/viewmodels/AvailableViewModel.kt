@@ -69,8 +69,7 @@ class AvailableViewModelFactory(private val context: Context) : ViewModelProvide
         val database = AppDatabase.getDatabase(context)
 
         val userRepositoryInstance = UserRepositoryImpl(
-            userDao = database.userDao(),
-            contactDao = database.contactDao()
+            userDao = database.userDao()
         )
 
         val bluetoothRepositoryInstance = BluetoothRepository(context)
