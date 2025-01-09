@@ -7,5 +7,5 @@ interface MessageRepository {
     suspend fun insert(message: Message)
     suspend fun delete(message: Message)
     fun getChatHistory(userId: Int): Flow<List<Message>>
-    fun getLastMessage(userId: Int, contactId: Int): Flow<Message>
+    suspend fun getLastMessage(userId: Int, contactId: Int): Flow<Message?>
 }

@@ -19,7 +19,7 @@ class DefaultUserSeeder(
     private val database: AppDatabase,
     private val context: Context
 ) {
-    fun seed() {
+    suspend fun seed() {
         val preferencesManager = PreferencesManager(context)
         val fingerprinter = FingerprinterFactory.create(context)
         logSharedPreferences(context)

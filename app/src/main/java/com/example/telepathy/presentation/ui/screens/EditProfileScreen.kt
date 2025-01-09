@@ -1,12 +1,8 @@
 package com.example.telepathy.presentation.ui.screens
 
-import android.annotation.SuppressLint
 import android.graphics.Bitmap
-import android.graphics.ImageDecoder
-import android.graphics.ImageDecoder.decodeBitmap
 import android.net.Uri
 import android.provider.MediaStore
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -216,7 +212,6 @@ fun EditProfileScreen(
         }
     }
 
-    // Color picker dialog
     if (colorPickerVisible) {
         ColorPickerDialog(
             currentColor = new_selectedColor,

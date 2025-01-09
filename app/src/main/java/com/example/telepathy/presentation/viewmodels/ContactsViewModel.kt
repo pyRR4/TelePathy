@@ -21,15 +21,17 @@ class ContactsViewModel(
     private val messageRepository: MessageRepository
 ) : ViewModel() {
 
-    private val _contacts = MutableStateFlow<Map<User, Message>>(emptyMap())
-    val contacts: StateFlow<Map<User, Message>> = _contacts.asStateFlow()
+    private val _contacts = MutableStateFlow<Map<User, Message?>>(emptyMap())
+    val contacts: StateFlow<Map<User, Message?>> = _contacts.asStateFlow()
 
     fun loadContacts(localUserId: Int) {
         viewModelScope.launch {
             userRepository.getAllUsers()
                 .collect { users ->
-                    users.forEach { user ->
-                        if (user.id != localUserId)
+                    users
+                        .filter {
+                            it.id != localUserId
+                        }.forEach { user ->
                             launch {
                                 messageRepository.getLastMessage(user.id, localUserId).collect { message ->
                                     _contacts.value = _contacts.value + (user to message)

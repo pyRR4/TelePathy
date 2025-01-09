@@ -54,10 +54,15 @@ fun formatTime(timestamp: Long): String {
 
 @Composable
 fun ContactText(name: String, isFromUser: Boolean, message: String, timestamp: Long, modifier: Modifier) {
-    val formattedTime = formatTime(timestamp)
+    var formattedTime = "--:--"
+    if(timestamp != -1L) {
+        formattedTime = formatTime(timestamp)
+    }
     var msg = message
     msg = if (isFromUser) {
         "Ty:\n$msg"
+    } else if (msg.equals("")){
+        stringResource(R.string.no_chat_history_with_this_user)
     } else {
         "$name:\n$msg"
     }
@@ -190,9 +195,9 @@ fun ContactsScreen(
                 UserCard(
                     avatarBitmap = user.avatar,
                     name = user.name,
-                    isFromUser = lastMessage.senderId == localUserId,
-                    message = lastMessage.content,
-                    time = lastMessage.timestamp,
+                    isFromUser = lastMessage?.senderId == localUserId,
+                    message = lastMessage?.content ?: "",
+                    time = lastMessage?.timestamp ?: -1L,
                     backgroundColor = user.color,
                     onClick = { navController.navigate("talkscreen/${user.id}") }
                 )

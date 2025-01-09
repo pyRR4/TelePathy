@@ -35,6 +35,6 @@ interface MessageDao {
         ORDER BY timestamp DESC
         LIMIT 1
     """)
-    fun getLastMessage(userId: Int, contactId: Int): Flow<Message>
+    fun getLastMessage(userId: Int, contactId: Int): Flow<Message?>
 
 }

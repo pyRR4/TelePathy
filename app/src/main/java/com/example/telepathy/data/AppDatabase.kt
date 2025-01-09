@@ -18,7 +18,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@Database(entities = [User::class, Message::class], version = 3, exportSchema = false)
+@Database(entities = [User::class, Message::class], version = 1, exportSchema = false)
 @TypeConverters(ColorConverter::class, BitmapConverter::class)
 abstract class AppDatabase : RoomDatabase() {
 
@@ -44,8 +44,7 @@ abstract class AppDatabase : RoomDatabase() {
                 super.onCreate(db)
                 CoroutineScope(Dispatchers.IO).launch {
                     Instance?.let { database ->
-                        DefaultUserSeeder(database, context).seed()
-                        DatabaseSeeder(database).seed()
+                        DatabaseSeeder(database, context).seed()
                     }
                 }
             }
