@@ -44,21 +44,19 @@ import com.example.telepathy.presentation.viewmodels.EditProfileViewModel.EditPr
 import com.example.telepathy.presentation.ui.theme.DarkButtonsColor
 import com.example.telepathy.presentation.ui.theme.DarkUserColors
 
-@SuppressLint("NewApi") //TODO
 @Composable
-fun EditProfileScreen(navController: NavHostController) {
+fun EditProfileScreen(
+    navController: NavHostController,
+    viewModel: EditProfileViewModel = viewModel(
+        factory = EditProfileViewModelFactory(LocalContext.current)
+    )
+) {
     val context = LocalContext.current
     val preferencesManager = PreferencesManager(context)
     val localUserId = preferencesManager.getLocalUserId()
 
-    val viewModel: EditProfileViewModel = viewModel(
-        factory = EditProfileViewModelFactory(context, localUserId)
-    )
-
     val localUser by viewModel.user.collectAsState()
 
-
-    var isUserLoaded by remember { mutableStateOf(false) }
     var colorPickerVisible by remember { mutableStateOf(false) }
 
     var new_username by remember { mutableStateOf("") }
@@ -67,14 +65,12 @@ fun EditProfileScreen(navController: NavHostController) {
     var new_avatarBitmap by remember { mutableStateOf<Bitmap?>(null) }
 
     LaunchedEffect(localUser) {
+        viewModel.loadUser(localUserId)
         localUser?.let { user ->
-            if (!isUserLoaded) {
-                new_username = user.name
-                new_description = user.description
-                new_selectedColor = user.color
-                new_avatarBitmap = user.avatar
-                isUserLoaded = true
-            }
+            new_username = user.name
+            new_description = user.description
+            new_selectedColor = user.color
+            new_avatarBitmap = user.avatar
         }
     }
 

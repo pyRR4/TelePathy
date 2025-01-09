@@ -20,7 +20,7 @@ class EditProfileViewModel(
     private val _user = MutableStateFlow<User?>(null)
     val user: StateFlow<User?> get() = _user
 
-    private fun loadUser(localUserId: Int) {
+    fun loadUser(localUserId: Int) {
         viewModelScope.launch {
             userRepository.getUser(localUserId).collect { user ->
                 _user.value = user
