@@ -7,23 +7,22 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.telepathy.data.AppDatabase
 import com.example.telepathy.data.entities.User
+import com.example.telepathy.data.repositories.UserRepositoryImpl
+import com.example.telepathy.domain.repositories.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class EditProfileViewModel(context: Context, private val localUserId: Int) : ViewModel() {
+class EditProfileViewModel(
+    private val userRepository: UserRepository
+) : ViewModel() {
 
-    private val database = AppDatabase.getDatabase(context)
     private val _user = MutableStateFlow<User?>(null)
     val user: StateFlow<User?> get() = _user
 
-    init {
-        loadUser()
-    }
-
-    private fun loadUser() {
+    private fun loadUser(localUserId: Int) {
         viewModelScope.launch {
-            database.userDao().getUser(localUserId).collect { user ->
+            userRepository.getUser(localUserId).collect { user ->
                 _user.value = user
             }
         }
@@ -34,7 +33,7 @@ class EditProfileViewModel(context: Context, private val localUserId: Int) : Vie
 
         viewModelScope.launch {
             try {
-                database.userDao().update(updatedUser)
+                userRepository.update(updatedUser)
                 Log.d("UserUpdate", "User updated successfully: ${updatedUser.id}")
             } catch (e: Exception) {
                 Log.e("UserUpdate", "Error updating user: ${updatedUser.id}, Error: ${e.message}")
@@ -43,13 +42,17 @@ class EditProfileViewModel(context: Context, private val localUserId: Int) : Vie
     }
 
     class EditProfileViewModelFactory(
-        private val context: Context,
-        private val localUserId: Int
+        context: Context
     ) : ViewModelProvider.Factory {
+        private val database = AppDatabase.getDatabase(context)
+
+        val userRepositoryInstance = UserRepositoryImpl(
+            userDao = database.userDao()
+        )
 
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(EditProfileViewModel::class.java)) {
-                return EditProfileViewModel(context, localUserId) as T
+                return EditProfileViewModel(userRepositoryInstance) as T
             }
             throw IllegalArgumentException("Unknown ViewModel class")
         }
