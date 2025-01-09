@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.telepathy.data.AppDatabase
-import com.example.telepathy.data.entities.Contact
 import com.example.telepathy.data.entities.Message
 import com.example.telepathy.data.entities.User
 import com.example.telepathy.data.repositories.MessageRepositoryImpl
@@ -22,31 +21,30 @@ class ContactsViewModel(
     private val messageRepository: MessageRepository
 ) : ViewModel() {
 
-    private val _contacts = MutableStateFlow<Map<User, Message>>(emptyMap())
-    val contacts: StateFlow<Map<User, Message>> = _contacts.asStateFlow()
+    private val _contacts = MutableStateFlow<Map<User, Message?>>(emptyMap())
+    val contacts: StateFlow<Map<User, Message?>> = _contacts.asStateFlow()
 
-    fun loadContacts(userId: Int) {
+    fun loadContacts(localUserId: Int) {
         viewModelScope.launch {
-            userRepository.getContactsForUser(userId)
-                .collect { contacts ->
-                    contacts.forEach { contactList ->
-                        val id = if (contactList.userId == userId)
-                            contactList.contactId else contactList.userId
-                        launch {
-                            userRepository.getUser(id).collect { user ->
-                                messageRepository.getLastMessage(userId, id).collect { message ->
+            userRepository.getAllUsers()
+                .collect { users ->
+                    users
+                        .filter {
+                            it.id != localUserId
+                        }.forEach { user ->
+                            launch {
+                                messageRepository.getLastMessage(user.id, localUserId).collect { message ->
                                     _contacts.value = _contacts.value + (user to message)
                                 }
                             }
-                        }
                     }
                 }
         }
     }
 
-    fun removeContact(contact: Contact) {
+    fun removeContact(contact: User) {
         viewModelScope.launch {
-            userRepository.removeContact(contact)
+            userRepository.delete(contact)
         }
     }
 }
@@ -56,8 +54,7 @@ class ContactsViewModelFactory(current: Context) : ViewModelProvider.Factory {
     private val database = AppDatabase.getDatabase(current)
 
     val userRepositoryInstance = UserRepositoryImpl(
-        userDao = database.userDao(),
-        contactDao = database.contactDao()
+        userDao = database.userDao()
     )
 
     val messageRepositoryInstance = MessageRepositoryImpl(

@@ -11,13 +11,9 @@ import android.content.Context
 import androidx.lifecycle.ViewModelProvider
 import com.example.telepathy.data.AppDatabase
 import com.example.telepathy.data.repositories.UserRepositoryImpl
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.forEach
 
 class AvailableViewModel(
     private val bluetoothRepository: BluetoothRepository,
@@ -69,8 +65,7 @@ class AvailableViewModelFactory(private val context: Context) : ViewModelProvide
         val database = AppDatabase.getDatabase(context)
 
         val userRepositoryInstance = UserRepositoryImpl(
-            userDao = database.userDao(),
-            contactDao = database.contactDao()
+            userDao = database.userDao()
         )
 
         val bluetoothRepositoryInstance = BluetoothRepository(context)

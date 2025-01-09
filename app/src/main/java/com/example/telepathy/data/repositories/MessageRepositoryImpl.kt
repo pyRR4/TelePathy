@@ -21,7 +21,7 @@ class MessageRepositoryImpl(
         return messageDao.getChatHistory(userId)
     }
 
-    override fun getLastMessage(userId: Int, contactId: Int): Flow<Message> {
+    override suspend fun getLastMessage(userId: Int, contactId: Int): Flow<Message?> {
         return messageDao.getLastMessage(userId, contactId)
     }
 }

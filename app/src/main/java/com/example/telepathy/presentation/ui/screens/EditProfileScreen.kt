@@ -1,12 +1,8 @@
 package com.example.telepathy.presentation.ui.screens
 
-import android.annotation.SuppressLint
 import android.graphics.Bitmap
-import android.graphics.ImageDecoder
-import android.graphics.ImageDecoder.decodeBitmap
 import android.net.Uri
 import android.provider.MediaStore
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -44,21 +40,19 @@ import com.example.telepathy.presentation.viewmodels.EditProfileViewModel.EditPr
 import com.example.telepathy.presentation.ui.theme.DarkButtonsColor
 import com.example.telepathy.presentation.ui.theme.DarkUserColors
 
-@SuppressLint("NewApi") //TODO
 @Composable
-fun EditProfileScreen(navController: NavHostController) {
+fun EditProfileScreen(
+    navController: NavHostController,
+    viewModel: EditProfileViewModel = viewModel(
+        factory = EditProfileViewModelFactory(LocalContext.current)
+    )
+) {
     val context = LocalContext.current
     val preferencesManager = PreferencesManager(context)
     val localUserId = preferencesManager.getLocalUserId()
 
-    val viewModel: EditProfileViewModel = viewModel(
-        factory = EditProfileViewModelFactory(context, localUserId)
-    )
-
     val localUser by viewModel.user.collectAsState()
 
-
-    var isUserLoaded by remember { mutableStateOf(false) }
     var colorPickerVisible by remember { mutableStateOf(false) }
 
     var new_username by remember { mutableStateOf("") }
@@ -67,14 +61,12 @@ fun EditProfileScreen(navController: NavHostController) {
     var new_avatarBitmap by remember { mutableStateOf<Bitmap?>(null) }
 
     LaunchedEffect(localUser) {
+        viewModel.loadUser(localUserId)
         localUser?.let { user ->
-            if (!isUserLoaded) {
-                new_username = user.name
-                new_description = user.description
-                new_selectedColor = user.color
-                new_avatarBitmap = user.avatar
-                isUserLoaded = true
-            }
+            new_username = user.name
+            new_description = user.description
+            new_selectedColor = user.color
+            new_avatarBitmap = user.avatar
         }
     }
 
@@ -220,7 +212,6 @@ fun EditProfileScreen(navController: NavHostController) {
         }
     }
 
-    // Color picker dialog
     if (colorPickerVisible) {
         ColorPickerDialog(
             currentColor = new_selectedColor,
