@@ -55,18 +55,22 @@ fun EditProfileScreen(
 
     var colorPickerVisible by remember { mutableStateOf(false) }
 
-    var new_username by remember { mutableStateOf("") }
-    var new_description by remember { mutableStateOf("") }
-    var new_selectedColor by remember { mutableStateOf(Color.Gray) }
-    var new_avatarBitmap by remember { mutableStateOf<Bitmap?>(null) }
+    var newUsername by remember { mutableStateOf("") }
+    var newDescription by remember { mutableStateOf("") }
+    var newSelectedColor by remember { mutableStateOf(Color.Gray) }
+    var newAvatarBitmap by remember { mutableStateOf<Bitmap?>(null) }
+    var isLoaded by remember { mutableStateOf(false) }
 
     LaunchedEffect(localUser) {
         viewModel.loadUser(localUserId)
         localUser?.let { user ->
-            new_username = user.name
-            new_description = user.description
-            new_selectedColor = user.color
-            new_avatarBitmap = user.avatar
+            if(!isLoaded) {
+                newUsername = user.name
+                newDescription = user.description
+                newSelectedColor = user.color
+                newAvatarBitmap = user.avatar
+                isLoaded = true
+            }
         }
     }
 
@@ -88,7 +92,7 @@ fun EditProfileScreen(
     ) { uri: Uri? ->
         uri?.let {
             val bitmap = MediaStore.Images.Media.getBitmap(context.contentResolver, it)
-            new_avatarBitmap = bitmap
+            newAvatarBitmap = bitmap
         }
     }
 
@@ -119,10 +123,10 @@ fun EditProfileScreen(
                     onClick = {
                         localUser?.let { existingUser ->
                             val updatedUser = existingUser.copy(
-                                name = new_username,
-                                description = new_description,
-                                color = new_selectedColor,
-                                avatar = new_avatarBitmap
+                                name = newUsername,
+                                description = newDescription,
+                                color = newSelectedColor,
+                                avatar = newAvatarBitmap
                             )
 
                             viewModel.updateUser(updatedUser)
@@ -168,7 +172,7 @@ fun EditProfileScreen(
                         .clickable { imagePickerLauncher.launch("image/*") },
                     contentAlignment = Alignment.Center
                 ) {
-                    new_avatarBitmap?.let {
+                    newAvatarBitmap?.let {
                         CircledImage(bitmap = it, size = 176.dp)
                     }
                 }
@@ -176,17 +180,17 @@ fun EditProfileScreen(
 
             TextFieldComposable(
                 label = stringResource(R.string.username),
-                text = new_username,
+                text = newUsername,
                 charLimit = 20,
-                onTextChange = { new_username = it },
+                onTextChange = { newUsername = it },
                 height = 56.dp
             )
 
             TextFieldComposable(
                 label = stringResource(R.string.description),
-                text = new_description,
+                text = newDescription,
                 charLimit = 40,
-                onTextChange = { new_description = it },
+                onTextChange = { newDescription = it },
                 height = 124.dp
             )
 
@@ -204,7 +208,7 @@ fun EditProfileScreen(
                 Box(
                     modifier = Modifier
                         .size(120.dp)
-                        .background(new_selectedColor, CircleShape)
+                        .background(newSelectedColor, CircleShape)
                         .clickable { colorPickerVisible = true },
                     contentAlignment = Alignment.Center
                 ) {}
@@ -214,9 +218,9 @@ fun EditProfileScreen(
 
     if (colorPickerVisible) {
         ColorPickerDialog(
-            currentColor = new_selectedColor,
+            currentColor = newSelectedColor,
             onSave = { selectedColor ->
-                new_selectedColor = selectedColor
+                newSelectedColor = selectedColor
                 colorPickerVisible = false
             }
         )

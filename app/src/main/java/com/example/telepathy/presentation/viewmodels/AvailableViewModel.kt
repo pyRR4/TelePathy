@@ -57,22 +57,22 @@ class AvailableViewModel(
             userRepository.insert(user)
         }
     }
-}
 
-class AvailableViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
+    class AvailableViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
 
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        val database = AppDatabase.getDatabase(context)
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            val database = AppDatabase.getDatabase(context)
 
-        val userRepositoryInstance = UserRepositoryImpl(
-            userDao = database.userDao()
-        )
+            val userRepositoryInstance = UserRepositoryImpl(
+                userDao = database.userDao()
+            )
 
-        val bluetoothRepositoryInstance = BluetoothRepository(context)
+            val bluetoothRepositoryInstance = BluetoothRepository(context)
 
-        if (modelClass.isAssignableFrom(AvailableViewModel::class.java)) {
-            return AvailableViewModel(bluetoothRepositoryInstance, userRepositoryInstance) as T
+            if (modelClass.isAssignableFrom(AvailableViewModel::class.java)) {
+                return AvailableViewModel(bluetoothRepositoryInstance, userRepositoryInstance) as T
+            }
+            throw IllegalArgumentException("Unknown ViewModel class")
         }
-        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

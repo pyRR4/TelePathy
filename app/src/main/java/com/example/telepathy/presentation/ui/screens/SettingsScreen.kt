@@ -46,7 +46,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import android.media.MediaPlayer
-
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.telepathy.presentation.viewmodels.SettingsViewModel
+import com.example.telepathy.presentation.viewmodels.SettingsViewModel.SettingsViewModelFactory
 
 
 data class SettingOption(
@@ -60,18 +62,20 @@ data class SettingOption(
 @Composable
 fun SettingsScreen(
     navController: NavHostController,
-    currentScreen: MutableState<String>
+    currentScreen: MutableState<String>,
+    viewModel: SettingsViewModel = viewModel(
+        factory = SettingsViewModelFactory(LocalContext.current)
+    )
 ) {
-    val context = LocalContext.current
-    val preferencesManager = PreferencesManager(context)
+    val preferencesManager = PreferencesManager(LocalContext.current)
     val localUserId = preferencesManager.getLocalUserId()
-    val database = AppDatabase.getDatabase(context)
 
-    var localUser by remember { mutableStateOf<User?>(null) }
+    val localUser by viewModel.user.collectAsState()
 
     LaunchedEffect(Unit) {
-        localUser = database.userDao().getUser(localUserId).firstOrNull()
+        viewModel.loadUser(localUserId)
     }
+
     val settingsOptions = listOf(
         SettingOption(
             iconBitmap = localUser?.avatar,

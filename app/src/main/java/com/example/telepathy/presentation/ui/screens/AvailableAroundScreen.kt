@@ -28,7 +28,7 @@ import com.example.telepathy.presentation.ui.CustomButton
 import com.example.telepathy.presentation.ui.Header
 import com.example.telepathy.presentation.ui.ScreenTemplate
 import com.example.telepathy.presentation.viewmodels.AvailableViewModel
-import com.example.telepathy.presentation.viewmodels.AvailableViewModelFactory
+import com.example.telepathy.presentation.viewmodels.AvailableViewModel.AvailableViewModelFactory
 import com.example.telepathy.presentation.navigation.swipeToNavigate
 import com.example.telepathy.presentation.ui.CircledImage
 import kotlinx.coroutines.delay

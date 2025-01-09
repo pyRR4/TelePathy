@@ -1,7 +1,6 @@
 package com.example.telepathy.presentation.ui.screens
 
 import android.graphics.Bitmap
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -23,13 +22,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.example.telepathy.data.AppDatabase
 import com.example.telepathy.data.PreferencesManager
 import com.example.telepathy.presentation.ui.CircledImage
 import com.example.telepathy.data.entities.Message
 import com.example.telepathy.presentation.navigation.swipeToNavigate
 import com.example.telepathy.presentation.viewmodels.ChatViewModel
-import com.example.telepathy.presentation.viewmodels.ChatViewModelFactory
+import com.example.telepathy.presentation.viewmodels.ChatViewModel.ChatViewModelFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 

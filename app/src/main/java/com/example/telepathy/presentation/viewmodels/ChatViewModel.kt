@@ -103,24 +103,24 @@ class ChatViewModel(
             }
         }
     }
-}
 
-class ChatViewModelFactory(current: Context) : ViewModelProvider.Factory {
+    class ChatViewModelFactory(current: Context) : ViewModelProvider.Factory {
 
-    private val database = AppDatabase.getDatabase(current)
+        private val database = AppDatabase.getDatabase(current)
 
-    private val userRepositoryInstance = UserRepositoryImpl(
-        userDao = database.userDao()
-    )
+        private val userRepositoryInstance = UserRepositoryImpl(
+            userDao = database.userDao()
+        )
 
-    private val messageRepositoryInstance = MessageRepositoryImpl(
-        messageDao = database.messageDao()
-    )
+        private val messageRepositoryInstance = MessageRepositoryImpl(
+            messageDao = database.messageDao()
+        )
 
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(ChatViewModel::class.java)) {
-            return ChatViewModel(userRepositoryInstance, messageRepositoryInstance) as T
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            if (modelClass.isAssignableFrom(ChatViewModel::class.java)) {
+                return ChatViewModel(userRepositoryInstance, messageRepositoryInstance) as T
+            }
+            throw IllegalArgumentException("Unknown ViewModel class")
         }
-        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

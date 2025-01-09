@@ -41,7 +41,7 @@ import java.util.Date
 import java.util.Locale
 import com.example.telepathy.presentation.ui.ScreenTemplate
 import com.example.telepathy.presentation.viewmodels.ContactsViewModel
-import com.example.telepathy.presentation.viewmodels.ContactsViewModelFactory
+import com.example.telepathy.presentation.viewmodels.ContactsViewModel.ContactsViewModelFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
