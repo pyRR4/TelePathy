@@ -12,11 +12,9 @@ import com.example.telepathy.presentation.ui.theme.DarkTeal
 import com.example.telepathy.presentation.ui.theme.DarkVividBlue
 import com.fingerprintjs.android.fingerprint.Fingerprinter
 import com.fingerprintjs.android.fingerprint.FingerprinterFactory
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlinx.coroutines.withContext
 
 class DatabaseSeeder(
     private val database: AppDatabase,
@@ -24,10 +22,7 @@ class DatabaseSeeder(
 ) {
 
     suspend fun seed() {
-        // Seed the default user
         seedDefaultUser()
-
-        // Seed other users and messages
         seedUsersAndMessages()
     }
 

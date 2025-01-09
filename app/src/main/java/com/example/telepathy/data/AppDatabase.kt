@@ -13,7 +13,6 @@ import com.example.telepathy.data.daos.UserDao
 import com.example.telepathy.data.entities.Message
 import com.example.telepathy.data.entities.User
 import com.example.telepathy.data.seeding.DatabaseSeeder
-import com.example.telepathy.data.seeding.DefaultUserSeeder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
