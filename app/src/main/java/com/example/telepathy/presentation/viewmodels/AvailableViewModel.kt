@@ -22,20 +22,6 @@ class AvailableViewModel(
 
     val discoveredUsersDeviceIds: StateFlow<List<User>> = bluetoothRepository.discoveredUsers
 
-    private val _localUser = MutableStateFlow<User?>(null)
-    val localUser: StateFlow<User?> = _localUser.asStateFlow()
-
-    fun loadLocalUser(userId: Int) {
-        viewModelScope.launch {
-            userRepository.getUser(userId)
-                .catch { e ->
-                }
-                .collect { user ->
-                    _localUser.value = user
-                }
-        }
-    }
-
     fun startScan() {
         bluetoothRepository.startScan()
     }
@@ -55,24 +41,6 @@ class AvailableViewModel(
     fun addUserToLocalContacts(user: User) {
         viewModelScope.launch {
             userRepository.insert(user)
-        }
-    }
-
-    class AvailableViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
-
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            val database = AppDatabase.getDatabase(context)
-
-            val userRepositoryInstance = UserRepositoryImpl(
-                userDao = database.userDao()
-            )
-
-            val bluetoothRepositoryInstance = BluetoothRepository(context)
-
-            if (modelClass.isAssignableFrom(AvailableViewModel::class.java)) {
-                return AvailableViewModel(bluetoothRepositoryInstance, userRepositoryInstance) as T
-            }
-            throw IllegalArgumentException("Unknown ViewModel class")
         }
     }
 }

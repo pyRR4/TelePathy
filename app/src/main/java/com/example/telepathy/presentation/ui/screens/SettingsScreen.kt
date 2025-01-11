@@ -1,7 +1,5 @@
 package com.example.telepathy.presentation.ui.screens
 
-import android.R.attr.start
-import android.R.color.white
 import android.graphics.Bitmap
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -22,19 +20,14 @@ import com.example.telepathy.presentation.ui.FooterWithPromptBar
 import com.example.telepathy.presentation.ui.Header
 import com.example.telepathy.presentation.ui.ScreenTemplate
 import androidx.navigation.NavHostController
-import com.example.telepathy.data.AppDatabase
 import com.example.telepathy.data.PreferencesManager
-import com.example.telepathy.data.entities.User
-import kotlinx.coroutines.flow.firstOrNull
 import com.example.telepathy.presentation.navigation.swipeToNavigate
 import com.example.telepathy.presentation.ui.theme.AlertRed
 import coil.compose.rememberAsyncImagePainter
 import coil.decode.GifDecoder
 import coil.request.ImageRequest
 import androidx.compose.foundation.Image
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -46,9 +39,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import android.media.MediaPlayer
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.telepathy.presentation.viewmodels.SettingsViewModel
-import com.example.telepathy.presentation.viewmodels.SettingsViewModel.SettingsViewModelFactory
+import android.util.Log
+import com.example.telepathy.presentation.viewmodels.SharedViewModel
 
 
 data class SettingOption(
@@ -63,17 +55,15 @@ data class SettingOption(
 fun SettingsScreen(
     navController: NavHostController,
     currentScreen: MutableState<String>,
-    viewModel: SettingsViewModel = viewModel(
-        factory = SettingsViewModelFactory(LocalContext.current)
-    )
+    sharedViewModel: SharedViewModel
 ) {
     val preferencesManager = PreferencesManager(LocalContext.current)
     val localUserId = preferencesManager.getLocalUserId()
+    val localUser by sharedViewModel.localUser.collectAsState()
 
-    val localUser by viewModel.user.collectAsState()
-
-    LaunchedEffect(Unit) {
-        viewModel.loadUser(localUserId)
+    LaunchedEffect(localUser) {
+        Log.d("LOCAL USER ID", localUserId.toString())
+        sharedViewModel.loadLocalUser(localUserId)
     }
 
     val settingsOptions = listOf(

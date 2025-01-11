@@ -28,28 +28,31 @@ import com.example.telepathy.presentation.ui.CustomButton
 import com.example.telepathy.presentation.ui.Header
 import com.example.telepathy.presentation.ui.ScreenTemplate
 import com.example.telepathy.presentation.viewmodels.AvailableViewModel
-import com.example.telepathy.presentation.viewmodels.AvailableViewModel.AvailableViewModelFactory
 import com.example.telepathy.presentation.navigation.swipeToNavigate
 import com.example.telepathy.presentation.ui.CircledImage
-import kotlinx.coroutines.delay
+import com.example.telepathy.presentation.viewmodels.GenericViewModelFactory
+import com.example.telepathy.presentation.viewmodels.SharedViewModel
 
 @Composable
 fun AvailableAroundScreen(
     navController: NavHostController,
     viewModel: AvailableViewModel = viewModel(
-        factory = AvailableViewModelFactory(LocalContext.current)
+        factory = GenericViewModelFactory (LocalContext.current)
     ),
-    currentScreen: MutableState<String>
+    currentScreen: MutableState<String>,
+    sharedViewModel: SharedViewModel
 ) {
     var isVisible by remember { mutableStateOf(false) }
     val discoveredUsers by viewModel.discoveredUsersDeviceIds.collectAsState()
-    val localUser by viewModel.localUser.collectAsState()
-    val localUserId = PreferencesManager(LocalContext.current).getLocalUserId()
+    val localUser by sharedViewModel.localUser.collectAsState()
+
+    val preferencesManager = PreferencesManager(LocalContext.current)
+    val localUserId = preferencesManager.getLocalUserId()
 
 
     LaunchedEffect(isVisible, viewModel.discoveredUsersDeviceIds) {
         Log.d("LAUNCHED EFFECT", "Starting launched effect")
-        viewModel.loadLocalUser(localUserId)
+        sharedViewModel.loadLocalUser(localUserId)
     }
 
     ScreenTemplate(

@@ -41,7 +41,8 @@ import java.util.Date
 import java.util.Locale
 import com.example.telepathy.presentation.ui.ScreenTemplate
 import com.example.telepathy.presentation.viewmodels.ContactsViewModel
-import com.example.telepathy.presentation.viewmodels.ContactsViewModel.ContactsViewModelFactory
+import com.example.telepathy.presentation.viewmodels.GenericViewModelFactory
+import com.example.telepathy.presentation.viewmodels.SharedViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -151,13 +152,17 @@ fun UserCard(
 fun ContactsScreen(
     navController: NavHostController,
     viewModel: ContactsViewModel = viewModel(
-        factory = ContactsViewModelFactory(LocalContext.current)
+        factory = GenericViewModelFactory(LocalContext.current)
     ),
-    currentScreen: MutableState<String>
+    currentScreen: MutableState<String>,
+    sharedViewModel: SharedViewModel
 ) {
 
     val contacts by viewModel.contacts.collectAsState()
-    val localUserId = PreferencesManager(LocalContext.current).getLocalUserId()
+    val localUser by sharedViewModel.localUser.collectAsState()
+
+    val preferencesManager = PreferencesManager(LocalContext.current)
+    val localUserId = preferencesManager.getLocalUserId()
 
     LaunchedEffect(localUserId) {
         withContext(Dispatchers.Main) {

@@ -27,7 +27,8 @@ import com.example.telepathy.presentation.ui.CircledImage
 import com.example.telepathy.data.entities.Message
 import com.example.telepathy.presentation.navigation.swipeToNavigate
 import com.example.telepathy.presentation.viewmodels.ChatViewModel
-import com.example.telepathy.presentation.viewmodels.ChatViewModel.ChatViewModelFactory
+import com.example.telepathy.presentation.viewmodels.GenericViewModelFactory
+import com.example.telepathy.presentation.viewmodels.SharedViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -132,22 +133,26 @@ fun TalkCard(
 fun TalkScreen(
     navController: NavHostController,
     viewModel: ChatViewModel = viewModel(
-        factory = ChatViewModelFactory(LocalContext.current)
+        factory = GenericViewModelFactory (LocalContext.current)
     ),
-    localUserDeviceId: String,
     remoteUserId: Int,
-    previousScreen: MutableState<String>
+    previousScreen: MutableState<String>,
+    sharedViewModel: SharedViewModel
 ) {
     val user by viewModel.currentUser.collectAsState()
-    val localUser by viewModel.localUser.collectAsState()
     val messages by viewModel.chatHistory.collectAsState()
-    var messageInput by remember { mutableStateOf("") }
-    val localUserId = PreferencesManager(LocalContext.current).getLocalUserId()
 
-    LaunchedEffect(localUserDeviceId, remoteUserId) {
+    var messageInput by remember { mutableStateOf("") }
+
+    val localUser by sharedViewModel.localUser.collectAsState()
+
+    val preferencesManager = PreferencesManager(LocalContext.current)
+    val localUserId = preferencesManager.getLocalUserId()
+
+    LaunchedEffect(localUser, remoteUserId) {
         withContext(Dispatchers.Main) {
             viewModel.loadUser(remoteUserId)
-            viewModel.loadLocalUser(localUserId)
+            sharedViewModel.loadLocalUser(localUserId)
             viewModel.loadChatHistory(localUserId, remoteUserId)
         }
     }
