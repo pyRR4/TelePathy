@@ -35,23 +35,18 @@ import com.example.telepathy.data.PreferencesManager
 import com.example.telepathy.presentation.ui.CircledImage
 import com.example.telepathy.presentation.ui.ScreenTemplate
 import com.example.telepathy.presentation.ui.Header
-import com.example.telepathy.presentation.viewmodels.EditProfileViewModel
-import com.example.telepathy.presentation.viewmodels.EditProfileViewModel.EditProfileViewModelFactory
 import com.example.telepathy.presentation.ui.theme.DarkButtonsColor
 import com.example.telepathy.presentation.ui.theme.DarkUserColors
+import com.example.telepathy.presentation.viewmodels.SharedViewModel
 
 @Composable
 fun EditProfileScreen(
     navController: NavHostController,
-    viewModel: EditProfileViewModel = viewModel(
-        factory = EditProfileViewModelFactory(LocalContext.current)
-    )
+    sharedViewModel: SharedViewModel
 ) {
     val context = LocalContext.current
-    val preferencesManager = PreferencesManager(context)
-    val localUserId = preferencesManager.getLocalUserId()
-
-    val localUser by viewModel.user.collectAsState()
+    val localUser by sharedViewModel.localUser.collectAsState()
+    val localUserId = localUser?.id ?: -1
 
     var colorPickerVisible by remember { mutableStateOf(false) }
 
@@ -62,7 +57,7 @@ fun EditProfileScreen(
     var isLoaded by remember { mutableStateOf(false) }
 
     LaunchedEffect(localUser) {
-        viewModel.loadUser(localUserId)
+        sharedViewModel.loadLocalUser(localUserId)
         localUser?.let { user ->
             if(!isLoaded) {
                 newUsername = user.name
@@ -129,7 +124,7 @@ fun EditProfileScreen(
                                 avatar = newAvatarBitmap
                             )
 
-                            viewModel.updateUser(updatedUser)
+                            sharedViewModel.updateLocalUser(updatedUser)
                             navController.popBackStack()
                         }
                     },

@@ -17,10 +17,13 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.*
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.telepathy.data.AppDatabase
 import com.example.telepathy.presentation.ui.screens.AvailableAroundScreen
 import com.example.telepathy.presentation.ui.screens.TalkScreen
 import com.example.telepathy.presentation.ui.screens.ConfirmPinScreen
@@ -29,6 +32,8 @@ import com.example.telepathy.presentation.ui.screens.EditProfileScreen
 import com.example.telepathy.presentation.ui.screens.EnterNewPinScreen
 import com.example.telepathy.presentation.ui.screens.EnterPinScreen
 import com.example.telepathy.presentation.ui.screens.SettingsScreen
+import com.example.telepathy.presentation.viewmodels.GenericViewModelFactory
+import com.example.telepathy.presentation.viewmodels.SharedViewModel
 import kotlin.math.abs
 
 
@@ -40,6 +45,10 @@ fun AnimatedNavHost(
     currentScreen: MutableState<String>,
     localUserDeviceId: String
 ) {
+    val sharedViewModel: SharedViewModel = viewModel(
+        factory = GenericViewModelFactory(LocalContext.current)
+    )
+
     androidx.navigation.compose.NavHost(
         navController = navController,
         startDestination = startDestination,
@@ -91,7 +100,8 @@ fun AnimatedNavHost(
         ) {
             ContactsScreen(
                 navController = navController,
-                currentScreen = currentScreen
+                currentScreen = currentScreen,
+                sharedViewModel = sharedViewModel
             )
             currentScreen.value = "contactsscreen"
         }
@@ -126,7 +136,8 @@ fun AnimatedNavHost(
         ) {
             AvailableAroundScreen(
                 navController = navController,
-                currentScreen = currentScreen
+                currentScreen = currentScreen,
+                sharedViewModel = sharedViewModel
             )
             currentScreen.value = "availablescreen"
         }
@@ -160,8 +171,9 @@ fun AnimatedNavHost(
             }
         ) {
             SettingsScreen(
-                navController,
-                currentScreen
+                navController = navController,
+                currentScreen = currentScreen,
+                sharedViewModel = sharedViewModel
             )
         }
 
@@ -188,9 +200,9 @@ fun AnimatedNavHost(
             val userId = backStackEntry.arguments?.getInt("userId") ?: return@composable
             TalkScreen(
                 navController = navController,
-                localUserDeviceId = localUserDeviceId,
                 remoteUserId = userId,
-                previousScreen = currentScreen
+                previousScreen = currentScreen,
+                sharedViewModel = sharedViewModel
             )
         }
 
@@ -212,7 +224,8 @@ fun AnimatedNavHost(
             },
         ) {
             EditProfileScreen(
-                navController
+                navController = navController,
+                sharedViewModel = sharedViewModel
             )
         }
 
@@ -304,7 +317,7 @@ fun AnimatedNavHost(
         }
 
     }
-    }
+}
 
 
 

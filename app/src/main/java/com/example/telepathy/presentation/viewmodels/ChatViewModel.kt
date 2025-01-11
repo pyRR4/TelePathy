@@ -1,14 +1,9 @@
 package com.example.telepathy.presentation.viewmodels
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.telepathy.data.AppDatabase
 import com.example.telepathy.data.entities.Message
 import com.example.telepathy.data.entities.User
-import com.example.telepathy.data.repositories.MessageRepositoryImpl
-import com.example.telepathy.data.repositories.UserRepositoryImpl
 import com.example.telepathy.domain.repositories.MessageRepository
 import com.example.telepathy.domain.repositories.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,9 +24,6 @@ class ChatViewModel(
 
     private val _currentUser = MutableStateFlow<User?>(null)
     val currentUser: StateFlow<User?> = _currentUser.asStateFlow()
-
-    private val _localUser = MutableStateFlow<User?>(null)
-    val localUser: StateFlow<User?> = _localUser.asStateFlow()
 
     fun loadChatHistory(localUserId: Int, remoteUserId: Int) {
         viewModelScope.launch {
@@ -63,18 +55,6 @@ class ChatViewModel(
         }
     }
 
-    fun loadLocalUser(localUserId: Int) {
-        viewModelScope.launch {
-            userRepository.getUser(localUserId)
-                .catch { e ->
-
-                }
-                .collect { user ->
-                    _localUser.value = user
-                }
-        }
-    }
-
     fun sendMessage(content: String, senderId: Int, recipientId: Int) {
         viewModelScope.launch {
             val timestamp = System.currentTimeMillis()
@@ -101,26 +81,6 @@ class ChatViewModel(
             } catch (e: Exception) {
 
             }
-        }
-    }
-
-    class ChatViewModelFactory(current: Context) : ViewModelProvider.Factory {
-
-        private val database = AppDatabase.getDatabase(current)
-
-        private val userRepositoryInstance = UserRepositoryImpl(
-            userDao = database.userDao()
-        )
-
-        private val messageRepositoryInstance = MessageRepositoryImpl(
-            messageDao = database.messageDao()
-        )
-
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(ChatViewModel::class.java)) {
-                return ChatViewModel(userRepositoryInstance, messageRepositoryInstance) as T
-            }
-            throw IllegalArgumentException("Unknown ViewModel class")
         }
     }
 }

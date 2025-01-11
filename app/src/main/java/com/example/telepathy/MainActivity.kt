@@ -18,11 +18,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.compose.rememberNavController
 import com.example.telepathy.data.AppDatabase
 import com.example.telepathy.data.PreferencesManager
 import com.example.telepathy.presentation.navigation.AnimatedNavHost
 import com.example.telepathy.presentation.ui.theme.TelePathyTheme
+import com.example.telepathy.presentation.viewmodels.GenericViewModelFactory
+import com.example.telepathy.presentation.viewmodels.SharedViewModel
 
 private const val REQUEST_CODE_BLUETOOTH = 101
 
