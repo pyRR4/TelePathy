@@ -24,6 +24,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.telepathy.data.AppDatabase
+import com.example.telepathy.data.PreferencesManager
 import com.example.telepathy.presentation.ui.screens.AvailableAroundScreen
 import com.example.telepathy.presentation.ui.screens.TalkScreen
 import com.example.telepathy.presentation.ui.screens.ConfirmPinScreen
@@ -42,12 +43,21 @@ import kotlin.math.abs
 fun AnimatedNavHost(
     navController: NavHostController,
     startDestination: String,
-    currentScreen: MutableState<String>,
-    localUserDeviceId: String
+    currentScreen: MutableState<String>
 ) {
+    val context = LocalContext.current
+
     val sharedViewModel: SharedViewModel = viewModel(
-        factory = GenericViewModelFactory(LocalContext.current)
+        factory = GenericViewModelFactory(context)
     )
+
+    val preferencesManager = PreferencesManager(context)
+    var localUserId = preferencesManager.getLocalUserId()
+
+    LaunchedEffect(Unit) {
+        Log.d("LAUNCHED EFFECT", "Locals ID: $localUserId, IsFirstRun: ${preferencesManager.isFirstLaunch()}")
+        sharedViewModel.loadLocalUser(localUserId)
+    }
 
     androidx.navigation.compose.NavHost(
         navController = navController,
@@ -100,8 +110,7 @@ fun AnimatedNavHost(
         ) {
             ContactsScreen(
                 navController = navController,
-                currentScreen = currentScreen,
-                sharedViewModel = sharedViewModel
+                currentScreen = currentScreen
             )
             currentScreen.value = "contactsscreen"
         }

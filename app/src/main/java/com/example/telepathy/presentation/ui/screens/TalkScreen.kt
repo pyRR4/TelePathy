@@ -152,7 +152,6 @@ fun TalkScreen(
     LaunchedEffect(localUser, remoteUserId) {
         withContext(Dispatchers.Main) {
             viewModel.loadUser(remoteUserId)
-            sharedViewModel.loadLocalUser(localUserId)
             viewModel.loadChatHistory(localUserId, remoteUserId)
         }
     }

@@ -46,15 +46,6 @@ fun AvailableAroundScreen(
     val discoveredUsers by viewModel.discoveredUsersDeviceIds.collectAsState()
     val localUser by sharedViewModel.localUser.collectAsState()
 
-    val preferencesManager = PreferencesManager(LocalContext.current)
-    val localUserId = preferencesManager.getLocalUserId()
-
-
-    LaunchedEffect(isVisible, viewModel.discoveredUsersDeviceIds) {
-        Log.d("LAUNCHED EFFECT", "Starting launched effect")
-        sharedViewModel.loadLocalUser(localUserId)
-    }
-
     ScreenTemplate(
         navIcon = {
             Column(

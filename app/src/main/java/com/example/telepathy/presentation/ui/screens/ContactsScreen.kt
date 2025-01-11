@@ -154,12 +154,10 @@ fun ContactsScreen(
     viewModel: ContactsViewModel = viewModel(
         factory = GenericViewModelFactory(LocalContext.current)
     ),
-    currentScreen: MutableState<String>,
-    sharedViewModel: SharedViewModel
+    currentScreen: MutableState<String>
 ) {
 
     val contacts by viewModel.contacts.collectAsState()
-    val localUser by sharedViewModel.localUser.collectAsState()
 
     val preferencesManager = PreferencesManager(LocalContext.current)
     val localUserId = preferencesManager.getLocalUserId()

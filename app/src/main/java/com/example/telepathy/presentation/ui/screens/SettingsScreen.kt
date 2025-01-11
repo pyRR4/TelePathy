@@ -58,13 +58,7 @@ fun SettingsScreen(
     sharedViewModel: SharedViewModel
 ) {
     val preferencesManager = PreferencesManager(LocalContext.current)
-    val localUserId = preferencesManager.getLocalUserId()
     val localUser by sharedViewModel.localUser.collectAsState()
-
-    LaunchedEffect(localUser) {
-        Log.d("LOCAL USER ID", localUserId.toString())
-        sharedViewModel.loadLocalUser(localUserId)
-    }
 
     val settingsOptions = listOf(
         SettingOption(

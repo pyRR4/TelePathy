@@ -50,14 +50,15 @@ class DatabaseSeeder(
                     deviceId = deviceId
                 )
                 database.userDao().insert(defaultUser)
-                val localUser = database.userDao().getUserByDeviceId(deviceId).first()
-                preferencesManager.saveLocalUserId(localUser.id)
 
                 Log.d("DatabaseSeeder", "Created default user: $defaultUser")
             } else {
                 Log.d("DatabaseSeeder", "Database already contains users.")
             }
         }
+
+        val localUser = database.userDao().getUserByDeviceId(deviceId).first()
+        preferencesManager.saveLocalUserId(localUser.id)
 
         logSharedPreferences(context)
         logAllUsers()

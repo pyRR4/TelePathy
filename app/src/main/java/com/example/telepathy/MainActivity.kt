@@ -24,11 +24,14 @@ import com.example.telepathy.presentation.ui.theme.TelePathyTheme
 class MainActivity : ComponentActivity() {
 
     private lateinit var permissionManager: PermissionManager
+    private lateinit var preferencesManager: PreferencesManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         permissionManager = PermissionManager(this)
         permissionManager.checkAndRequestBluetoothPermissions()
+
+        preferencesManager = PreferencesManager(applicationContext)
 
         val database = AppDatabase.getDatabase(applicationContext)
 
@@ -50,9 +53,6 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MyApp() {
     TelePathyTheme {
-        val context = LocalContext.current
-
-        val preferencesManager = PreferencesManager(context)
         val navController = rememberNavController()
         val currentScreen = remember { mutableStateOf("contacts") }
         Surface(
@@ -62,8 +62,7 @@ fun MyApp() {
             AnimatedNavHost(
                 navController = navController,
                 startDestination = "enter_pin_login",
-                currentScreen = currentScreen,
-                localUserDeviceId = preferencesManager.getLocalUserDeviceId()
+                currentScreen = currentScreen
             )
         }
     }
