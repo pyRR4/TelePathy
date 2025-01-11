@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.telepathy.R
+import com.example.telepathy.data.PreferencesManager
 import com.example.telepathy.presentation.ui.CustomButton
 import com.example.telepathy.presentation.ui.Header
 import com.example.telepathy.presentation.ui.ScreenTemplate
@@ -44,7 +45,9 @@ fun AvailableAroundScreen(
     var isVisible by remember { mutableStateOf(false) }
     val discoveredUsers by viewModel.discoveredUsersDeviceIds.collectAsState()
     val localUser by sharedViewModel.localUser.collectAsState()
-    val localUserId = localUser?.id ?: -1
+
+    val preferencesManager = PreferencesManager(LocalContext.current)
+    val localUserId = preferencesManager.getLocalUserId()
 
 
     LaunchedEffect(isVisible, viewModel.discoveredUsersDeviceIds) {

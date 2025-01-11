@@ -46,7 +46,9 @@ fun EditProfileScreen(
 ) {
     val context = LocalContext.current
     val localUser by sharedViewModel.localUser.collectAsState()
-    val localUserId = localUser?.id ?: -1
+
+    val preferencesManager = PreferencesManager(context)
+    val localUserId = preferencesManager.getLocalUserId()
 
     var colorPickerVisible by remember { mutableStateOf(false) }
 

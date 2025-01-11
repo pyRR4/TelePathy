@@ -145,7 +145,9 @@ fun TalkScreen(
     var messageInput by remember { mutableStateOf("") }
 
     val localUser by sharedViewModel.localUser.collectAsState()
-    val localUserId = localUser?.id ?: -1
+
+    val preferencesManager = PreferencesManager(LocalContext.current)
+    val localUserId = preferencesManager.getLocalUserId()
 
     LaunchedEffect(localUser, remoteUserId) {
         withContext(Dispatchers.Main) {

@@ -160,7 +160,9 @@ fun ContactsScreen(
 
     val contacts by viewModel.contacts.collectAsState()
     val localUser by sharedViewModel.localUser.collectAsState()
-    val localUserId = localUser?.id ?: -1
+
+    val preferencesManager = PreferencesManager(LocalContext.current)
+    val localUserId = preferencesManager.getLocalUserId()
 
     LaunchedEffect(localUserId) {
         withContext(Dispatchers.Main) {

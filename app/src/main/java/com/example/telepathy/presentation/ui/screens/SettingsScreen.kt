@@ -39,6 +39,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import android.media.MediaPlayer
+import android.util.Log
 import com.example.telepathy.presentation.viewmodels.SharedViewModel
 
 
@@ -57,10 +58,11 @@ fun SettingsScreen(
     sharedViewModel: SharedViewModel
 ) {
     val preferencesManager = PreferencesManager(LocalContext.current)
+    val localUserId = preferencesManager.getLocalUserId()
     val localUser by sharedViewModel.localUser.collectAsState()
-    val localUserId = localUser?.id ?: -1
 
     LaunchedEffect(localUser) {
+        Log.d("LOCAL USER ID", localUserId.toString())
         sharedViewModel.loadLocalUser(localUserId)
     }
 
