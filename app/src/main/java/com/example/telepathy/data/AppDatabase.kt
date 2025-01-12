@@ -17,7 +17,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@Database(entities = [User::class, Message::class], version = 1, exportSchema = false)
+@Database(entities = [User::class, Message::class], version = 3, exportSchema = false)
 @TypeConverters(ColorConverter::class, BitmapConverter::class)
 abstract class AppDatabase : RoomDatabase() {
 
@@ -31,7 +31,7 @@ abstract class AppDatabase : RoomDatabase() {
         fun getDatabase(context: Context): AppDatabase {
             return Instance ?: synchronized(this) {
                 Room.databaseBuilder(context, AppDatabase::class.java, "app_database")
-                    //.fallbackToDestructiveMigration() // Usuwa dane przy migracji
+                    .fallbackToDestructiveMigration() // Usuwa dane przy migracji
                     .addCallback(DatabaseCallback(context))
                     .build()
                     .also { Instance = it }

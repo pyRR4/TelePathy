@@ -1,8 +1,10 @@
 package com.example.telepathy.presentation.ui.screens
 
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.provider.MediaStore
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -20,6 +22,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -36,6 +39,7 @@ import com.example.telepathy.presentation.ui.CircledImage
 import com.example.telepathy.presentation.ui.ScreenTemplate
 import com.example.telepathy.presentation.ui.Header
 import com.example.telepathy.presentation.ui.theme.DarkButtonsColor
+import com.example.telepathy.presentation.ui.theme.DarkDeepPurple
 import com.example.telepathy.presentation.ui.theme.DarkUserColors
 import com.example.telepathy.presentation.viewmodels.SharedViewModel
 
@@ -51,6 +55,7 @@ fun EditProfileScreen(
     val localUserId = preferencesManager.getLocalUserId()
 
     var colorPickerVisible by remember { mutableStateOf(false) }
+    var avatarPickerVisible by remember { mutableStateOf(false) }
 
     var newUsername by remember { mutableStateOf("") }
     var newDescription by remember { mutableStateOf("") }
@@ -134,7 +139,7 @@ fun EditProfileScreen(
                         .padding(8.dp)
                         .height(72.dp)
                         .width(160.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = DarkButtonsColor),
+                    colors = ButtonDefaults.buttonColors(containerColor = DarkDeepPurple),
                     shape = RoundedCornerShape(8.dp)
                 ) {
                     Text(text = stringResource(R.string.save), fontSize = 22.sp, color = MaterialTheme.colorScheme.onPrimary)
@@ -165,8 +170,8 @@ fun EditProfileScreen(
                 Box(
                     modifier = Modifier
                         .size(176.dp)
-                        .background(MaterialTheme.colorScheme.background, CircleShape)
-                        .clickable { imagePickerLauncher.launch("image/*") },
+                        .background(Color.Black, CircleShape)
+                        .clickable { avatarPickerVisible=true },
                     contentAlignment = Alignment.Center
                 ) {
                     newAvatarBitmap?.let {
@@ -220,6 +225,19 @@ fun EditProfileScreen(
                 newSelectedColor = selectedColor
                 colorPickerVisible = false
             }
+        )
+    }
+
+    if (avatarPickerVisible) {
+        AvatarPickerDialog(
+            onSave = { selectedBitmap ->
+                newAvatarBitmap = selectedBitmap
+            },
+            onUploadImage = {
+                avatarPickerVisible = false
+                imagePickerLauncher.launch("image/*")
+            },
+            onDismiss = { avatarPickerVisible = false }
         )
     }
 }
@@ -353,3 +371,86 @@ fun TextFieldComposable(
     }
 }
 
+@Composable
+fun AvatarPickerDialog(
+    onSave: (Bitmap) -> Unit,
+    onUploadImage: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    val context = LocalContext.current
+    val avatars = (1..15).mapNotNull { id ->
+        val resId = context.resources.getIdentifier("av$id", "drawable", context.packageName)
+        if (resId != 0) {
+            val originalBitmap = BitmapFactory.decodeResource(context.resources, resId)
+            originalBitmap?.let {
+                // Skalowanie obrazu do maksymalnych wymiarów 512x512 px
+                val maxDimension = 512
+                val ratio = minOf(
+                    maxDimension / it.width.toFloat(),
+                    maxDimension / it.height.toFloat()
+                )
+                val scaledWidth = (it.width * ratio).toInt()
+                val scaledHeight = (it.height * ratio).toInt()
+                Bitmap.createScaledBitmap(it, scaledWidth, scaledHeight, true)
+            }
+        } else {
+            Log.e("AvatarPicker", "Resource av$id not found")
+            null
+        }
+    }
+
+    Dialog(onDismissRequest = onDismiss) {
+        Column(
+            modifier = Modifier
+                .padding(24.dp)
+                .background(Color.White, shape = RoundedCornerShape(16.dp))
+                .padding(24.dp)
+        ) {
+            // Header
+            Text(
+                text = "Choose an Avatar",
+                style = TextStyle(fontSize = 24.sp, fontWeight = FontWeight.Bold),
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+
+            // Avatar grid
+            Column(
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                avatars.chunked(3).forEach { rowAvatars ->
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        rowAvatars.forEach { avatar ->
+                            Box(
+                                modifier = Modifier
+                                    .size(64.dp)
+                                    .clip(CircleShape)
+                                    .background(Color.LightGray)
+                                    .clickable {
+                                        onSave(avatar)
+                                        onDismiss()
+                                    },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircledImage(bitmap = avatar, size = 90.dp)
+                            }
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Upload Image button
+            Button(
+                onClick = onUploadImage,
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(containerColor = DarkButtonsColor)
+            ) {
+                Text(text = "Upload Your Image", fontSize = 18.sp, color = MaterialTheme.colorScheme.onPrimary)
+            }
+        }
+    }
+}
