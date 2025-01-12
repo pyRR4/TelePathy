@@ -446,7 +446,7 @@ fun AvatarPickerDialog(
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(containerColor = DarkButtonsColor)
             ) {
-                Text(text = "Upload Your Image", fontSize = 18.sp, color = MaterialTheme.colorScheme.onPrimary)
+                Text(text = "Upload Your Image", fontSize = 18.sp, color = Color.White)
             }
         }
     }
