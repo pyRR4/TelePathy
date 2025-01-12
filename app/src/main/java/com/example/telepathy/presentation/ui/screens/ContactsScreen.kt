@@ -1,6 +1,7 @@
 package com.example.telepathy.presentation.ui.screens
 
 import android.graphics.Bitmap
+import android.media.MediaPlayer
 import androidx.compose.foundation.background
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -114,6 +115,7 @@ fun UserCard(
     backgroundColor: Color,
     onClick: () -> Unit
 ) {
+    val context= LocalContext.current
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -124,7 +126,12 @@ fun UserCard(
     {
         val buttonModifier = Modifier
             .fillMaxSize()
-            .clickable(onClick = onClick)
+            .clickable{
+                val mediaPlayer = MediaPlayer.create(context, R.raw.click)
+                mediaPlayer.setOnCompletionListener { mp -> mp.release() }
+                mediaPlayer.start()
+                onClick()
+            }
             .background(color = backgroundColor, shape = RoundedCornerShape(20.dp))
             .padding(16.dp)
 
@@ -202,7 +209,9 @@ fun ContactsScreen(
                     message = lastMessage?.content ?: "",
                     time = lastMessage?.timestamp ?: -1L,
                     backgroundColor = user.color,
-                    onClick = { navController.navigate("talkscreen/${user.id}") }
+                    onClick = {
+                        navController.navigate("talkscreen/${user.id}")
+                    }
                 )
             }
         }
