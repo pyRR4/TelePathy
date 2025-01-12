@@ -143,7 +143,7 @@ fun DividerWithImage() {
 fun BottomImage() {
     val res = LocalContext.current.resources
     val bitmap = remember(res) {
-        BitmapFactory.decodeResource(res, R.drawable.test1)
+        BitmapFactory.decodeResource(res, R.drawable.av13)
     }
 
     Image(
