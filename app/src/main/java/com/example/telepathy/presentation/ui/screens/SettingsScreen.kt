@@ -1,5 +1,6 @@
 package com.example.telepathy.presentation.ui.screens
 
+import android.content.Context
 import android.graphics.Bitmap
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -42,6 +43,8 @@ import android.media.MediaPlayer
 import android.util.Log
 import androidx.compose.ui.res.painterResource
 import com.example.telepathy.presentation.viewmodels.SharedViewModel
+import android.content.Intent
+import android.os.Process
 
 
 data class SettingOption(
@@ -58,7 +61,8 @@ fun SettingsScreen(
     currentScreen: MutableState<String>,
     sharedViewModel: SharedViewModel
 ) {
-    val preferencesManager = PreferencesManager(LocalContext.current)
+    val context = LocalContext.current
+    val preferencesManager = PreferencesManager(context)
     val localUser by sharedViewModel.localUser.collectAsState()
 
     val settingsOptions = listOf(
@@ -94,7 +98,18 @@ fun SettingsScreen(
             iconColor = MaterialTheme.colorScheme.secondary,
             title = stringResource(R.string.reset_app_data),
             backgroundColor = AlertRed,
-            onClick = {} //{ navController.navigate("reset_app")}
+            onClick = {
+
+//                preferencesManager.setFirstLaunch(true)
+//                preferencesManager.savePin(null)
+//                preferencesManager.saveLocalUserDeviceId("")
+//                preferencesManager.saveLocalUserId(-1)
+//
+//                context.cacheDir.deleteRecursively()
+//                context.filesDir.deleteRecursively()
+//
+//                Process.killProcess(Process.myPid())
+            }
         )
     )
 
