@@ -40,6 +40,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import android.media.MediaPlayer
 import android.util.Log
+import androidx.compose.ui.res.painterResource
 import com.example.telepathy.presentation.viewmodels.SharedViewModel
 
 
@@ -69,6 +70,7 @@ fun SettingsScreen(
             onClick = { navController.navigate("edit_profile") }
         ),
         SettingOption(
+            //iconBitmap = painterResource(id = R.drawable.lock),
             iconColor = MaterialTheme.colorScheme.secondary,
             title = stringResource(R.string.change_pin),
             backgroundColor = Color.Gray,
@@ -81,6 +83,12 @@ fun SettingsScreen(
                     navController.navigate("enter_pin_settings")
                 }
             }
+        ),
+        SettingOption(
+            iconColor = MaterialTheme.colorScheme.secondary,
+            title = stringResource(R.string.film),
+            backgroundColor = Color.Gray,
+            onClick = {navController.navigate("videoPlayerScreen")}
         ),
         SettingOption(
             iconColor = MaterialTheme.colorScheme.secondary,
@@ -195,3 +203,6 @@ fun GifBackgroundButton(
         )
     }
 }
+
+
+

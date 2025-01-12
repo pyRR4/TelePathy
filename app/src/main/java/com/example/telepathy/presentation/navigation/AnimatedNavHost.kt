@@ -1,5 +1,6 @@
 package com.example.telepathy.presentation.navigation
 
+import VideoPlayerScreen
 import android.util.Log
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -237,6 +238,24 @@ fun AnimatedNavHost(
                 sharedViewModel = sharedViewModel
             )
         }
+
+        composable(
+            route = "videoPlayerScreen",
+            enterTransition = {
+                slideIntoContainer(
+                    towards = AnimatedContentTransitionScope.SlideDirection.Left,
+                    animationSpec = tween(
+                        durationMillis = 250,
+                        easing = LinearEasing
+                    )
+                )
+            },
+            exitTransition = {
+                fadeOut(
+                    animationSpec = tween(durationMillis = 350)
+                )
+            },
+        ) {VideoPlayerScreen(navController)}
 
         composable(
             route = "enter_pin_login",

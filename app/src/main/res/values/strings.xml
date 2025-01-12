@@ -24,4 +24,5 @@
     <string name="description">Description</string>
     <string name="color">Color</string>
     <string name="no_chat_history_with_this_user">--No chat history with this user--</string>
+    <string name="film">Lunch secret film</string>
 </resources>

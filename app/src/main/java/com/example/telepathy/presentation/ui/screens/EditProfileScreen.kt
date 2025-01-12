@@ -383,7 +383,6 @@ fun AvatarPickerDialog(
         if (resId != 0) {
             val originalBitmap = BitmapFactory.decodeResource(context.resources, resId)
             originalBitmap?.let {
-                // Skalowanie obrazu do maksymalnych wymiarów 512x512 px
                 val maxDimension = 512
                 val ratio = minOf(
                     maxDimension / it.width.toFloat(),
@@ -413,7 +412,6 @@ fun AvatarPickerDialog(
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
-            // Avatar grid
             Column(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
@@ -443,7 +441,6 @@ fun AvatarPickerDialog(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Upload Image button
             Button(
                 onClick = onUploadImage,
                 modifier = Modifier.fillMaxWidth(),
