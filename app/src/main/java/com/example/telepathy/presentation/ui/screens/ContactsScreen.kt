@@ -31,16 +31,18 @@ import androidx.compose.ui.unit.sp
 import com.example.telepathy.R
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.telepathy.data.PreferencesManager
 import com.example.telepathy.presentation.navigation.swipeToNavigate
 import com.example.telepathy.presentation.ui.CircledImage
-import com.example.telepathy.presentation.ui.DividerWithImage
+import com.example.telepathy.presentation.ui.FooterWithPromptBar
 import com.example.telepathy.presentation.ui.Header
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import com.example.telepathy.presentation.ui.ScreenTemplate
 import com.example.telepathy.presentation.viewmodels.ContactsViewModel
-import com.example.telepathy.presentation.viewmodels.ContactsViewModelFactory
+import com.example.telepathy.presentation.viewmodels.GenericViewModelFactory
+import com.example.telepathy.presentation.viewmodels.SharedViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -53,10 +55,15 @@ fun formatTime(timestamp: Long): String {
 
 @Composable
 fun ContactText(name: String, isFromUser: Boolean, message: String, timestamp: Long, modifier: Modifier) {
-    val formattedTime = formatTime(timestamp)
+    var formattedTime = "--:--"
+    if(timestamp != -1L) {
+        formattedTime = formatTime(timestamp)
+    }
     var msg = message
     msg = if (isFromUser) {
         "Ty:\n$msg"
+    } else if (msg.equals("")){
+        stringResource(R.string.no_chat_history_with_this_user)
     } else {
         "$name:\n$msg"
     }
@@ -144,13 +151,16 @@ fun UserCard(
 @Composable
 fun ContactsScreen(
     navController: NavHostController,
-    localUserId: Int,
     viewModel: ContactsViewModel = viewModel(
-        factory = ContactsViewModelFactory(LocalContext.current)
-    )
+        factory = GenericViewModelFactory(LocalContext.current)
+    ),
+    currentScreen: MutableState<String>
 ) {
 
     val contacts by viewModel.contacts.collectAsState()
+
+    val preferencesManager = PreferencesManager(LocalContext.current)
+    val localUserId = preferencesManager.getLocalUserId()
 
     LaunchedEffect(localUserId) {
         withContext(Dispatchers.Main) {
@@ -160,7 +170,7 @@ fun ContactsScreen(
 
     ScreenTemplate(
         navIcon = {
-            DividerWithImage()
+            FooterWithPromptBar(currentScreen.value)
         },
         header = {
             Header(stringResource(R.string.your_contacts), modifier = Modifier.padding(bottom = 16.dp))
@@ -188,9 +198,9 @@ fun ContactsScreen(
                 UserCard(
                     avatarBitmap = user.avatar,
                     name = user.name,
-                    isFromUser = lastMessage.senderId == localUserId,
-                    message = lastMessage.content,
-                    time = lastMessage.timestamp,
+                    isFromUser = lastMessage?.senderId == localUserId,
+                    message = lastMessage?.content ?: "",
+                    time = lastMessage?.timestamp ?: -1L,
                     backgroundColor = user.color,
                     onClick = { navController.navigate("talkscreen/${user.id}") }
                 )

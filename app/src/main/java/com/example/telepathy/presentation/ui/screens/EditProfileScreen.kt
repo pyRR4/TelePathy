@@ -1,12 +1,8 @@
 package com.example.telepathy.presentation.ui.screens
 
-import android.annotation.SuppressLint
 import android.graphics.Bitmap
-import android.graphics.ImageDecoder
-import android.graphics.ImageDecoder.decodeBitmap
 import android.net.Uri
 import android.provider.MediaStore
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -39,41 +35,38 @@ import com.example.telepathy.data.PreferencesManager
 import com.example.telepathy.presentation.ui.CircledImage
 import com.example.telepathy.presentation.ui.ScreenTemplate
 import com.example.telepathy.presentation.ui.Header
-import com.example.telepathy.presentation.viewmodels.EditProfileViewModel
-import com.example.telepathy.presentation.viewmodels.EditProfileViewModel.EditProfileViewModelFactory
 import com.example.telepathy.presentation.ui.theme.DarkButtonsColor
 import com.example.telepathy.presentation.ui.theme.DarkUserColors
+import com.example.telepathy.presentation.viewmodels.SharedViewModel
 
-@SuppressLint("NewApi") //TODO
 @Composable
-fun EditProfileScreen(navController: NavHostController) {
+fun EditProfileScreen(
+    navController: NavHostController,
+    sharedViewModel: SharedViewModel
+) {
     val context = LocalContext.current
+    val localUser by sharedViewModel.localUser.collectAsState()
+
     val preferencesManager = PreferencesManager(context)
     val localUserId = preferencesManager.getLocalUserId()
 
-    val viewModel: EditProfileViewModel = viewModel(
-        factory = EditProfileViewModelFactory(context, localUserId)
-    )
-
-    val localUser by viewModel.user.collectAsState()
-
-
-    var isUserLoaded by remember { mutableStateOf(false) }
     var colorPickerVisible by remember { mutableStateOf(false) }
 
-    var new_username by remember { mutableStateOf("") }
-    var new_description by remember { mutableStateOf("") }
-    var new_selectedColor by remember { mutableStateOf(Color.Gray) }
-    var new_avatarBitmap by remember { mutableStateOf<Bitmap?>(null) }
+    var newUsername by remember { mutableStateOf("") }
+    var newDescription by remember { mutableStateOf("") }
+    var newSelectedColor by remember { mutableStateOf(Color.Gray) }
+    var newAvatarBitmap by remember { mutableStateOf<Bitmap?>(null) }
+    var isLoaded by remember { mutableStateOf(false) }
 
     LaunchedEffect(localUser) {
+        sharedViewModel.loadLocalUser(localUserId)
         localUser?.let { user ->
-            if (!isUserLoaded) {
-                new_username = user.name
-                new_description = user.description
-                new_selectedColor = user.color
-                new_avatarBitmap = user.avatar
-                isUserLoaded = true
+            if(!isLoaded) {
+                newUsername = user.name
+                newDescription = user.description
+                newSelectedColor = user.color
+                newAvatarBitmap = user.avatar
+                isLoaded = true
             }
         }
     }
@@ -96,7 +89,7 @@ fun EditProfileScreen(navController: NavHostController) {
     ) { uri: Uri? ->
         uri?.let {
             val bitmap = MediaStore.Images.Media.getBitmap(context.contentResolver, it)
-            new_avatarBitmap = bitmap
+            newAvatarBitmap = bitmap
         }
     }
 
@@ -127,13 +120,13 @@ fun EditProfileScreen(navController: NavHostController) {
                     onClick = {
                         localUser?.let { existingUser ->
                             val updatedUser = existingUser.copy(
-                                name = new_username,
-                                description = new_description,
-                                color = new_selectedColor,
-                                avatar = new_avatarBitmap
+                                name = newUsername,
+                                description = newDescription,
+                                color = newSelectedColor,
+                                avatar = newAvatarBitmap
                             )
 
-                            viewModel.updateUser(updatedUser)
+                            sharedViewModel.updateLocalUser(updatedUser)
                             navController.popBackStack()
                         }
                     },
@@ -176,7 +169,7 @@ fun EditProfileScreen(navController: NavHostController) {
                         .clickable { imagePickerLauncher.launch("image/*") },
                     contentAlignment = Alignment.Center
                 ) {
-                    new_avatarBitmap?.let {
+                    newAvatarBitmap?.let {
                         CircledImage(bitmap = it, size = 176.dp)
                     }
                 }
@@ -184,17 +177,17 @@ fun EditProfileScreen(navController: NavHostController) {
 
             TextFieldComposable(
                 label = stringResource(R.string.username),
-                text = new_username,
+                text = newUsername,
                 charLimit = 20,
-                onTextChange = { new_username = it },
+                onTextChange = { newUsername = it },
                 height = 56.dp
             )
 
             TextFieldComposable(
                 label = stringResource(R.string.description),
-                text = new_description,
+                text = newDescription,
                 charLimit = 40,
-                onTextChange = { new_description = it },
+                onTextChange = { newDescription = it },
                 height = 124.dp
             )
 
@@ -212,7 +205,7 @@ fun EditProfileScreen(navController: NavHostController) {
                 Box(
                     modifier = Modifier
                         .size(120.dp)
-                        .background(new_selectedColor, CircleShape)
+                        .background(newSelectedColor, CircleShape)
                         .clickable { colorPickerVisible = true },
                     contentAlignment = Alignment.Center
                 ) {}
@@ -220,12 +213,11 @@ fun EditProfileScreen(navController: NavHostController) {
         }
     }
 
-    // Color picker dialog
     if (colorPickerVisible) {
         ColorPickerDialog(
-            currentColor = new_selectedColor,
+            currentColor = newSelectedColor,
             onSave = { selectedColor ->
-                new_selectedColor = selectedColor
+                newSelectedColor = selectedColor
                 colorPickerVisible = false
             }
         )

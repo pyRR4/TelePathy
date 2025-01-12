@@ -44,16 +44,17 @@ android {
 }
 
 dependencies {
-    // Room version
+    // Room
     val room_version = "2.6.1"
 
-    // Room runtime library
     implementation("androidx.room:room-runtime:$room_version")
     implementation("androidx.room:room-ktx:$room_version")
     ksp("androidx.room:room-compiler:$room_version")
 
-    // Annotation processor for Room (Java and Kotlin)
     annotationProcessor("androidx.room:room-compiler:$room_version")
+
+    implementation (libs.kotlin.stdlib)
+
 
     // Core Android dependencies
     implementation(libs.androidx.core.ktx)
@@ -61,7 +62,7 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(libs.accompanist.navigation.animation)
 
-    // Jetpack Compose dependencies
+    // Jetpack
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
@@ -71,7 +72,10 @@ dependencies {
     // Navigation Compose
     implementation(libs.androidx.navigation.compose)
 
-    // Test dependencies (podstawowe)
+    implementation(libs.gson)
+    implementation(libs.fingerprint.android)
+    implementation(libs.androidx.appcompat)
+    
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -81,4 +85,9 @@ dependencies {
     // Debugging
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    //coil
+    implementation (libs.coil.kt.coil.compose)
+    implementation (libs.coil.gif)
+
 }

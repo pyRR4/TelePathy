@@ -12,14 +12,19 @@ import kotlinx.coroutines.launch
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.*
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.telepathy.data.AppDatabase
+import com.example.telepathy.data.PreferencesManager
 import com.example.telepathy.presentation.ui.screens.AvailableAroundScreen
 import com.example.telepathy.presentation.ui.screens.TalkScreen
 import com.example.telepathy.presentation.ui.screens.ConfirmPinScreen
@@ -28,6 +33,8 @@ import com.example.telepathy.presentation.ui.screens.EditProfileScreen
 import com.example.telepathy.presentation.ui.screens.EnterNewPinScreen
 import com.example.telepathy.presentation.ui.screens.EnterPinScreen
 import com.example.telepathy.presentation.ui.screens.SettingsScreen
+import com.example.telepathy.presentation.viewmodels.GenericViewModelFactory
+import com.example.telepathy.presentation.viewmodels.SharedViewModel
 import kotlin.math.abs
 
 
@@ -36,9 +43,21 @@ import kotlin.math.abs
 fun AnimatedNavHost(
     navController: NavHostController,
     startDestination: String,
-    currentScreen: MutableState<String>,
-    localUserId: Int
+    currentScreen: MutableState<String>
 ) {
+    val context = LocalContext.current
+
+    val sharedViewModel: SharedViewModel = viewModel(
+        factory = GenericViewModelFactory(context)
+    )
+
+    val preferencesManager = PreferencesManager(context)
+    var localUserId = preferencesManager.getLocalUserId()
+
+    LaunchedEffect(Unit) {
+        Log.d("LAUNCHED EFFECT", "Locals ID: $localUserId, IsFirstRun: ${preferencesManager.isFirstLaunch()}")
+        sharedViewModel.loadLocalUser(localUserId)
+    }
 
     androidx.navigation.compose.NavHost(
         navController = navController,
@@ -91,7 +110,7 @@ fun AnimatedNavHost(
         ) {
             ContactsScreen(
                 navController = navController,
-                localUserId = localUserId
+                currentScreen = currentScreen
             )
             currentScreen.value = "contactsscreen"
         }
@@ -125,7 +144,9 @@ fun AnimatedNavHost(
             }
         ) {
             AvailableAroundScreen(
-                navController = navController
+                navController = navController,
+                currentScreen = currentScreen,
+                sharedViewModel = sharedViewModel
             )
             currentScreen.value = "availablescreen"
         }
@@ -159,8 +180,9 @@ fun AnimatedNavHost(
             }
         ) {
             SettingsScreen(
-                navController,
-                currentScreen
+                navController = navController,
+                currentScreen = currentScreen,
+                sharedViewModel = sharedViewModel
             )
         }
 
@@ -187,33 +209,40 @@ fun AnimatedNavHost(
             val userId = backStackEntry.arguments?.getInt("userId") ?: return@composable
             TalkScreen(
                 navController = navController,
-                localUserId = localUserId,
                 remoteUserId = userId,
-                previousScreen = currentScreen
+                previousScreen = currentScreen,
+                sharedViewModel = sharedViewModel
             )
         }
 
         composable(
             route = "edit_profile",
             enterTransition = {
-                slideInVertically(initialOffsetY = { it })
+                slideIntoContainer(
+                    towards = AnimatedContentTransitionScope.SlideDirection.Left,
+                    animationSpec = tween(
+                        durationMillis = 250,
+                        easing = LinearEasing
+                    )
+                )
             },
             exitTransition = {
-                slideOutVertically(targetOffsetY = { it })
-            }
+                fadeOut(
+                    animationSpec = tween(durationMillis = 350)
+                )
+            },
         ) {
             EditProfileScreen(
-                navController
+                navController = navController,
+                sharedViewModel = sharedViewModel
             )
         }
-
-        //---------------------- Koniec animacji sprawdzonych ------------------------//
 
         composable(
             route = "enter_pin_login",
             enterTransition = {
                 slideIntoContainer(
-                    towards = AnimatedContentTransitionScope.SlideDirection.Up,
+                    towards = AnimatedContentTransitionScope.SlideDirection.Left,
                     animationSpec = tween(
                         durationMillis = 250,
                         easing = LinearEasing
@@ -232,7 +261,7 @@ fun AnimatedNavHost(
         }
 
         composable(
-            route = "enter_pin_settings", // pin przy probie zmiany pinu
+            route = "enter_pin_settings",
             enterTransition = {
                 slideIntoContainer(
                     towards = AnimatedContentTransitionScope.SlideDirection.Up,
@@ -270,7 +299,7 @@ fun AnimatedNavHost(
         ) {
             EnterNewPinScreen(
                 navController = navController,
-                onCancel = { navController.popBackStack() } // Navigate back on cancel
+                onCancel = { navController.popBackStack() }
             )
         }
 
@@ -278,12 +307,8 @@ fun AnimatedNavHost(
             route = "confirm_new_pin/{pin}",
             arguments = listOf(navArgument("pin") { type = NavType.StringType }),
             enterTransition = {
-                slideIntoContainer(
-                    towards = AnimatedContentTransitionScope.SlideDirection.Up,
-                    animationSpec = tween(
-                        durationMillis = 250,
-                        easing = LinearEasing
-                    )
+                fadeIn(
+                    animationSpec = tween(durationMillis = 350)
                 )
             },
             exitTransition = {
@@ -295,13 +320,13 @@ fun AnimatedNavHost(
             val pinTemp = backStackEntry.arguments?.getString("pin") ?: ""
             ConfirmPinScreen(
                 navController = navController,
-                onCancel = { navController.popBackStack() }, // Navigate back on cancel
+                onCancel = { navController.popBackStack() },
                 pinTemp = pinTemp
             )
         }
 
     }
-    }
+}
 
 
 
@@ -320,10 +345,8 @@ fun Modifier.swipeToNavigate(
         change.consume()
 
         if (!isSwipeHandled.value && !isNavigating.value) {
-            Log.d("SwipeGesture", "Drag Amount: x = ${dragAmount.x}, y = ${dragAmount.y}")
             when {
                 abs(dragAmount.x) > horizontalThreshold -> {
-                    // Handle horizontal swipe (left or right)
                     if (dragAmount.x < 0f && onSwipeLeft != null) {
                         Log.d("SwipeGesture", "Swipe Left detected")
                         isNavigating.value = true
@@ -345,7 +368,6 @@ fun Modifier.swipeToNavigate(
                     }
                 }
                 abs(dragAmount.y) > verticalThreshold -> {
-                    // Handle vertical swipe (up or down)
                     if (dragAmount.y < 0f && onSwipeUp != null) {
                         Log.d("SwipeGesture", "Swipe Up detected")
                         isNavigating.value = true

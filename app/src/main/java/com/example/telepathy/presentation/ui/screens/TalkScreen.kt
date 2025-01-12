@@ -1,7 +1,6 @@
 package com.example.telepathy.presentation.ui.screens
 
 import android.graphics.Bitmap
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -9,6 +8,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -22,13 +22,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.example.telepathy.data.AppDatabase
 import com.example.telepathy.data.PreferencesManager
 import com.example.telepathy.presentation.ui.CircledImage
 import com.example.telepathy.data.entities.Message
 import com.example.telepathy.presentation.navigation.swipeToNavigate
 import com.example.telepathy.presentation.viewmodels.ChatViewModel
-import com.example.telepathy.presentation.viewmodels.ChatViewModelFactory
+import com.example.telepathy.presentation.viewmodels.GenericViewModelFactory
+import com.example.telepathy.presentation.viewmodels.SharedViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -133,29 +133,28 @@ fun TalkCard(
 fun TalkScreen(
     navController: NavHostController,
     viewModel: ChatViewModel = viewModel(
-        factory = ChatViewModelFactory(LocalContext.current)
+        factory = GenericViewModelFactory (LocalContext.current)
     ),
-    localUserId: Int,
     remoteUserId: Int,
-    previousScreen: MutableState<String>
+    previousScreen: MutableState<String>,
+    sharedViewModel: SharedViewModel
 ) {
     val user by viewModel.currentUser.collectAsState()
-    val localUser by viewModel.localUser.collectAsState()
     val messages by viewModel.chatHistory.collectAsState()
+
     var messageInput by remember { mutableStateOf("") }
 
+    val localUser by sharedViewModel.localUser.collectAsState()
 
-    Log.d("KOLOR LOCALSA", localUserId.toString())
+    val preferencesManager = PreferencesManager(LocalContext.current)
+    val localUserId = preferencesManager.getLocalUserId()
 
-    LaunchedEffect(localUserId, remoteUserId) {
+    LaunchedEffect(localUser, remoteUserId) {
         withContext(Dispatchers.Main) {
             viewModel.loadUser(remoteUserId)
-            viewModel.loadLocalUser(localUserId)
             viewModel.loadChatHistory(localUserId, remoteUserId)
         }
     }
-
-    Log.d("KOLOR LOCALSA", localUser.toString())
 
     Column(
         modifier = Modifier
@@ -176,7 +175,7 @@ fun TalkScreen(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Box( // black back box
+            Box(
                 modifier = Modifier
                     .height(124.dp)
                     .width(32.dp)
@@ -203,7 +202,7 @@ fun TalkScreen(
                 name = user?.name ?: "",
                 description = user?.description ?: "",
                 backgroundColor = user?.color ?: MaterialTheme.colorScheme.surface,
-                onClick = { /* Handle banner click */ }
+                onClick = { /* */ }
             )
         }
 
@@ -216,12 +215,12 @@ fun TalkScreen(
         ) {
             items(count = messages.size) { index ->
                 val message = messages[index]
-                val messageColor = if (message.senderId == localUserId) localUser?.color
+                val messageColor = if (message.senderId == localUser?.id) localUser?.color
                 else user?.color ?: MaterialTheme.colorScheme.surface
 
                 MessageBubble(
                     message = message,
-                    isLocalUser = message.senderId == localUserId,
+                    isLocalUser = message.senderId == localUser?.id,
                     backgroundColor = messageColor ?: MaterialTheme.colorScheme.surface
                 )
             }
@@ -233,7 +232,7 @@ fun TalkScreen(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(onClick = { /* Handle more button */ }) {
+            IconButton(onClick = { /* */ }) {
                 Icon(
                     imageVector = Icons.Default.MoreVert,
                     contentDescription = "More",
@@ -254,12 +253,18 @@ fun TalkScreen(
 
             Button(
                 onClick = {
-                    viewModel.sendMessage(messageInput, localUserId, remoteUserId)
+                    if(localUser != null) {
+                        viewModel.sendMessage(messageInput, localUser!!.id, remoteUserId)
+                    }
                     messageInput = ""
                 },
                 modifier = Modifier.height(48.dp)
             ) {
-                Text(text = "Send")
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.Send,
+                    contentDescription = "Back",
+                    tint = MaterialTheme.colorScheme.onPrimary
+                )
             }
         }
     }

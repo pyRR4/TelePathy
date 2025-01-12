@@ -24,9 +24,12 @@ interface UserDao {
     @Delete
     suspend fun delete(user: User)
 
-    @Query("SELECT * FROM users WHERE id = :id")
+    @Query("SELECT * FROM users WHERE id = :id LIMIT 1")
     fun getUser(id: Int): Flow<User>
 
     @Query("SELECT * FROM users")
     fun getAllUsers(): Flow<List<User>>
+
+    @Query("SELECT * FROM users WHERE deviceId = :deviceId LIMIT 1")
+    fun getUserByDeviceId(deviceId: String): Flow<User>
 }

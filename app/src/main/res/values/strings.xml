@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">TelePathy</string>
     <string name="your_contacts">Your contacts</string>
-    <string name="available_around_you">Available around</string>
+    <string name="available_around_you">Users around</string>
     <string name="edit_profile">Edit Profile</string>
     <string name="change_pin">Set PIN</string>
     <string name="reset_app_data">Reset App Data</string>
@@ -23,4 +23,5 @@
     <string name="username">Username\n</string>
     <string name="description">Description</string>
     <string name="color">Color</string>
+    <string name="no_chat_history_with_this_user">--No chat history with this user--</string>
 </resources>
