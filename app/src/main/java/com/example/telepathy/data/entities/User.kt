@@ -1,12 +1,7 @@
 package com.example.telepathy.data.entities
 
-import android.graphics.Bitmap
-import androidx.compose.ui.graphics.Color
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import androidx.room.TypeConverters
-import com.example.telepathy.data.converters.BitmapConverter
-import com.example.telepathy.data.converters.ColorConverter
 
 @Entity(
     tableName = "users",
@@ -20,11 +15,9 @@ data class User(
 
     var description: String,
 
-    @field:TypeConverters(ColorConverter::class)
-    val color: Color,
+    val color: Long,
 
-    @field:TypeConverters(BitmapConverter::class)
-    val avatar: Bitmap? = null,
+    val avatar: ByteArray? = null,
 
     val deviceId: String
 )

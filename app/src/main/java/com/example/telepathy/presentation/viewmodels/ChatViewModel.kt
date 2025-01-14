@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.telepathy.data.entities.Message
 import com.example.telepathy.data.entities.User
+import com.example.telepathy.domain.dtos.UserDTO
+import com.example.telepathy.domain.mappers.UserMapper.toDTO
 import com.example.telepathy.domain.repositories.MessageRepository
 import com.example.telepathy.domain.repositories.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,8 +24,8 @@ class ChatViewModel(
     private val _chatHistory = MutableStateFlow<List<Message>>(emptyList())
     val chatHistory: StateFlow<List<Message>> = _chatHistory.asStateFlow()
 
-    private val _currentUser = MutableStateFlow<User?>(null)
-    val currentUser: StateFlow<User?> = _currentUser.asStateFlow()
+    private val _currentUser = MutableStateFlow<UserDTO?>(null)
+    val currentUser: StateFlow<UserDTO?> = _currentUser.asStateFlow()
 
     fun loadChatHistory(localUserId: Int, remoteUserId: Int) {
         viewModelScope.launch {
@@ -50,7 +52,7 @@ class ChatViewModel(
 
                 }
                 .collect { user ->
-                    _currentUser.value = user
+                    _currentUser.value = user.toDTO()
                 }
         }
     }
