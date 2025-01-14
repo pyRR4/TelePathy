@@ -46,7 +46,13 @@ class ContactsViewModel(
                                             "Received last message for user: ${user.name}, ID: ${user.id}, Message: ${message?.content}"
                                         )
                                         contactsMap[user] = message
-                                        _contacts.value = contactsMap.toMap()
+
+                                        // Sortowanie kontaktów po dacie ostatniej wiadomości
+                                        val sortedContacts = contactsMap.entries
+                                            .sortedByDescending { it.value?.timestamp ?: 0L }
+                                            .associate { it.key to it.value }
+
+                                        _contacts.value = sortedContacts
                                         Log.d("ContactsViewModel", "Updated contacts map: ${_contacts.value}")
                                     }
                             }
