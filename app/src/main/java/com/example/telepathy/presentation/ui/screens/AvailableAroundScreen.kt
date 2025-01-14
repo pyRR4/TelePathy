@@ -1,6 +1,7 @@
 package com.example.telepathy.presentation.ui.screens
 
 import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -20,6 +21,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.telepathy.R
@@ -45,6 +47,37 @@ fun AvailableAroundScreen(
     var isVisible by remember { mutableStateOf(false) }
     val discoveredUsers by viewModel.discoveredUsersDeviceIds.collectAsState()
     val localUser by sharedViewModel.localUser.collectAsState()
+
+    var showSuccessDialog by remember { mutableStateOf(false) }
+
+    if (showSuccessDialog) {
+        Dialog(onDismissRequest = { showSuccessDialog = false }) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(color = Color(0x80000000)) // Szare przezroczyste tło
+            ) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .background(color = Color.Green, shape = RoundedCornerShape(16.dp))
+                        .padding(16.dp)
+                ) {
+                    Text(
+                        text = "User added successfully!",
+                        color = Color.White,
+                    )
+                }
+            }
+        }
+
+        // Uruchomienie nawigacji po 2 sekundach
+        LaunchedEffect(Unit) {
+            kotlinx.coroutines.delay(2000)
+            showSuccessDialog = false
+            navController.navigate("contacts")
+        }
+    }
 
     ScreenTemplate(
         navIcon = {
@@ -131,7 +164,7 @@ fun AvailableAroundScreen(
                     onClick = {
                         Log.d("USER", "user: $user")
                         viewModel.addUserToLocalContacts(user)
-                        navController.navigate("talkscreen/${user.id}")
+                        showSuccessDialog = true
                     }
                 )
             }

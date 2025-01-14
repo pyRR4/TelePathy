@@ -8,6 +8,14 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import com.example.telepathy.domain.dtos.UserDTO
 import com.example.telepathy.domain.mappers.UserMapper.toEntity
+import android.content.Context
+import android.util.Log
+import androidx.lifecycle.ViewModelProvider
+import com.example.telepathy.data.AppDatabase
+import com.example.telepathy.data.repositories.UserRepositoryImpl
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 
 class AvailableViewModel(
     private val bluetoothRepository: BluetoothRepository,
@@ -31,10 +39,21 @@ class AvailableViewModel(
     fun stopAdvertising() {
         bluetoothRepository.stopAdvertising()
     }
+//    fun addUserToLocalContacts(user: User) {
+//        viewModelScope.launch {
+//            userRepository.insert(user)
+//        }
+//    }
+    fun addUserToLocalContacts(user: User) {
+        Log.d("Contacts", "Attempting to add user: ${user.name}, ID: ${user.id}")
 
-    fun addUserToLocalContacts(user: UserDTO) {
         viewModelScope.launch {
-            userRepository.insert(user.toEntity())
+            try {
+                userRepository.insert(user)
+                Log.d("avialable", "userRepository.insert(user) with no exception ${user.name}, ID: ${user.id}")
+            } catch (e: Exception) {
+                Log.e("avialable", "userRepository.insert(user) Failed to add user: ${user.name}, ID: ${user.id}", e)
+            }
         }
     }
 }
