@@ -12,9 +12,13 @@ import com.example.telepathy.presentation.ui.theme.DarkTeal
 import com.example.telepathy.presentation.ui.theme.DarkVividBlue
 import com.fingerprintjs.android.fingerprint.Fingerprinter
 import com.fingerprintjs.android.fingerprint.FingerprinterFactory
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 
 class DatabaseSeeder(
     private val database: AppDatabase,
@@ -23,7 +27,7 @@ class DatabaseSeeder(
 
     suspend fun seed() {
         seedDefaultUser()
-        seedUsersAndMessages()
+        //seedUsersAndMessages()
     }
 
     private suspend fun seedDefaultUser() {
@@ -32,33 +36,34 @@ class DatabaseSeeder(
         logSharedPreferences(context)
 
         val deviceId = fetchDeviceId(fingerprinter)
+        Log.d("DEVICE ID", "FETCHED DEVICE ID: $deviceId")
 
-        if (preferencesManager.isFirstLaunch()) {
-            preferencesManager.setFirstLaunch(false)
+
+        val users = database.userDao().getAllUsers().firstOrNull()
+        Log.d("USERS", "$users")
+        if (users?.isEmpty() != false) {
+            preferencesManager.clear()
             preferencesManager.savePin(null)
+            preferencesManager.saveLocalUserDeviceId(deviceId)
 
-            val usersCount = database.userDao().getAllUsers().first().size
-            if (usersCount == 0) {
-                preferencesManager.saveLocalUserDeviceId(deviceId)
+            val defaultUser = User(
+                id = 0,
+                name = "Default User",
+                description = "This is the default user",
+                color = DarkLightBlue, // Replace with any default color
+                avatar = null,
+                deviceId = deviceId
+            )
+            database.userDao().insert(defaultUser)
 
-                val defaultUser = User(
-                    id = 0,
-                    name = "Default User",
-                    description = "This is the default user",
-                    color = DarkLightBlue, // Replace with any default color
-                    avatar = null,
-                    deviceId = deviceId
-                )
-                database.userDao().insert(defaultUser)
+            Log.d("DatabaseSeeder", "Created default user: $defaultUser")
 
-                Log.d("DatabaseSeeder", "Created default user: $defaultUser")
-            } else {
-                Log.d("DatabaseSeeder", "Database already contains users.")
-            }
+            val localDeviceId = preferencesManager.getLocalUserDeviceId()
+            val localUser =
+                database.userDao().getUserByDeviceId(localDeviceId)
+                    .first()
+            preferencesManager.saveLocalUserId(localUser.id)
         }
-
-        val localUser = database.userDao().getUserByDeviceId(deviceId).first()
-        preferencesManager.saveLocalUserId(localUser.id)
 
         logSharedPreferences(context)
         logAllUsers()
