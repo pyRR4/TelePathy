@@ -6,6 +6,7 @@ import com.example.telepathy.data.AppDatabase
 import com.example.telepathy.data.PreferencesManager
 import com.example.telepathy.data.entities.Message
 import com.example.telepathy.data.entities.User
+import com.example.telepathy.domain.mappers.UserMapper.toLong
 import com.example.telepathy.presentation.ui.theme.DarkLightBlue
 import com.example.telepathy.presentation.ui.theme.DarkGreen
 import com.example.telepathy.presentation.ui.theme.DarkTeal
@@ -76,10 +77,10 @@ class DatabaseSeeder(
         val messageDao = database.messageDao()
 
         val users = listOf(
-            User(id = 0, name = "Alice", description = "Loves painting", color = DarkLightBlue, deviceId = "Alice"),
-            User(id = 0, name = "Bob", description = "Traveler", color = DarkGreen, deviceId = "Bob"),
-            User(id = 0, name = "Charlie", description = "Gamer", color = DarkVividBlue, deviceId = "Charlie"),
-            User(id = 0, name = "Diana", description = "Chef", color = DarkTeal, deviceId = "Diana")
+            User(id = 0, name = "Alice", description = "Loves painting", color = DarkLightBlue.toLong(), deviceId = "Alice"),
+            User(id = 0, name = "Bob", description = "Traveler", color = DarkGreen.toLong(), deviceId = "Bob"),
+            User(id = 0, name = "Charlie", description = "Gamer", color = DarkVividBlue.toLong(), deviceId = "Charlie"),
+            User(id = 0, name = "Diana", description = "Chef", color = DarkTeal.toLong(), deviceId = "Diana")
         )
         userDao.insertUsers(users)
 

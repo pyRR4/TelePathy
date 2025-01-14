@@ -13,6 +13,8 @@ import android.util.Log
 import androidx.compose.ui.graphics.Color
 import androidx.core.content.ContextCompat
 import com.example.telepathy.data.entities.User
+import com.example.telepathy.domain.dtos.UserDTO
+import com.example.telepathy.domain.mappers.UserMapper.toDTO
 import com.example.telepathy.domain.serialization.deserializeUser
 import com.example.telepathy.domain.serialization.serializeUser
 import kotlinx.coroutines.CoroutineScope
@@ -22,7 +24,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.io.IOException
 import java.io.InputStream
-import java.io.OutputStream
 import java.util.UUID
 
 class BluetoothRepository(
@@ -30,8 +31,8 @@ class BluetoothRepository(
 ) {
 
     private val bluetoothAdapter: BluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
-    private val _discoveredUsers = MutableStateFlow<List<User>>(emptyList())
-    val discoveredUsers: StateFlow<List<User>> = _discoveredUsers
+    private val _discoveredUsers = MutableStateFlow<List<UserDTO>>(emptyList())
+    val discoveredUsers: StateFlow<List<UserDTO>> = _discoveredUsers
 
     private var serverSocket: BluetoothServerSocket? = null
     private var isAdvertising = false
@@ -198,7 +199,7 @@ class BluetoothRepository(
                 deviceId = user.deviceId
             )
             val updatedList = _discoveredUsers.value.toMutableList().apply {
-                add(newUser)
+                add(newUser.toDTO())
             }
             _discoveredUsers.value = updatedList
 
