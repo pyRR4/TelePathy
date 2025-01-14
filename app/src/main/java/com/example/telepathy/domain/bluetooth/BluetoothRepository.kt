@@ -133,12 +133,12 @@ class BluetoothRepository(
                 id = 0,
                 name = "Duzy",
                 description = "on jest duzy",
-                color = Color.Black,
+                color = Color.Black.toLong(),
                 avatar = null,
                 deviceId = "TEST_DEVICE_2"
             )
             val updatedList = _discoveredUsers.value.toMutableList().apply {
-                add(testUser2)
+                add(testUser2.toDTO())
             }
             _discoveredUsers.value = updatedList
             Log.d("Bluetooth", "Test user 2 added: ${testUser2.name}")
