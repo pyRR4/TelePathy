@@ -1,15 +1,13 @@
 package com.example.telepathy.presentation.viewmodels
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.telepathy.data.AppDatabase
-import com.example.telepathy.data.entities.Contact
 import com.example.telepathy.data.entities.Message
 import com.example.telepathy.data.entities.User
-import com.example.telepathy.data.repositories.MessageRepositoryImpl
-import com.example.telepathy.data.repositories.UserRepositoryImpl
+import com.example.telepathy.domain.dtos.UserDTO
+import com.example.telepathy.domain.mappers.UserMapper.toDTO
 import com.example.telepathy.domain.repositories.MessageRepository
 import com.example.telepathy.domain.repositories.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,52 +20,44 @@ class ContactsViewModel(
     private val messageRepository: MessageRepository
 ) : ViewModel() {
 
-    private val _contacts = MutableStateFlow<Map<User, Message>>(emptyMap())
-    val contacts: StateFlow<Map<User, Message>> = _contacts.asStateFlow()
+    private val _contacts = MutableStateFlow<Map<UserDTO, Message?>>(emptyMap())
+    val contacts: StateFlow<Map<UserDTO, Message?>> = _contacts.asStateFlow()
 
-    fun loadContacts(userId: Int) {
+    fun loadContacts(localUserId: Int) {
         viewModelScope.launch {
-            userRepository.getContactsForUser(userId)
-                .collect { contacts ->
-                    contacts.forEach { contactList ->
-                        val id = if (contactList.userId == userId)
-                            contactList.contactId else contactList.userId
-                        launch {
-                            userRepository.getUser(id).collect { user ->
-                                messageRepository.getLastMessage(userId, id).collect { message ->
-                                    _contacts.value = _contacts.value + (user to message)
-                                }
+            Log.d("ContactsViewModel", "Loading contacts for localUserId: $localUserId")
+
+            val contactsMap = mutableMapOf<UserDTO, Message?>()
+            userRepository.getAllUsers()
+                .collect { users ->
+                    Log.d("ContactsViewModel", "Fetched users: ${users.size}")
+                    users
+                        .filter { it.id != localUserId }
+                        .forEach { user ->
+                            val userDTO = user.toDTO()
+                            Log.d("ContactsViewModel", "Processing user: ${userDTO.name}, ID: ${userDTO.id}")
+
+                            launch {
+                                messageRepository.getLastMessage(userDTO.id, localUserId)
+                                    .collect { message ->
+                                        Log.d(
+                                            "ContactsViewModel",
+                                            "Received last message for user: ${userDTO.name}, ID: ${userDTO.id}, Message: ${message?.content}"
+                                        )
+                                        contactsMap[userDTO] = message
+
+                                        // Sortowanie kontaktów po dacie ostatniej wiadomości
+                                        val sortedContacts = contactsMap.entries
+                                            .sortedByDescending { it.value?.timestamp ?: 0L }
+                                            .associate { it.key to it.value }
+
+                                        _contacts.value = sortedContacts
+                                        Log.d("ContactsViewModel", "Updated contacts map: ${_contacts.value}")
+                                    }
                             }
                         }
-                    }
                 }
         }
     }
 
-    fun removeContact(contact: Contact) {
-        viewModelScope.launch {
-            userRepository.removeContact(contact)
-        }
-    }
-}
-
-class ContactsViewModelFactory(current: Context) : ViewModelProvider.Factory {
-
-    private val database = AppDatabase.getDatabase(current)
-
-    val userRepositoryInstance = UserRepositoryImpl(
-        userDao = database.userDao(),
-        contactDao = database.contactDao()
-    )
-
-    val messageRepositoryInstance = MessageRepositoryImpl(
-        messageDao = database.messageDao()
-    )
-
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(ContactsViewModel::class.java)) {
-            return ContactsViewModel(userRepositoryInstance, messageRepositoryInstance) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
-    }
 }

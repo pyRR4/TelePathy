@@ -1,6 +1,7 @@
 package com.example.telepathy.presentation.ui.screens
 
 import android.graphics.Bitmap
+import android.media.MediaPlayer
 import androidx.compose.foundation.background
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -41,7 +42,8 @@ import java.util.Date
 import java.util.Locale
 import com.example.telepathy.presentation.ui.ScreenTemplate
 import com.example.telepathy.presentation.viewmodels.ContactsViewModel
-import com.example.telepathy.presentation.viewmodels.ContactsViewModelFactory
+import com.example.telepathy.presentation.viewmodels.GenericViewModelFactory
+import com.example.telepathy.presentation.viewmodels.SharedViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -54,10 +56,15 @@ fun formatTime(timestamp: Long): String {
 
 @Composable
 fun ContactText(name: String, isFromUser: Boolean, message: String, timestamp: Long, modifier: Modifier) {
-    val formattedTime = formatTime(timestamp)
+    var formattedTime = "--:--"
+    if(timestamp != -1L) {
+        formattedTime = formatTime(timestamp)
+    }
     var msg = message
     msg = if (isFromUser) {
         "Ty:\n$msg"
+    } else if (msg.equals("")){
+        stringResource(R.string.no_chat_history_with_this_user)
     } else {
         "$name:\n$msg"
     }
@@ -108,6 +115,7 @@ fun UserCard(
     backgroundColor: Color,
     onClick: () -> Unit
 ) {
+    val context= LocalContext.current
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -118,7 +126,12 @@ fun UserCard(
     {
         val buttonModifier = Modifier
             .fillMaxSize()
-            .clickable(onClick = onClick)
+            .clickable{
+                val mediaPlayer = MediaPlayer.create(context, R.raw.click)
+                mediaPlayer.setOnCompletionListener { mp -> mp.release() }
+                mediaPlayer.start()
+                onClick()
+            }
             .background(color = backgroundColor, shape = RoundedCornerShape(20.dp))
             .padding(16.dp)
 
@@ -146,13 +159,15 @@ fun UserCard(
 fun ContactsScreen(
     navController: NavHostController,
     viewModel: ContactsViewModel = viewModel(
-        factory = ContactsViewModelFactory(LocalContext.current)
+        factory = GenericViewModelFactory(LocalContext.current)
     ),
     currentScreen: MutableState<String>
 ) {
 
     val contacts by viewModel.contacts.collectAsState()
-    val localUserId = PreferencesManager(LocalContext.current).getLocalUserId()
+
+    val preferencesManager = PreferencesManager(LocalContext.current)
+    val localUserId = preferencesManager.getLocalUserId()
 
     LaunchedEffect(localUserId) {
         withContext(Dispatchers.Main) {
@@ -190,11 +205,13 @@ fun ContactsScreen(
                 UserCard(
                     avatarBitmap = user.avatar,
                     name = user.name,
-                    isFromUser = lastMessage.senderId == localUserId,
-                    message = lastMessage.content,
-                    time = lastMessage.timestamp,
+                    isFromUser = lastMessage?.senderId == localUserId,
+                    message = lastMessage?.content ?: "",
+                    time = lastMessage?.timestamp ?: -1L,
                     backgroundColor = user.color,
-                    onClick = { navController.navigate("talkscreen/${user.id}") }
+                    onClick = {
+                        navController.navigate("talkscreen/${user.id}")
+                    }
                 )
             }
         }

@@ -1,9 +1,7 @@
 package com.example.telepathy.presentation.ui.screens
 
-import android.annotation.SuppressLint
 import android.graphics.Bitmap
-import android.graphics.ImageDecoder
-import android.graphics.ImageDecoder.decodeBitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.provider.MediaStore
 import android.util.Log
@@ -24,6 +22,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -39,41 +38,40 @@ import com.example.telepathy.data.PreferencesManager
 import com.example.telepathy.presentation.ui.CircledImage
 import com.example.telepathy.presentation.ui.ScreenTemplate
 import com.example.telepathy.presentation.ui.Header
-import com.example.telepathy.presentation.viewmodels.EditProfileViewModel
-import com.example.telepathy.presentation.viewmodels.EditProfileViewModel.EditProfileViewModelFactory
 import com.example.telepathy.presentation.ui.theme.DarkButtonsColor
+import com.example.telepathy.presentation.ui.theme.DarkDeepPurple
 import com.example.telepathy.presentation.ui.theme.DarkUserColors
+import com.example.telepathy.presentation.viewmodels.SharedViewModel
 
-@SuppressLint("NewApi") //TODO
 @Composable
-fun EditProfileScreen(navController: NavHostController) {
+fun EditProfileScreen(
+    navController: NavHostController,
+    sharedViewModel: SharedViewModel
+) {
     val context = LocalContext.current
+    val localUser by sharedViewModel.localUser.collectAsState()
+
     val preferencesManager = PreferencesManager(context)
     val localUserId = preferencesManager.getLocalUserId()
 
-    val viewModel: EditProfileViewModel = viewModel(
-        factory = EditProfileViewModelFactory(context, localUserId)
-    )
-
-    val localUser by viewModel.user.collectAsState()
-
-
-    var isUserLoaded by remember { mutableStateOf(false) }
     var colorPickerVisible by remember { mutableStateOf(false) }
+    var avatarPickerVisible by remember { mutableStateOf(false) }
 
-    var new_username by remember { mutableStateOf("") }
-    var new_description by remember { mutableStateOf("") }
-    var new_selectedColor by remember { mutableStateOf(Color.Gray) }
-    var new_avatarBitmap by remember { mutableStateOf<Bitmap?>(null) }
+    var newUsername by remember { mutableStateOf("") }
+    var newDescription by remember { mutableStateOf("") }
+    var newSelectedColor by remember { mutableStateOf(Color.Gray) }
+    var newAvatarBitmap by remember { mutableStateOf<Bitmap?>(null) }
+    var isLoaded by remember { mutableStateOf(false) }
 
     LaunchedEffect(localUser) {
+        sharedViewModel.loadLocalUser(localUserId)
         localUser?.let { user ->
-            if (!isUserLoaded) {
-                new_username = user.name
-                new_description = user.description
-                new_selectedColor = user.color
-                new_avatarBitmap = user.avatar
-                isUserLoaded = true
+            if(!isLoaded) {
+                newUsername = user.name
+                newDescription = user.description
+                newSelectedColor = user.color
+                newAvatarBitmap = user.avatar
+                isLoaded = true
             }
         }
     }
@@ -96,7 +94,7 @@ fun EditProfileScreen(navController: NavHostController) {
     ) { uri: Uri? ->
         uri?.let {
             val bitmap = MediaStore.Images.Media.getBitmap(context.contentResolver, it)
-            new_avatarBitmap = bitmap
+            newAvatarBitmap = bitmap
         }
     }
 
@@ -127,13 +125,13 @@ fun EditProfileScreen(navController: NavHostController) {
                     onClick = {
                         localUser?.let { existingUser ->
                             val updatedUser = existingUser.copy(
-                                name = new_username,
-                                description = new_description,
-                                color = new_selectedColor,
-                                avatar = new_avatarBitmap
+                                name = newUsername,
+                                description = newDescription,
+                                color = newSelectedColor,
+                                avatar = newAvatarBitmap
                             )
 
-                            viewModel.updateUser(updatedUser)
+                            sharedViewModel.updateLocalUser(updatedUser)
                             navController.popBackStack()
                         }
                     },
@@ -141,7 +139,7 @@ fun EditProfileScreen(navController: NavHostController) {
                         .padding(8.dp)
                         .height(72.dp)
                         .width(160.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = DarkButtonsColor),
+                    colors = ButtonDefaults.buttonColors(containerColor = DarkDeepPurple),
                     shape = RoundedCornerShape(8.dp)
                 ) {
                     Text(text = stringResource(R.string.save), fontSize = 22.sp, color = MaterialTheme.colorScheme.onPrimary)
@@ -172,11 +170,11 @@ fun EditProfileScreen(navController: NavHostController) {
                 Box(
                     modifier = Modifier
                         .size(176.dp)
-                        .background(MaterialTheme.colorScheme.background, CircleShape)
-                        .clickable { imagePickerLauncher.launch("image/*") },
+                        .background(Color.Black, CircleShape)
+                        .clickable { avatarPickerVisible=true },
                     contentAlignment = Alignment.Center
                 ) {
-                    new_avatarBitmap?.let {
+                    newAvatarBitmap?.let {
                         CircledImage(bitmap = it, size = 176.dp)
                     }
                 }
@@ -184,17 +182,17 @@ fun EditProfileScreen(navController: NavHostController) {
 
             TextFieldComposable(
                 label = stringResource(R.string.username),
-                text = new_username,
+                text = newUsername,
                 charLimit = 20,
-                onTextChange = { new_username = it },
+                onTextChange = { newUsername = it },
                 height = 56.dp
             )
 
             TextFieldComposable(
                 label = stringResource(R.string.description),
-                text = new_description,
+                text = newDescription,
                 charLimit = 40,
-                onTextChange = { new_description = it },
+                onTextChange = { newDescription = it },
                 height = 124.dp
             )
 
@@ -212,7 +210,7 @@ fun EditProfileScreen(navController: NavHostController) {
                 Box(
                     modifier = Modifier
                         .size(120.dp)
-                        .background(new_selectedColor, CircleShape)
+                        .background(newSelectedColor, CircleShape)
                         .clickable { colorPickerVisible = true },
                     contentAlignment = Alignment.Center
                 ) {}
@@ -220,14 +218,26 @@ fun EditProfileScreen(navController: NavHostController) {
         }
     }
 
-    // Color picker dialog
     if (colorPickerVisible) {
         ColorPickerDialog(
-            currentColor = new_selectedColor,
+            currentColor = newSelectedColor,
             onSave = { selectedColor ->
-                new_selectedColor = selectedColor
+                newSelectedColor = selectedColor
                 colorPickerVisible = false
             }
+        )
+    }
+
+    if (avatarPickerVisible) {
+        AvatarPickerDialog(
+            onSave = { selectedBitmap ->
+                newAvatarBitmap = selectedBitmap
+            },
+            onUploadImage = {
+                avatarPickerVisible = false
+                imagePickerLauncher.launch("image/*")
+            },
+            onDismiss = { avatarPickerVisible = false }
         )
     }
 }
@@ -361,3 +371,83 @@ fun TextFieldComposable(
     }
 }
 
+@Composable
+fun AvatarPickerDialog(
+    onSave: (Bitmap) -> Unit,
+    onUploadImage: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    val context = LocalContext.current
+    val avatars = (1..15).mapNotNull { id ->
+        val resId = context.resources.getIdentifier("av$id", "drawable", context.packageName)
+        if (resId != 0) {
+            val originalBitmap = BitmapFactory.decodeResource(context.resources, resId)
+            originalBitmap?.let {
+                val maxDimension = 512
+                val ratio = minOf(
+                    maxDimension / it.width.toFloat(),
+                    maxDimension / it.height.toFloat()
+                )
+                val scaledWidth = (it.width * ratio).toInt()
+                val scaledHeight = (it.height * ratio).toInt()
+                Bitmap.createScaledBitmap(it, scaledWidth, scaledHeight, true)
+            }
+        } else {
+            Log.e("AvatarPicker", "Resource av$id not found")
+            null
+        }
+    }
+
+    Dialog(onDismissRequest = onDismiss) {
+        Column(
+            modifier = Modifier
+                .padding(24.dp)
+                .background(Color.White, shape = RoundedCornerShape(16.dp))
+                .padding(24.dp)
+        ) {
+            // Header
+            Text(
+                text = "Choose an Avatar",
+                style = TextStyle(fontSize = 24.sp, fontWeight = FontWeight.Bold),
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+
+            Column(
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                avatars.chunked(3).forEach { rowAvatars ->
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        rowAvatars.forEach { avatar ->
+                            Box(
+                                modifier = Modifier
+                                    .size(64.dp)
+                                    .clip(CircleShape)
+                                    .background(Color.LightGray)
+                                    .clickable {
+                                        onSave(avatar)
+                                        onDismiss()
+                                    },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircledImage(bitmap = avatar, size = 90.dp)
+                            }
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(
+                onClick = onUploadImage,
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(containerColor = DarkButtonsColor)
+            ) {
+                Text(text = "Upload Your Image", fontSize = 18.sp, color = Color.White)
+            }
+        }
+    }
+}

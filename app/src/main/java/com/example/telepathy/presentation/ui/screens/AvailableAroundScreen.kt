@@ -1,6 +1,7 @@
 package com.example.telepathy.presentation.ui.screens
 
 import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -20,6 +21,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.telepathy.R
@@ -28,28 +30,46 @@ import com.example.telepathy.presentation.ui.CustomButton
 import com.example.telepathy.presentation.ui.Header
 import com.example.telepathy.presentation.ui.ScreenTemplate
 import com.example.telepathy.presentation.viewmodels.AvailableViewModel
-import com.example.telepathy.presentation.viewmodels.AvailableViewModelFactory
 import com.example.telepathy.presentation.navigation.swipeToNavigate
 import com.example.telepathy.presentation.ui.CircledImage
-import kotlinx.coroutines.delay
+import com.example.telepathy.presentation.viewmodels.GenericViewModelFactory
+import com.example.telepathy.presentation.viewmodels.SharedViewModel
 
 @Composable
 fun AvailableAroundScreen(
     navController: NavHostController,
     viewModel: AvailableViewModel = viewModel(
-        factory = AvailableViewModelFactory(LocalContext.current)
+        factory = GenericViewModelFactory (LocalContext.current)
     ),
-    currentScreen: MutableState<String>
+    currentScreen: MutableState<String>,
+    sharedViewModel: SharedViewModel
 ) {
     var isVisible by remember { mutableStateOf(false) }
     val discoveredUsers by viewModel.discoveredUsersDeviceIds.collectAsState()
-    val localUser by viewModel.localUser.collectAsState()
-    val localUserId = PreferencesManager(LocalContext.current).getLocalUserId()
+    val localUser by sharedViewModel.localUser.collectAsState()
+
+    var showSuccessDialog by remember { mutableStateOf(false) }
+
+    if (showSuccessDialog) {
+        Dialog(onDismissRequest = { showSuccessDialog = false }) {
+            Box(
+                modifier = Modifier
+                    .background(color = Color.Green, shape = RoundedCornerShape(16.dp))
+                    .padding(16.dp)
+            ) {
+                Text(
+                    text = "User added to contacts !",
+                    color = Color.White,
+                )
+            }
+        }
 
 
-    LaunchedEffect(isVisible, viewModel.discoveredUsersDeviceIds) {
-        Log.d("LAUNCHED EFFECT", "Starting launched effect")
-        viewModel.loadLocalUser(localUserId)
+        LaunchedEffect(Unit) {
+            kotlinx.coroutines.delay(1000)
+            showSuccessDialog = false
+            navController.navigate("contactsscreen")
+        }
     }
 
     ScreenTemplate(
@@ -137,7 +157,7 @@ fun AvailableAroundScreen(
                     onClick = {
                         Log.d("USER", "user: $user")
                         viewModel.addUserToLocalContacts(user)
-                        navController.navigate("talkscreen/${user.id}")
+                        showSuccessDialog = true
                     }
                 )
             }

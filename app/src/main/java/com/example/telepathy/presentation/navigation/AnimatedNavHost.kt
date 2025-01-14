@@ -1,5 +1,6 @@
 package com.example.telepathy.presentation.navigation
 
+import VideoPlayerScreen
 import android.util.Log
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -17,10 +18,14 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.*
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.telepathy.data.AppDatabase
+import com.example.telepathy.data.PreferencesManager
 import com.example.telepathy.presentation.ui.screens.AvailableAroundScreen
 import com.example.telepathy.presentation.ui.screens.TalkScreen
 import com.example.telepathy.presentation.ui.screens.ConfirmPinScreen
@@ -29,6 +34,8 @@ import com.example.telepathy.presentation.ui.screens.EditProfileScreen
 import com.example.telepathy.presentation.ui.screens.EnterNewPinScreen
 import com.example.telepathy.presentation.ui.screens.EnterPinScreen
 import com.example.telepathy.presentation.ui.screens.SettingsScreen
+import com.example.telepathy.presentation.viewmodels.GenericViewModelFactory
+import com.example.telepathy.presentation.viewmodels.SharedViewModel
 import kotlin.math.abs
 
 
@@ -37,9 +44,21 @@ import kotlin.math.abs
 fun AnimatedNavHost(
     navController: NavHostController,
     startDestination: String,
-    currentScreen: MutableState<String>,
-    localUserDeviceId: String
+    currentScreen: MutableState<String>
 ) {
+    val context = LocalContext.current
+
+    val sharedViewModel: SharedViewModel = viewModel(
+        factory = GenericViewModelFactory(context)
+    )
+
+    val preferencesManager = PreferencesManager(context)
+    var localUserId = preferencesManager.getLocalUserId()
+
+    LaunchedEffect(Unit) {
+        sharedViewModel.loadLocalUser(localUserId)
+    }
+
     androidx.navigation.compose.NavHost(
         navController = navController,
         startDestination = startDestination,
@@ -126,7 +145,8 @@ fun AnimatedNavHost(
         ) {
             AvailableAroundScreen(
                 navController = navController,
-                currentScreen = currentScreen
+                currentScreen = currentScreen,
+                sharedViewModel = sharedViewModel
             )
             currentScreen.value = "availablescreen"
         }
@@ -160,8 +180,9 @@ fun AnimatedNavHost(
             }
         ) {
             SettingsScreen(
-                navController,
-                currentScreen
+                navController = navController,
+                currentScreen = currentScreen,
+                sharedViewModel = sharedViewModel
             )
         }
 
@@ -188,9 +209,9 @@ fun AnimatedNavHost(
             val userId = backStackEntry.arguments?.getInt("userId") ?: return@composable
             TalkScreen(
                 navController = navController,
-                localUserDeviceId = localUserDeviceId,
                 remoteUserId = userId,
-                previousScreen = currentScreen
+                previousScreen = currentScreen,
+                sharedViewModel = sharedViewModel
             )
         }
 
@@ -212,9 +233,28 @@ fun AnimatedNavHost(
             },
         ) {
             EditProfileScreen(
-                navController
+                navController = navController,
+                sharedViewModel = sharedViewModel
             )
         }
+
+        composable(
+            route = "videoPlayerScreen",
+            enterTransition = {
+                slideIntoContainer(
+                    towards = AnimatedContentTransitionScope.SlideDirection.Left,
+                    animationSpec = tween(
+                        durationMillis = 250,
+                        easing = LinearEasing
+                    )
+                )
+            },
+            exitTransition = {
+                fadeOut(
+                    animationSpec = tween(durationMillis = 350)
+                )
+            },
+        ) {VideoPlayerScreen(navController)}
 
         composable(
             route = "enter_pin_login",
@@ -304,7 +344,7 @@ fun AnimatedNavHost(
         }
 
     }
-    }
+}
 
 
 

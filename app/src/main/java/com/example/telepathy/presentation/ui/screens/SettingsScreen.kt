@@ -1,7 +1,6 @@
 package com.example.telepathy.presentation.ui.screens
 
-import android.R.attr.start
-import android.R.color.white
+import android.content.Context
 import android.graphics.Bitmap
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -22,19 +21,14 @@ import com.example.telepathy.presentation.ui.FooterWithPromptBar
 import com.example.telepathy.presentation.ui.Header
 import com.example.telepathy.presentation.ui.ScreenTemplate
 import androidx.navigation.NavHostController
-import com.example.telepathy.data.AppDatabase
 import com.example.telepathy.data.PreferencesManager
-import com.example.telepathy.data.entities.User
-import kotlinx.coroutines.flow.firstOrNull
 import com.example.telepathy.presentation.navigation.swipeToNavigate
 import com.example.telepathy.presentation.ui.theme.AlertRed
 import coil.compose.rememberAsyncImagePainter
 import coil.decode.GifDecoder
 import coil.request.ImageRequest
 import androidx.compose.foundation.Image
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -46,7 +40,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import android.media.MediaPlayer
-
+import android.util.Log
+import androidx.compose.ui.res.painterResource
+import com.example.telepathy.presentation.viewmodels.SharedViewModel
+import android.content.Intent
+import android.os.Process
 
 
 data class SettingOption(
@@ -60,18 +58,13 @@ data class SettingOption(
 @Composable
 fun SettingsScreen(
     navController: NavHostController,
-    currentScreen: MutableState<String>
+    currentScreen: MutableState<String>,
+    sharedViewModel: SharedViewModel
 ) {
     val context = LocalContext.current
     val preferencesManager = PreferencesManager(context)
-    val localUserId = preferencesManager.getLocalUserId()
-    val database = AppDatabase.getDatabase(context)
+    val localUser by sharedViewModel.localUser.collectAsState()
 
-    var localUser by remember { mutableStateOf<User?>(null) }
-
-    LaunchedEffect(Unit) {
-        localUser = database.userDao().getUser(localUserId).firstOrNull()
-    }
     val settingsOptions = listOf(
         SettingOption(
             iconBitmap = localUser?.avatar,
@@ -81,6 +74,7 @@ fun SettingsScreen(
             onClick = { navController.navigate("edit_profile") }
         ),
         SettingOption(
+            //iconBitmap = painterResource(id = R.drawable.lock),
             iconColor = MaterialTheme.colorScheme.secondary,
             title = stringResource(R.string.change_pin),
             backgroundColor = Color.Gray,
@@ -96,9 +90,26 @@ fun SettingsScreen(
         ),
         SettingOption(
             iconColor = MaterialTheme.colorScheme.secondary,
+            title = stringResource(R.string.film),
+            backgroundColor = Color.Gray,
+            onClick = {navController.navigate("videoPlayerScreen")}
+        ),
+        SettingOption(
+            iconColor = MaterialTheme.colorScheme.secondary,
             title = stringResource(R.string.reset_app_data),
             backgroundColor = AlertRed,
-            onClick = {} //{ navController.navigate("reset_app")}
+            onClick = {
+
+//                preferencesManager.setFirstLaunch(true)
+//                preferencesManager.savePin(null)
+//                preferencesManager.saveLocalUserDeviceId("")
+//                preferencesManager.saveLocalUserId(-1)
+//
+//                context.cacheDir.deleteRecursively()
+//                context.filesDir.deleteRecursively()
+//
+//                Process.killProcess(Process.myPid())
+            }
         )
     )
 
@@ -207,3 +218,6 @@ fun GifBackgroundButton(
         )
     }
 }
+
+
+
