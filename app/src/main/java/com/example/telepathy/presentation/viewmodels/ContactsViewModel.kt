@@ -27,23 +27,24 @@ class ContactsViewModel(
         viewModelScope.launch {
             Log.d("ContactsViewModel", "Loading contacts for localUserId: $localUserId")
 
-            val contactsMap = mutableMapOf<User, Message?>()
+            val contactsMap = mutableMapOf<UserDTO, Message?>()
             userRepository.getAllUsers()
                 .collect { users ->
                     Log.d("ContactsViewModel", "Fetched users: ${users.size}")
                     users
                         .filter { it.id != localUserId }
                         .forEach { user ->
-                            Log.d("ContactsViewModel", "Processing user: ${user.name}, ID: ${user.id}")
+                            val userDTO = user.toDTO()
+                            Log.d("ContactsViewModel", "Processing user: ${userDTO.name}, ID: ${userDTO.id}")
 
                             launch {
-                                messageRepository.getLastMessage(user.id, localUserId)
+                                messageRepository.getLastMessage(userDTO.id, localUserId)
                                     .collect { message ->
                                         Log.d(
                                             "ContactsViewModel",
-                                            "Received last message for user: ${user.name}, ID: ${user.id}, Message: ${message?.content}"
+                                            "Received last message for user: ${userDTO.name}, ID: ${userDTO.id}, Message: ${message?.content}"
                                         )
-                                        contactsMap[user] = message
+                                        contactsMap[userDTO] = message
 
                                         // Sortowanie kontaktów po dacie ostatniej wiadomości
                                         val sortedContacts = contactsMap.entries

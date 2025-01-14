@@ -15,6 +15,7 @@ import androidx.core.content.ContextCompat
 import com.example.telepathy.data.entities.User
 import com.example.telepathy.domain.dtos.UserDTO
 import com.example.telepathy.domain.mappers.UserMapper.toDTO
+import com.example.telepathy.domain.mappers.UserMapper.toLong
 import com.example.telepathy.domain.serialization.deserializeUser
 import com.example.telepathy.domain.serialization.serializeUser
 import kotlinx.coroutines.CoroutineScope
@@ -116,12 +117,12 @@ class BluetoothRepository(
                 id = 0,
                 name = "Test User",
                 description = "This is a test user.",
-                color = Color.White,
+                color = Color.White.toLong(),
                 avatar = null,
                 deviceId = "TEST_DEVICE_ID"
             )
             val updatedList = _discoveredUsers.value.toMutableList().apply {
-                add(testUser)
+                add(testUser.toDTO())
             }
             _discoveredUsers.value = updatedList
             Log.d("Bluetooth", "Test user added: ${testUser.name}")

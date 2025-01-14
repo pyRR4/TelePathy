@@ -51,7 +51,7 @@ class DatabaseSeeder(
                 id = 0,
                 name = "Default User",
                 description = "This is the default user",
-                color = DarkLightBlue, // Replace with any default color
+                color = DarkLightBlue.toLong(), // Replace with any default color
                 avatar = null,
                 deviceId = deviceId
             )

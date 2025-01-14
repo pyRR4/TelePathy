@@ -44,12 +44,12 @@ class AvailableViewModel(
 //            userRepository.insert(user)
 //        }
 //    }
-    fun addUserToLocalContacts(user: User) {
+    fun addUserToLocalContacts(user: UserDTO) {
         Log.d("Contacts", "Attempting to add user: ${user.name}, ID: ${user.id}")
 
         viewModelScope.launch {
             try {
-                userRepository.insert(user)
+                userRepository.insert(user.toEntity())
                 Log.d("avialable", "userRepository.insert(user) with no exception ${user.name}, ID: ${user.id}")
             } catch (e: Exception) {
                 Log.e("avialable", "userRepository.insert(user) Failed to add user: ${user.name}, ID: ${user.id}", e)
