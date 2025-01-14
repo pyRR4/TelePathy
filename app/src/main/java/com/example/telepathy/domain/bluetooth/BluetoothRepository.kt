@@ -10,6 +10,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.util.Log
+import androidx.compose.ui.graphics.Color
 import androidx.core.content.ContextCompat
 import com.example.telepathy.data.entities.User
 import com.example.telepathy.domain.serialization.deserializeUser
@@ -107,6 +108,24 @@ class BluetoothRepository(
         Log.d("Bluetooth", "Started scanning...")
         val discoveredDevices = mutableSetOf<String>()
         val targetUuid = UUID.fromString("12345678-1234-5678-1234-567812345678")
+
+        // Dodajemy testowego użytkownika do listy----------------------------------------------
+        CoroutineScope(Dispatchers.Main).launch {
+            val testUser = User(
+                id = 0,
+                name = "Test User",
+                description = "This is a test user.",
+                color = Color.White,
+                avatar = null,
+                deviceId = "TEST_DEVICE_ID"
+            )
+            val updatedList = _discoveredUsers.value.toMutableList().apply {
+                add(testUser)
+            }
+            _discoveredUsers.value = updatedList
+            Log.d("Bluetooth", "Test user added: ${testUser.name}")
+        }
+        //// test ----------------------------------------------------------------------
 
         val discoveryReceiver = BluetoothDiscoveryReceiver(
             onDeviceFound = { device ->

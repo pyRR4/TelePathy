@@ -1,6 +1,7 @@
 package com.example.telepathy.presentation.viewmodels
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -26,25 +27,32 @@ class ContactsViewModel(
 
     fun loadContacts(localUserId: Int) {
         viewModelScope.launch {
+            Log.d("ContactsViewModel", "Loading contacts for localUserId: $localUserId")
+
+            val contactsMap = mutableMapOf<User, Message?>()
             userRepository.getAllUsers()
                 .collect { users ->
+                    Log.d("ContactsViewModel", "Fetched users: ${users.size}")
                     users
-                        .filter {
-                            it.id != localUserId
-                        }.forEach { user ->
+                        .filter { it.id != localUserId }
+                        .forEach { user ->
+                            Log.d("ContactsViewModel", "Processing user: ${user.name}, ID: ${user.id}")
+
                             launch {
-                                messageRepository.getLastMessage(user.id, localUserId).collect { message ->
-                                    _contacts.value = _contacts.value + (user to message)
-                                }
+                                messageRepository.getLastMessage(user.id, localUserId)
+                                    .collect { message ->
+                                        Log.d(
+                                            "ContactsViewModel",
+                                            "Received last message for user: ${user.name}, ID: ${user.id}, Message: ${message?.content}"
+                                        )
+                                        contactsMap[user] = message
+                                        _contacts.value = contactsMap.toMap()
+                                        Log.d("ContactsViewModel", "Updated contacts map: ${_contacts.value}")
+                                    }
                             }
-                    }
+                        }
                 }
         }
     }
 
-    fun removeContact(contact: User) {
-        viewModelScope.launch {
-            userRepository.delete(contact)
-        }
-    }
 }

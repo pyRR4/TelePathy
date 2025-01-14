@@ -8,6 +8,7 @@ import com.example.telepathy.domain.repositories.UserRepository
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModelProvider
 import com.example.telepathy.data.AppDatabase
 import com.example.telepathy.data.repositories.UserRepositoryImpl
@@ -38,9 +39,21 @@ class AvailableViewModel(
         bluetoothRepository.stopAdvertising()
     }
 
+//    fun addUserToLocalContacts(user: User) {
+//        viewModelScope.launch {
+//            userRepository.insert(user)
+//        }
+//    }
     fun addUserToLocalContacts(user: User) {
+        Log.d("Contacts", "Attempting to add user: ${user.name}, ID: ${user.id}")
+
         viewModelScope.launch {
-            userRepository.insert(user)
+            try {
+                userRepository.insert(user)
+                Log.d("avialable", "userRepository.insert(user) with no exception ${user.name}, ID: ${user.id}")
+            } catch (e: Exception) {
+                Log.e("avialable", "userRepository.insert(user) Failed to add user: ${user.name}, ID: ${user.id}", e)
+            }
         }
     }
 }
