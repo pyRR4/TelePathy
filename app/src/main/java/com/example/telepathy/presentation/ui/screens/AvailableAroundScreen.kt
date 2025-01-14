@@ -54,28 +54,21 @@ fun AvailableAroundScreen(
         Dialog(onDismissRequest = { showSuccessDialog = false }) {
             Box(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .background(color = Color(0x80000000)) // Szare przezroczyste tło
+                    .background(color = Color.Green, shape = RoundedCornerShape(16.dp))
+                    .padding(16.dp)
             ) {
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .background(color = Color.Green, shape = RoundedCornerShape(16.dp))
-                        .padding(16.dp)
-                ) {
-                    Text(
-                        text = "User added successfully!",
-                        color = Color.White,
-                    )
-                }
+                Text(
+                    text = "User added successfully!",
+                    color = Color.White,
+                )
             }
         }
 
-        // Uruchomienie nawigacji po 2 sekundach
+
         LaunchedEffect(Unit) {
             kotlinx.coroutines.delay(2000)
             showSuccessDialog = false
-            navController.navigate("contacts")
+            navController.navigate("contactsscreen")
         }
     }
 
