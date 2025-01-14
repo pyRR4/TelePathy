@@ -117,13 +117,29 @@ class BluetoothRepository(
                 description = "This is a test user.",
                 color = Color.White,
                 avatar = null,
-                deviceId = "TEST_DEVICE_ID"
+                deviceId = "TEST_DEVICE_1"
             )
             val updatedList = _discoveredUsers.value.toMutableList().apply {
                 add(testUser)
             }
             _discoveredUsers.value = updatedList
             Log.d("Bluetooth", "Test user added: ${testUser.name}")
+        }
+
+        CoroutineScope(Dispatchers.Main).launch {
+            val testUser2 = User(
+                id = 0,
+                name = "Duzy",
+                description = "on jest duzy",
+                color = Color.Black,
+                avatar = null,
+                deviceId = "TEST_DEVICE_2"
+            )
+            val updatedList = _discoveredUsers.value.toMutableList().apply {
+                add(testUser2)
+            }
+            _discoveredUsers.value = updatedList
+            Log.d("Bluetooth", "Test user 2 added: ${testUser2.name}")
         }
         //// test ----------------------------------------------------------------------
 
