@@ -1,6 +1,7 @@
 package com.example.telepathy.data
 
 import android.content.Context
+import android.util.Log
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -32,21 +33,22 @@ abstract class AppDatabase : RoomDatabase() {
             return Instance ?: synchronized(this) {
                 Room.databaseBuilder(context, AppDatabase::class.java, "app_database")
                     .fallbackToDestructiveMigration() // Usuwa dane przy migracji
-                    .addCallback(DatabaseCallback(context))
+                    //.addCallback(DatabaseCallback(context))
                     .build()
                     .also { Instance = it }
             }
         }
 
-        private class DatabaseCallback(private val context: Context) : RoomDatabase.Callback() {
-            override fun onCreate(db: SupportSQLiteDatabase) {
-                super.onCreate(db)
-                CoroutineScope(Dispatchers.IO).launch {
-                    Instance?.let { database ->
-                        DatabaseSeeder(database, context).seed()
-                    }
-                }
-            }
-        }
+//        private class DatabaseCallback(private val context: Context) : RoomDatabase.Callback() {
+//            override fun onCreate(db: SupportSQLiteDatabase) {
+//                super.onCreate(db)
+//                CoroutineScope(Dispatchers.IO).launch {
+//                    Instance?.let { database ->
+//                        Log.d("SEED", "Running seeder...")
+//                        DatabaseSeeder(database, context).seed()
+//                    }
+//                }
+//            }
+//        }
     }
 }

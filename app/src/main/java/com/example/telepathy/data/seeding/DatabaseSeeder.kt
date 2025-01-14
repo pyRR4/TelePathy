@@ -12,9 +12,11 @@ import com.example.telepathy.presentation.ui.theme.DarkTeal
 import com.example.telepathy.presentation.ui.theme.DarkVividBlue
 import com.fingerprintjs.android.fingerprint.Fingerprinter
 import com.fingerprintjs.android.fingerprint.FingerprinterFactory
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 
 class DatabaseSeeder(
     private val database: AppDatabase,
@@ -37,28 +39,30 @@ class DatabaseSeeder(
             preferencesManager.setFirstLaunch(false)
             preferencesManager.savePin(null)
 
-            val usersCount = database.userDao().getAllUsers().first().size
-            if (usersCount == 0) {
-                preferencesManager.saveLocalUserDeviceId(deviceId)
 
-                val defaultUser = User(
-                    id = 0,
-                    name = "Default User",
-                    description = "This is the default user",
-                    color = DarkLightBlue, // Replace with any default color
-                    avatar = null,
-                    deviceId = deviceId
-                )
-                database.userDao().insert(defaultUser)
+            preferencesManager.saveLocalUserDeviceId(deviceId)
 
-                Log.d("DatabaseSeeder", "Created default user: $defaultUser")
-            } else {
-                Log.d("DatabaseSeeder", "Database already contains users.")
-            }
+            val defaultUser = User(
+                id = 0,
+                name = "Default User",
+                description = "This is the default user",
+                color = DarkLightBlue, // Replace with any default color
+                avatar = null,
+                deviceId = deviceId
+            )
+            database.userDao().insert(defaultUser)
+
+            Log.d("DatabaseSeeder", "Created default user: $defaultUser")
         }
 
-        val localUser = database.userDao().getUserByDeviceId(deviceId).first()
-        preferencesManager.saveLocalUserId(localUser.id)
+        withContext(Dispatchers.IO) {
+            val localDeviceId = preferencesManager.getLocalUserDeviceId()
+            Log.d("DEVICE ID", "${localDeviceId}")
+            val localUser =
+                database.userDao().getUserByDeviceId(localDeviceId)
+                    .first()
+            preferencesManager.saveLocalUserId(localUser.id)
+        }
 
         logSharedPreferences(context)
         logAllUsers()
