@@ -4,10 +4,7 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.example.telepathy.data.converters.BitmapConverter
-import com.example.telepathy.data.converters.ColorConverter
 import com.example.telepathy.data.daos.MessageDao
 import com.example.telepathy.data.daos.UserDao
 import com.example.telepathy.data.entities.Message
@@ -17,8 +14,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@Database(entities = [User::class, Message::class], version = 3, exportSchema = false)
-@TypeConverters(ColorConverter::class, BitmapConverter::class)
+@Database(entities = [User::class, Message::class], version = 1, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun messageDao(): MessageDao

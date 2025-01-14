@@ -1,14 +1,11 @@
 package com.example.telepathy.presentation.viewmodels
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.telepathy.data.AppDatabase
 import com.example.telepathy.data.entities.Message
 import com.example.telepathy.data.entities.User
-import com.example.telepathy.data.repositories.MessageRepositoryImpl
-import com.example.telepathy.data.repositories.UserRepositoryImpl
+import com.example.telepathy.domain.dtos.UserDTO
+import com.example.telepathy.domain.mappers.UserMapper.toDTO
 import com.example.telepathy.domain.repositories.MessageRepository
 import com.example.telepathy.domain.repositories.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,8 +18,8 @@ class ContactsViewModel(
     private val messageRepository: MessageRepository
 ) : ViewModel() {
 
-    private val _contacts = MutableStateFlow<Map<User, Message?>>(emptyMap())
-    val contacts: StateFlow<Map<User, Message?>> = _contacts.asStateFlow()
+    private val _contacts = MutableStateFlow<Map<UserDTO, Message?>>(emptyMap())
+    val contacts: StateFlow<Map<UserDTO, Message?>> = _contacts.asStateFlow()
 
     fun loadContacts(localUserId: Int) {
         viewModelScope.launch {
@@ -34,7 +31,7 @@ class ContactsViewModel(
                         }.forEach { user ->
                             launch {
                                 messageRepository.getLastMessage(user.id, localUserId).collect { message ->
-                                    _contacts.value = _contacts.value + (user to message)
+                                    _contacts.value = _contacts.value + (user.toDTO() to message)
                                 }
                             }
                     }
