@@ -14,7 +14,9 @@ import com.fingerprintjs.android.fingerprint.Fingerprinter
 import com.fingerprintjs.android.fingerprint.FingerprinterFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 
@@ -25,7 +27,7 @@ class DatabaseSeeder(
 
     suspend fun seed() {
         seedDefaultUser()
-        seedUsersAndMessages()
+        //seedUsersAndMessages()
     }
 
     private suspend fun seedDefaultUser() {
@@ -34,12 +36,14 @@ class DatabaseSeeder(
         logSharedPreferences(context)
 
         val deviceId = fetchDeviceId(fingerprinter)
+        Log.d("DEVICE ID", "FETCHED DEVICE ID: $deviceId")
 
-        if (preferencesManager.isFirstLaunch()) {
-            preferencesManager.setFirstLaunch(false)
+
+        val users = database.userDao().getAllUsers().firstOrNull()
+        Log.d("USERS", "$users")
+        if (users?.isEmpty() != false) {
+            preferencesManager.clear()
             preferencesManager.savePin(null)
-
-
             preferencesManager.saveLocalUserDeviceId(deviceId)
 
             val defaultUser = User(
@@ -53,11 +57,8 @@ class DatabaseSeeder(
             database.userDao().insert(defaultUser)
 
             Log.d("DatabaseSeeder", "Created default user: $defaultUser")
-        }
 
-        withContext(Dispatchers.IO) {
             val localDeviceId = preferencesManager.getLocalUserDeviceId()
-            Log.d("DEVICE ID", "${localDeviceId}")
             val localUser =
                 database.userDao().getUserByDeviceId(localDeviceId)
                     .first()

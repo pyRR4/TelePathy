@@ -56,7 +56,6 @@ fun AnimatedNavHost(
     var localUserId = preferencesManager.getLocalUserId()
 
     LaunchedEffect(Unit) {
-        Log.d("LAUNCHED EFFECT", "Locals ID: $localUserId, IsFirstRun: ${preferencesManager.isFirstLaunch()}")
         sharedViewModel.loadLocalUser(localUserId)
     }
 
