@@ -33,7 +33,6 @@ import com.example.telepathy.presentation.ui.screens.ContactsScreen
 import com.example.telepathy.presentation.ui.screens.EditProfileScreen
 import com.example.telepathy.presentation.ui.screens.EnterNewPinScreen
 import com.example.telepathy.presentation.ui.screens.EnterPinScreen
-import com.example.telepathy.presentation.ui.screens.LoadingScreen
 import com.example.telepathy.presentation.ui.screens.SettingsScreen
 import com.example.telepathy.presentation.viewmodels.GenericViewModelFactory
 import com.example.telepathy.presentation.viewmodels.SharedViewModel
@@ -65,15 +64,6 @@ fun AnimatedNavHost(
         navController = navController,
         startDestination = startDestination,
     ) {
-
-        composable(
-            route = "loading",
-            enterTransition = { fadeIn(animationSpec = tween(350)) },
-            exitTransition = { fadeOut(animationSpec = tween(350)) }
-        ) {
-            LoadingScreen()
-            currentScreen.value = "loading"
-        }
 
         composable(
             route = "contactsscreen",

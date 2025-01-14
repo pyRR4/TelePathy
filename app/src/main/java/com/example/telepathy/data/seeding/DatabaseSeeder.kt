@@ -26,7 +26,7 @@ class DatabaseSeeder(
         seedUsersAndMessages()
     }
 
-    suspend fun seedDefaultUser() {
+    private suspend fun seedDefaultUser() {
         val preferencesManager = PreferencesManager(context)
         val fingerprinter = FingerprinterFactory.create(context)
         logSharedPreferences(context)
