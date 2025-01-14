@@ -58,7 +58,7 @@ fun AvailableAroundScreen(
                     .padding(16.dp)
             ) {
                 Text(
-                    text = "User added successfully!",
+                    text = "User added to contacts !",
                     color = Color.White,
                 )
             }
@@ -66,7 +66,7 @@ fun AvailableAroundScreen(
 
 
         LaunchedEffect(Unit) {
-            kotlinx.coroutines.delay(2000)
+            kotlinx.coroutines.delay(1000)
             showSuccessDialog = false
             navController.navigate("contactsscreen")
         }
