@@ -1,6 +1,7 @@
 package com.example.telepathy.domain.bluetooth
 
-class BluetoothMessagingRepository {
+import java.io.OutputStream
 
+class BluetoothMessagingRepository {
 
 }

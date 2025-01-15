@@ -204,7 +204,10 @@ fun ContactsScreen(
             val contactEntries = contacts.entries.toList()
             items(contactEntries.size) { index ->
                 val (user, lastMessage) = contactEntries[index]
-                val isDiscoverable = user in discoveredUsers
+                val ids = discoveredUsers.map { userDTO ->
+                    userDTO.deviceId
+                }
+                val isDiscoverable = user.deviceId in ids
                 UserCard(
                     avatarBitmap = user.avatar,
                     name = user.name,

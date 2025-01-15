@@ -12,6 +12,7 @@ import android.content.pm.PackageManager
 import android.util.Log
 import androidx.compose.ui.graphics.Color
 import androidx.core.content.ContextCompat
+import com.example.telepathy.data.entities.Message
 import com.example.telepathy.data.entities.User
 import com.example.telepathy.domain.dtos.UserDTO
 import com.example.telepathy.domain.mappers.UserMapper.toDTO
@@ -204,11 +205,11 @@ class BluetoothRepository(
             while (true) {
                 try {
                     val discoverableIntent = Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE).apply {
-                        putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 30)
+                        putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300)
                     }
                     context.startActivity(discoverableIntent)
 
-                    Thread.sleep(29 * 1000L)
+                    Thread.sleep(290 * 1000L)
                 } catch (e: InterruptedException) {
                     Log.e("Bluetooth", "Discoverable thread interrupted", e)
                     break
@@ -273,5 +274,4 @@ class BluetoothRepository(
             }
         }
     }
-
 }
