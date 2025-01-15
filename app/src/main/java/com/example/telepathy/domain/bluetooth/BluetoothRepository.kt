@@ -27,6 +27,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.io.IOException
 import java.io.InputStream
+import java.io.OutputStream
 import java.util.UUID
 
 class BluetoothRepository(
@@ -56,8 +57,7 @@ class BluetoothRepository(
     @SuppressLint("MissingPermission")
     fun startAdvertising(localUser: User) {
         startAdvertising(appUuid) {
-            sendUser(localUser)
-            stopAdvertising()
+            communicate(localUser)
         }
     }
 
@@ -69,7 +69,7 @@ class BluetoothRepository(
     }
 
     @SuppressLint("MissingPermission")
-    fun startScan() {
+    fun startScan(localUser: User) {
         if (!hasPermission(Manifest.permission.BLUETOOTH_SCAN)) {
             Log.e("Bluetooth", "Missing permission: BLUETOOTH_SCAN")
             return
@@ -81,40 +81,6 @@ class BluetoothRepository(
 
         Log.d("Bluetooth", "Started scanning...")
         val targetUuid = UUID.fromString("12345678-1234-5678-1234-567812345678")
-
-        // Dodajemy testowego użytkownika do listy----------------------------------------------
-        CoroutineScope(Dispatchers.Main).launch {
-            val testUser = User(
-                id = 0,
-                name = "Test User",
-                description = "This is a test user.",
-                color = Color.White.toLong(),
-                avatar = null,
-                deviceId = "TEST_DEVICE_1"
-            )
-            val updatedList = _discoveredUsers.value.toMutableSet().apply {
-                add(testUser.toDTO())
-            }
-            _discoveredUsers.value = updatedList
-            Log.d("Bluetooth", "Test user added: ${testUser.name}")
-        }
-
-        CoroutineScope(Dispatchers.Main).launch {
-            val testUser2 = User(
-                id = 0,
-                name = "Duzy",
-                description = "on jest duzy",
-                color = Color.Black.toLong(),
-                avatar = null,
-                deviceId = "TEST_DEVICE_2"
-            )
-            val updatedList = _discoveredUsers.value.toMutableSet().apply {
-                add(testUser2.toDTO())
-            }
-            _discoveredUsers.value = updatedList
-            Log.d("Bluetooth", "Test user 2 added: ${testUser2.name}")
-        }
-        //// test ----------------------------------------------------------------------
 
         val discoveryReceiver = BluetoothDiscoveryReceiver(
             onDeviceFound = { device ->
@@ -134,8 +100,7 @@ class BluetoothRepository(
                             socket.connect()
                             Log.d("Bluetooth", "Connected to device: $device")
 
-                            socket.receiveUser()
-                            stopScan()
+                            socket.communicate(localUser = localUser)
                         } catch (e: IOException) {
                             Log.e("Bluetooth", "Failed to connect to device: ${device.name}", e)
                         }
@@ -175,11 +140,25 @@ class BluetoothRepository(
         }
     }
 
-    fun BluetoothSocket.sendUser(user: User) {
-        val socket = this
+    fun BluetoothSocket.communicate(localUser: User) {
+        val inputStream = this.inputStream
+        val outputStream = this.outputStream
+
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val outputStream = socket.outputStream
+                inputStream.receiveUser()
+                outputStream.sendUser(localUser)
+            } catch (e: IOException) {
+                Log.e("Bluetooth", "Error during communication", e)
+            }
+        }
+
+    }
+
+    fun OutputStream.sendUser(user: User) {
+        val outputStream = this
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
                 val userJson = serializeUser(user)
                 outputStream.write(userJson.toByteArray())
                 Log.d("Bluetooth", "User sent: $userJson")
@@ -189,11 +168,10 @@ class BluetoothRepository(
         }
     }
 
-    fun BluetoothSocket.receiveUser() {
-        val socket = this
-        CoroutineScope(Dispatchers.IO).launch {
+    fun InputStream.receiveUser() {
+        val inputStream = this
+        Thread {
             try {
-                val inputStream = socket.inputStream
                 val buffer = ByteArray(4096)
                 val receivedData = StringBuilder()
 
@@ -213,7 +191,7 @@ class BluetoothRepository(
             } catch (e: Exception) {
                 Log.e("Bluetooth", "Failed to receive user data", e)
             }
-        }
+        }.start()
     }
 
     fun enableDiscoverable() {
@@ -229,8 +207,7 @@ class BluetoothRepository(
                         putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 30)
                     }
                     context.startActivity(discoverableIntent)
-                    if (!bluetoothAdapter.isDiscovering)
-                        startScan()
+
                     Thread.sleep(29 * 1000L)
                 } catch (e: InterruptedException) {
                     Log.e("Bluetooth", "Discoverable thread interrupted", e)

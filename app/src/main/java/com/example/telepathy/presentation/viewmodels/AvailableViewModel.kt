@@ -25,8 +25,8 @@ class AvailableViewModel(
 
     val isDiscoverable: StateFlow<Boolean> = bluetoothRepository.isDiscoverable
 
-    fun startScan() {
-        bluetoothRepository.startScan()
+    fun startScan(localUser: UserDTO) {
+        bluetoothRepository.startScan(localUser.toEntity())
     }
 
     fun stopScan() {
