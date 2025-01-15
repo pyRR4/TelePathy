@@ -17,8 +17,10 @@ class AvailableViewModel(
     private val userRepository: UserRepository
 ) : ViewModel() {
 
-    private val _filteredUsers = MutableStateFlow<List<UserDTO>>(bluetoothRepository.discoveredUsers.value)
-    val discoveredUsers: StateFlow<List<UserDTO>> = _filteredUsers
+    val discoveredUsers: StateFlow<Set<UserDTO>> = bluetoothRepository.discoveredUsers
+
+    private val _filteredUsers = MutableStateFlow<Set<UserDTO>>(discoveredUsers.value)
+    val filteredUsers: StateFlow<Set<UserDTO>> = _filteredUsers
 
     val isDiscoverable: StateFlow<Boolean> = bluetoothRepository.isDiscoverable
 
@@ -48,6 +50,7 @@ class AvailableViewModel(
         viewModelScope.launch {
             try {
                 userRepository.insert(user.toEntity())
+                filterDiscoveredUsers()
                 Log.d("avialable", "userRepository.insert(user) with no exception ${user.name}, ID: ${user.id}")
             } catch (e: Exception) {
                 Log.e("avialable", "userRepository.insert(user) Failed to add user: ${user.name}, ID: ${user.id}", e)
@@ -65,10 +68,8 @@ class AvailableViewModel(
                 existingUser == null
             } catch (e: IllegalStateException) {
                 true
-            } catch (e: Exception) {
-                false
             }
-        }
+        }.toSet()
 
         _filteredUsers.value = newUsers
     }

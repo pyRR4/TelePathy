@@ -166,6 +166,8 @@ fun ContactsScreen(
 
     val contacts by viewModel.contacts.collectAsState()
 
+    val discoveredUsers by viewModel.discoveredUsers.collectAsState()
+
     val preferencesManager = PreferencesManager(LocalContext.current)
     val localUserId = preferencesManager.getLocalUserId()
 
@@ -202,13 +204,14 @@ fun ContactsScreen(
             val contactEntries = contacts.entries.toList()
             items(contactEntries.size) { index ->
                 val (user, lastMessage) = contactEntries[index]
+                val isDiscoverable = user in discoveredUsers
                 UserCard(
                     avatarBitmap = user.avatar,
                     name = user.name,
                     isFromUser = lastMessage?.senderId == localUserId,
                     message = lastMessage?.content ?: "",
                     time = lastMessage?.timestamp ?: -1L,
-                    backgroundColor = user.color,
+                    backgroundColor = if(isDiscoverable) user.color else MaterialTheme.colorScheme.secondary,
                     onClick = {
                         navController.navigate("talkscreen/${user.id}")
                     }

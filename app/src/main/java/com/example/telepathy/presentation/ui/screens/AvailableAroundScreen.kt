@@ -45,12 +45,14 @@ fun AvailableAroundScreen(
 ) {
     var isVisible = viewModel.isDiscoverable.collectAsState()
     val discoveredUsers by viewModel.discoveredUsers.collectAsState()
+    val filteredDiscoveredUsers by viewModel.filteredUsers.collectAsState()
     val localUser by sharedViewModel.localUser.collectAsState()
 
     var showSuccessDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(discoveredUsers) {
         viewModel.filterDiscoveredUsers()
+        Log.d("DISCOVERED USERS", "$discoveredUsers")
     }
 
     if (showSuccessDialog) {
@@ -141,7 +143,7 @@ fun AvailableAroundScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
-            items(discoveredUsers) { user ->
+            items(filteredDiscoveredUsers.toList(), key = { it.deviceId }) { user ->
                 CustomButton(
                     name = user.name,
                     image = {

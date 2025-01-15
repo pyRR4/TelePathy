@@ -35,8 +35,8 @@ class BluetoothRepository(
     var discoverableThread: Thread? = null
 
     private val bluetoothAdapter: BluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
-    private val _discoveredUsers = MutableStateFlow<List<UserDTO>>(emptyList())
-    val discoveredUsers: StateFlow<List<UserDTO>> = _discoveredUsers
+    private val _discoveredUsers = MutableStateFlow<Set<UserDTO>>(emptySet())
+    val discoveredUsers: StateFlow<Set<UserDTO>> = _discoveredUsers
 
     private val _isDiscoverable = MutableStateFlow<Boolean>(false)
     val isDiscoverable: StateFlow<Boolean> = _isDiscoverable.asStateFlow()
@@ -91,7 +91,7 @@ class BluetoothRepository(
                 avatar = null,
                 deviceId = "TEST_DEVICE_1"
             )
-            val updatedList = _discoveredUsers.value.toMutableList().apply {
+            val updatedList = _discoveredUsers.value.toMutableSet().apply {
                 add(testUser.toDTO())
             }
             _discoveredUsers.value = updatedList
@@ -107,7 +107,7 @@ class BluetoothRepository(
                 avatar = null,
                 deviceId = "TEST_DEVICE_2"
             )
-            val updatedList = _discoveredUsers.value.toMutableList().apply {
+            val updatedList = _discoveredUsers.value.toMutableSet().apply {
                 add(testUser2.toDTO())
             }
             _discoveredUsers.value = updatedList
@@ -164,7 +164,7 @@ class BluetoothRepository(
                 avatar = user.avatar,
                 deviceId = user.deviceId
             )
-            val updatedList = _discoveredUsers.value.toMutableList().apply {
+            val updatedList = _discoveredUsers.value.toMutableSet().apply {
                 add(newUser.toDTO())
             }
             _discoveredUsers.value = updatedList

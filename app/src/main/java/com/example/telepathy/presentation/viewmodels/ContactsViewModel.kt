@@ -25,8 +25,7 @@ class ContactsViewModel(
     private val _contacts = MutableStateFlow<Map<UserDTO, Message?>>(emptyMap())
     val contacts: StateFlow<Map<UserDTO, Message?>> = _contacts.asStateFlow()
 
-    private val _filteredUsers = MutableStateFlow<List<UserDTO>>(bluetoothRepository.discoveredUsers.value)
-    val discoveredUsers: StateFlow<List<UserDTO>> = _filteredUsers.asStateFlow()
+    val discoveredUsers: StateFlow<Set<UserDTO>> = bluetoothRepository.discoveredUsers
 
     fun loadContacts(localUserId: Int) {
         viewModelScope.launch {
@@ -63,24 +62,5 @@ class ContactsViewModel(
                         }
                 }
         }
-    }
-
-
-    fun filterDiscoveredUsers() {
-        val allDiscoveredUsers = discoveredUsers.value
-
-
-        val newUsers = allDiscoveredUsers.filter { user ->
-            try {
-                val existingUser = userRepository.getUserByDeviceId(user.deviceId)
-                existingUser != null
-            } catch (e: IllegalStateException) {
-                false
-            } catch (e: Exception) {
-                false
-            }
-        }
-
-        _filteredUsers.value = newUsers
     }
 }

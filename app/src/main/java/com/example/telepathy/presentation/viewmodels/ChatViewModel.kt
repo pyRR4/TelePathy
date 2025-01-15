@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.telepathy.data.entities.Message
 import com.example.telepathy.data.entities.User
+import com.example.telepathy.domain.bluetooth.BluetoothRepository
 import com.example.telepathy.domain.dtos.UserDTO
 import com.example.telepathy.domain.mappers.UserMapper.toDTO
 import com.example.telepathy.domain.repositories.MessageRepository
@@ -18,7 +19,8 @@ import kotlinx.coroutines.launch
 
 class ChatViewModel(
     private val userRepository: UserRepository,
-    private val messageRepository: MessageRepository
+    private val messageRepository: MessageRepository,
+    private val bluetoothRepository: BluetoothRepository
 ) : ViewModel() {
 
     private val _chatHistory = MutableStateFlow<List<Message>>(emptyList())
@@ -26,6 +28,8 @@ class ChatViewModel(
 
     private val _currentUser = MutableStateFlow<UserDTO?>(null)
     val currentUser: StateFlow<UserDTO?> = _currentUser.asStateFlow()
+
+    val discoveredUsers: StateFlow<Set<UserDTO>> = bluetoothRepository.discoveredUsers
 
     fun loadChatHistory(localUserId: Int, remoteUserId: Int) {
         viewModelScope.launch {
@@ -58,31 +62,22 @@ class ChatViewModel(
     }
 
     fun sendMessage(content: String, senderId: Int, recipientId: Int) {
-        viewModelScope.launch {
-            val timestamp = System.currentTimeMillis()
-            val message = Message(
-                content = content,
-                senderId = senderId,
-                recipientId = recipientId,
-                timestamp = timestamp
-            )
-            try {
-                messageRepository.insert(message)
-                _chatHistory.update { it + message }
-            } catch (e: Exception) {
+        if(currentUser.value in discoveredUsers.value)
+            viewModelScope.launch {
+                val timestamp = System.currentTimeMillis()
+                val message = Message(
+                    content = content,
+                    senderId = senderId,
+                    recipientId = recipientId,
+                    timestamp = timestamp
+                )
+                try {
+                    //bluetoothRepository.send
+                    messageRepository.insert(message)
+                    _chatHistory.update { it + message }
+                } catch (e: Exception) {
 
+                }
             }
-        }
-    }
-
-    fun deleteMessage(message: Message) {
-        viewModelScope.launch {
-            try {
-                messageRepository.delete(message)
-                _chatHistory.update { it.filter { it.id != message.id } }
-            } catch (e: Exception) {
-
-            }
-        }
     }
 }

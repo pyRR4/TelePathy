@@ -32,7 +32,7 @@ class GenericViewModelFactory(private val context: Context) : ViewModelProvider.
                 AvailableViewModel(getBluetoothRepository(context), userRepository) as T
             }
             modelClass.isAssignableFrom(ChatViewModel::class.java) -> {
-                ChatViewModel(userRepository, messageRepository) as T
+                ChatViewModel(userRepository, messageRepository, getBluetoothRepository(context)) as T
             }
             modelClass.isAssignableFrom(ContactsViewModel::class.java) -> {
                 ContactsViewModel(userRepository, messageRepository, getBluetoothRepository(context)) as T
