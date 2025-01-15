@@ -8,21 +8,17 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import com.example.telepathy.domain.dtos.UserDTO
 import com.example.telepathy.domain.mappers.UserMapper.toEntity
-import android.content.Context
 import android.util.Log
-import androidx.lifecycle.ViewModelProvider
-import com.example.telepathy.data.AppDatabase
-import com.example.telepathy.data.repositories.UserRepositoryImpl
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
+import java.lang.IllegalStateException
 
 class AvailableViewModel(
     private val bluetoothRepository: BluetoothRepository,
     private val userRepository: UserRepository
 ) : ViewModel() {
 
-    val discoveredUsersDeviceIds: StateFlow<List<UserDTO>> = bluetoothRepository.discoveredUsers
+    private val _filteredUsers = MutableStateFlow<List<UserDTO>>(bluetoothRepository.discoveredUsers.value)
+    val discoveredUsers: StateFlow<List<UserDTO>> = _filteredUsers
 
     fun startScan() {
         bluetoothRepository.startScan()
@@ -55,5 +51,23 @@ class AvailableViewModel(
                 Log.e("avialable", "userRepository.insert(user) Failed to add user: ${user.name}, ID: ${user.id}", e)
             }
         }
+    }
+
+    suspend fun filterDiscoveredUsers() {
+        val allDiscoveredUsers = discoveredUsers.value
+
+
+        val newUsers = allDiscoveredUsers.filter { user ->
+            try {
+                val existingUser = userRepository.getUserByDeviceId(user.deviceId)
+                existingUser == null
+            } catch (e: IllegalStateException) {
+                true
+            } catch (e: Exception) {
+                false
+            }
+        }
+
+        _filteredUsers.value = newUsers
     }
 }

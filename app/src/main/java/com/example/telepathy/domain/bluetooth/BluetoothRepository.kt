@@ -109,7 +109,6 @@ class BluetoothRepository(
         }
 
         Log.d("Bluetooth", "Started scanning...")
-        val discoveredDevices = mutableSetOf<String>()
         val targetUuid = UUID.fromString("12345678-1234-5678-1234-567812345678")
 
         // Dodajemy testowego użytkownika do listy----------------------------------------------
@@ -242,17 +241,15 @@ class BluetoothRepository(
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val inputStream = socket.inputStream
-                val buffer = ByteArray(4096) // Increased buffer size for better handling of larger data
-                val receivedData = StringBuilder() // Use StringBuilder to accumulate chunks
+                val buffer = ByteArray(4096)
+                val receivedData = StringBuilder()
 
                 var bytesRead: Int
                 while (inputStream.read(buffer).also { bytesRead = it } != -1) {
-                    // Append the received chunk to the accumulated data
                     receivedData.append(String(buffer, 0, bytesRead))
 
-                    // Check if we've received a valid JSON object (can be enhanced with better checks)
                     if (isCompleteJson(receivedData.toString())) {
-                        break // Exit loop if the JSON data is complete
+                        break
                     }
                 }
 

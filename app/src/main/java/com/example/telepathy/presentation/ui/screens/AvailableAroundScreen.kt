@@ -44,10 +44,14 @@ fun AvailableAroundScreen(
     sharedViewModel: SharedViewModel
 ) {
     var isVisible by remember { mutableStateOf(false) }
-    val discoveredUsers by viewModel.discoveredUsersDeviceIds.collectAsState()
+    val discoveredUsers by viewModel.discoveredUsers.collectAsState()
     val localUser by sharedViewModel.localUser.collectAsState()
 
     var showSuccessDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(discoveredUsers) {
+        viewModel.filterDiscoveredUsers()
+    }
 
     if (showSuccessDialog) {
         Dialog(onDismissRequest = { showSuccessDialog = false }) {
