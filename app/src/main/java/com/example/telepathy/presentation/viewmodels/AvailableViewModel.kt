@@ -10,6 +10,7 @@ import com.example.telepathy.domain.dtos.UserDTO
 import com.example.telepathy.domain.mappers.UserMapper.toEntity
 import android.util.Log
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import java.lang.IllegalStateException
 
 class AvailableViewModel(
@@ -58,13 +59,15 @@ class AvailableViewModel(
         }
     }
 
-    fun filterDiscoveredUsers() {
+    suspend fun filterDiscoveredUsers() {
         val allDiscoveredUsers = discoveredUsers.value
 
 
         val newUsers = allDiscoveredUsers.filter { user ->
+            Log.d("USER TO FILTER: ", "$user")
             try {
-                val existingUser = userRepository.getUserByDeviceId(user.deviceId)
+                val existingUser = userRepository.getUserByDeviceId(user.deviceId).first()
+                Log.d("Existing user: ", "Existing user: ${existingUser}")
                 existingUser == null
             } catch (e: IllegalStateException) {
                 true

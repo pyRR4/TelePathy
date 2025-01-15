@@ -51,8 +51,9 @@ fun AvailableAroundScreen(
     var showSuccessDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(discoveredUsers) {
-        viewModel.filterDiscoveredUsers()
         Log.d("DISCOVERED USERS", "$discoveredUsers")
+        viewModel.filterDiscoveredUsers()
+        Log.d("DISCOVERED USERS", "$filteredDiscoveredUsers")
     }
 
     if (showSuccessDialog) {

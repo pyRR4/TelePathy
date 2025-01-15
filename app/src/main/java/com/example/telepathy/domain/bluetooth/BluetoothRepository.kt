@@ -57,6 +57,7 @@ class BluetoothRepository(
     fun startAdvertising(localUser: User) {
         startAdvertising(appUuid) {
             sendUser(localUser)
+            stopAdvertising()
         }
     }
 
@@ -134,6 +135,7 @@ class BluetoothRepository(
                             Log.d("Bluetooth", "Connected to device: $device")
 
                             socket.receiveUser()
+                            stopScan()
                         } catch (e: IOException) {
                             Log.e("Bluetooth", "Failed to connect to device: ${device.name}", e)
                         }
@@ -227,7 +229,8 @@ class BluetoothRepository(
                         putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 30)
                     }
                     context.startActivity(discoverableIntent)
-                    startScan()
+                    if (!bluetoothAdapter.isDiscovering)
+                        startScan()
                     Thread.sleep(29 * 1000L)
                 } catch (e: InterruptedException) {
                     Log.e("Bluetooth", "Discoverable thread interrupted", e)
