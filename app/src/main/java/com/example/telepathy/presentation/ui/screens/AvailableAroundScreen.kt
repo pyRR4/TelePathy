@@ -97,8 +97,9 @@ fun AvailableAroundScreen(
                         if (!isVisible.value) {
                             if (localUser != null) {
                                 viewModel.startAdvertising(localUser!!)
+                                viewModel.startScan(localUser!!)
                             }
-                            viewModel.startScan()
+
                         } else {
                             viewModel.stopAdvertising()
                             viewModel.stopScan()

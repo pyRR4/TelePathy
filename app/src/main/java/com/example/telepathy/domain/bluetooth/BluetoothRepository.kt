@@ -69,7 +69,7 @@ class BluetoothRepository(
     }
 
     @SuppressLint("MissingPermission")
-    fun startScan() {
+    fun startScan(localUser: User) {
         if (!hasPermission(Manifest.permission.BLUETOOTH_SCAN)) {
             Log.e("Bluetooth", "Missing permission: BLUETOOTH_SCAN")
             return
