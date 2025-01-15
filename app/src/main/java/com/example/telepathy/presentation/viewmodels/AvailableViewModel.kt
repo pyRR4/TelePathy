@@ -20,6 +20,8 @@ class AvailableViewModel(
     private val _filteredUsers = MutableStateFlow<List<UserDTO>>(bluetoothRepository.discoveredUsers.value)
     val discoveredUsers: StateFlow<List<UserDTO>> = _filteredUsers
 
+    val isDiscoverable: StateFlow<Boolean> = bluetoothRepository.isDiscoverable
+
     fun startScan() {
         bluetoothRepository.startScan()
     }
@@ -53,7 +55,7 @@ class AvailableViewModel(
         }
     }
 
-    suspend fun filterDiscoveredUsers() {
+    fun filterDiscoveredUsers() {
         val allDiscoveredUsers = discoveredUsers.value
 
 

@@ -43,7 +43,7 @@ fun AvailableAroundScreen(
     currentScreen: MutableState<String>,
     sharedViewModel: SharedViewModel
 ) {
-    var isVisible by remember { mutableStateOf(false) }
+    var isVisible = viewModel.isDiscoverable.collectAsState()
     val discoveredUsers by viewModel.discoveredUsers.collectAsState()
     val localUser by sharedViewModel.localUser.collectAsState()
 
@@ -91,8 +91,7 @@ fun AvailableAroundScreen(
                 )
                 Button(
                     onClick = {
-                        isVisible = !isVisible
-                        if (isVisible) {
+                        if (!isVisible.value) {
                             if (localUser != null) {
                                 viewModel.startAdvertising(localUser!!)
                             }
@@ -107,12 +106,12 @@ fun AvailableAroundScreen(
                         .padding(8.dp)
                         .height(56.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = if (isVisible) Color.Red else Color.Green
+                        containerColor = if (isVisible.value) Color.Red else Color.Green
                     ),
                     shape = RoundedCornerShape(8.dp)
                 ) {
                     Text(
-                        text = if (isVisible) "Hide" else "Show me",
+                        text = if (isVisible.value) "Hide" else "Show me",
                         fontSize = 18.sp,
                         color = Color.White
                     )
@@ -129,13 +128,9 @@ fun AvailableAroundScreen(
         modifier = Modifier.swipeToNavigate(
             onSwipeLeft = {
                 navController.navigate("contactsscreen")
-                viewModel.stopAdvertising()
-                viewModel.stopScan()
             },
             onSwipeUp = {
                 navController.navigate("settingsscreen")
-                viewModel.stopAdvertising()
-                viewModel.stopScan()
             },
             coroutineScope = rememberCoroutineScope(),
             isNavigating = remember { mutableStateOf(false) },

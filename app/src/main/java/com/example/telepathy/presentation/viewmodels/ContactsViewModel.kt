@@ -5,7 +5,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.telepathy.data.entities.Message
-import com.example.telepathy.data.entities.User
+import com.example.telepathy.domain.bluetooth.BluetoothRepository
 import com.example.telepathy.domain.dtos.UserDTO
 import com.example.telepathy.domain.mappers.UserMapper.toDTO
 import com.example.telepathy.domain.repositories.MessageRepository
@@ -14,14 +14,19 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.lang.IllegalStateException
 
 class ContactsViewModel(
     private val userRepository: UserRepository,
-    private val messageRepository: MessageRepository
+    private val messageRepository: MessageRepository,
+    private val bluetoothRepository: BluetoothRepository
 ) : ViewModel() {
 
     private val _contacts = MutableStateFlow<Map<UserDTO, Message?>>(emptyMap())
     val contacts: StateFlow<Map<UserDTO, Message?>> = _contacts.asStateFlow()
+
+    private val _filteredUsers = MutableStateFlow<List<UserDTO>>(bluetoothRepository.discoveredUsers.value)
+    val discoveredUsers: StateFlow<List<UserDTO>> = _filteredUsers.asStateFlow()
 
     fun loadContacts(localUserId: Int) {
         viewModelScope.launch {
@@ -60,4 +65,22 @@ class ContactsViewModel(
         }
     }
 
+
+    fun filterDiscoveredUsers() {
+        val allDiscoveredUsers = discoveredUsers.value
+
+
+        val newUsers = allDiscoveredUsers.filter { user ->
+            try {
+                val existingUser = userRepository.getUserByDeviceId(user.deviceId)
+                existingUser != null
+            } catch (e: IllegalStateException) {
+                false
+            } catch (e: Exception) {
+                false
+            }
+        }
+
+        _filteredUsers.value = newUsers
+    }
 }

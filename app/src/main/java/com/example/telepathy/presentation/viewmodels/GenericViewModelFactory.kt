@@ -13,19 +13,29 @@ class GenericViewModelFactory(private val context: Context) : ViewModelProvider.
     private val database by lazy { AppDatabase.getDatabase(context) }
     private val userRepository by lazy { UserRepositoryImpl(userDao = database.userDao()) }
     private val messageRepository by lazy { MessageRepositoryImpl(messageDao = database.messageDao()) }
-    private val bluetoothRepository by lazy { BluetoothRepository(context) }
+
+    companion object {
+        private var Instance: BluetoothRepository? = null
+
+        fun getBluetoothRepository(context: Context): BluetoothRepository {
+            return Instance ?: synchronized(this) {
+                BluetoothRepository(context)
+                    .also { Instance = it }
+            }
+        }
+    }
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return when {
             modelClass.isAssignableFrom(AvailableViewModel::class.java) -> {
-                AvailableViewModel(bluetoothRepository, userRepository) as T
+                AvailableViewModel(getBluetoothRepository(context), userRepository) as T
             }
             modelClass.isAssignableFrom(ChatViewModel::class.java) -> {
                 ChatViewModel(userRepository, messageRepository) as T
             }
             modelClass.isAssignableFrom(ContactsViewModel::class.java) -> {
-                ContactsViewModel(userRepository, messageRepository) as T
+                ContactsViewModel(userRepository, messageRepository, getBluetoothRepository(context)) as T
             }
             modelClass.isAssignableFrom(SharedViewModel::class.java) -> {
                 SharedViewModel(userRepository) as T

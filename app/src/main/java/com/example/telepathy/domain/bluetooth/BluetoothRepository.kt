@@ -23,6 +23,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.io.IOException
 import java.io.InputStream
@@ -31,10 +32,14 @@ import java.util.UUID
 class BluetoothRepository(
     private val context: Context
 ) {
+    var discoverableThread: Thread? = null
 
     private val bluetoothAdapter: BluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
     private val _discoveredUsers = MutableStateFlow<List<UserDTO>>(emptyList())
     val discoveredUsers: StateFlow<List<UserDTO>> = _discoveredUsers
+
+    private val _isDiscoverable = MutableStateFlow<Boolean>(false)
+    val isDiscoverable: StateFlow<Boolean> = _isDiscoverable.asStateFlow()
 
     private var serverSocket: BluetoothServerSocket? = null
     private var isAdvertising = false
@@ -50,50 +55,15 @@ class BluetoothRepository(
 
     @SuppressLint("MissingPermission")
     fun startAdvertising(localUser: User) {
-        enableDiscoverable()
-        if (isAdvertising) return
-        if (!hasPermission(Manifest.permission.BLUETOOTH_CONNECT)) {
-            Log.e("Bluetooth", "Missing permission: BLUETOOTH_CONNECT")
-            return
-        }
-        if (!hasPermission(Manifest.permission.BLUETOOTH_ADVERTISE)) {
-            Log.e("Bluetooth", "Missing permission: BLUETOOTH_ADVERTISE")
-            return
-        }
-        if (!bluetoothAdapter.isEnabled) {
-            Log.e("Bluetooth", "Bluetooth is not enabled.")
-            return
-        }
-        Log.d("Bluetooth", "Using UUID: $appUuid")
-
-        isAdvertising = true
-
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                serverSocket =
-                    bluetoothAdapter.listenUsingRfcommWithServiceRecord("TelepathyService", appUuid)
-                Log.d("Bluetooth", "Advertising started...")
-                while (isAdvertising) {
-                    val socket = serverSocket?.accept()
-                    socket?.let {
-                        Log.d("Bluetooth", "Connection accepted from ${it.remoteDevice.name}")
-
-                            sendUser(it, localUser)
-
-                            startCommunication(it)
-                        }
-                    }
-            } catch (e: Exception) {
-                Log.e("Bluetooth", "Failed to start advertising", e)
-            } finally {
-                stopAdvertising()
-            }
+        startAdvertising(appUuid) {
+            sendUser(localUser)
         }
     }
 
     fun stopAdvertising() {
         isAdvertising = false
         serverSocket?.close()
+        stopDiscoverableMode()
         Log.d("Bluetooth", "Advertising stopped.")
     }
 
@@ -163,8 +133,7 @@ class BluetoothRepository(
                             socket.connect()
                             Log.d("Bluetooth", "Connected to device: $device")
 
-                            receiveUser(socket)
-                            stopScan()
+                            socket.receiveUser()
                         } catch (e: IOException) {
                             Log.e("Bluetooth", "Failed to connect to device: ${device.name}", e)
                         }
@@ -183,26 +152,6 @@ class BluetoothRepository(
     fun stopScan() {
         bluetoothAdapter.cancelDiscovery()
         Log.d("Bluetooth", "Scanning stopped.")
-    }
-
-    private fun startCommunication(socket: BluetoothSocket) {
-        val inputStream: InputStream = socket.inputStream
-
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val buffer = ByteArray(1024)
-                var bytesRead: Int
-                while (true) {
-                    bytesRead = inputStream.read(buffer)
-                    val message = String(buffer, 0, bytesRead)
-                    Log.d("Bluetooth", "Received message: $message")
-                }
-            } catch (e: Exception) {
-                Log.e("Bluetooth", "Error during communication", e)
-            } finally {
-                socket.close()
-            }
-        }
     }
 
     fun handleReceivedUser(user: User) {
@@ -224,7 +173,8 @@ class BluetoothRepository(
         }
     }
 
-    fun sendUser(socket: BluetoothSocket, user: User) {
+    fun BluetoothSocket.sendUser(user: User) {
+        val socket = this
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val outputStream = socket.outputStream
@@ -237,7 +187,8 @@ class BluetoothRepository(
         }
     }
 
-    fun receiveUser(socket: BluetoothSocket) {
+    fun BluetoothSocket.receiveUser() {
+        val socket = this
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val inputStream = socket.inputStream
@@ -263,21 +214,84 @@ class BluetoothRepository(
         }
     }
 
-    fun enableDiscoverable(duration: Int = 300) {
+    fun enableDiscoverable() {
         if (!bluetoothAdapter.isEnabled) {
             Log.e("Bluetooth", "Bluetooth is not enabled")
             return
         }
 
-        val discoverableIntent = Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE).apply {
-            putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, duration)
+        discoverableThread = Thread {
+            while (true) {
+                try {
+                    val discoverableIntent = Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE).apply {
+                        putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 30)
+                    }
+                    context.startActivity(discoverableIntent)
+                    startScan()
+                    Thread.sleep(29 * 1000L)
+                } catch (e: InterruptedException) {
+                    Log.e("Bluetooth", "Discoverable thread interrupted", e)
+                    break
+                    _isDiscoverable.value = false
+                }
+            }
+        }
+        discoverableThread?.start()
+        _isDiscoverable.value = true
+    }
+
+    fun stopDiscoverableMode() {
+        discoverableThread?.interrupt()
+        _isDiscoverable.value = false
+        stopScan()
+        discoverableThread = null
+    }
+
+    @SuppressLint("MissingPermission")
+    fun startAdvertising(
+        appUuid: UUID,
+        onConnectionAccepted: BluetoothSocket.() -> Unit
+    ) {
+        enableDiscoverable()
+
+        if (isAdvertising) return
+
+        if (!hasPermission(Manifest.permission.BLUETOOTH_CONNECT)) {
+            Log.e("Bluetooth", "Missing permission: BLUETOOTH_CONNECT")
+            return
+        }
+        if (!hasPermission(Manifest.permission.BLUETOOTH_ADVERTISE)) {
+            Log.e("Bluetooth", "Missing permission: BLUETOOTH_ADVERTISE")
+            return
+        }
+        if (!bluetoothAdapter.isEnabled) {
+            Log.e("Bluetooth", "Bluetooth is not enabled.")
+            return
         }
 
-        if (context is Activity) {
-            context.startActivity(discoverableIntent)
-            Log.d("Bluetooth", "Device is now discoverable for $duration seconds")
-        } else {
-            Log.e("Bluetooth", "Context is not an Activity. Cannot start discoverable intent.")
+        Log.d("Bluetooth", "Using UUID: $appUuid")
+
+        isAdvertising = true
+
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                serverSocket =
+                    bluetoothAdapter.listenUsingRfcommWithServiceRecord("TelepathyService", appUuid)
+                Log.d("Bluetooth", "Advertising started...")
+
+                while (isAdvertising) {
+                    val socket = serverSocket?.accept()
+                    socket?.let {
+                        Log.d("Bluetooth", "Connection accepted from ${it.remoteDevice.name}")
+                        socket.onConnectionAccepted()
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("Bluetooth", "Failed to start advertising", e)
+            } finally {
+                stopAdvertising()
+            }
         }
     }
+
 }
