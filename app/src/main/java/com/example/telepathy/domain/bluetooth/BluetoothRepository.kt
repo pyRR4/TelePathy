@@ -55,7 +55,7 @@ class BluetoothRepository(
 
     @SuppressLint("MissingPermission")
     fun startAdvertising(localUser: User) {
-        startAdvertising(appUuid) {
+        startAdvertising(localUser, appUuid) {
             sendUser(localUser)
             stopAdvertising()
         }
@@ -114,7 +114,6 @@ class BluetoothRepository(
             _discoveredUsers.value = updatedList
             Log.d("Bluetooth", "Test user 2 added: ${testUser2.name}")
         }
-        //// test ----------------------------------------------------------------------
 
         val discoveryReceiver = BluetoothDiscoveryReceiver(
             onDeviceFound = { device ->
@@ -134,7 +133,7 @@ class BluetoothRepository(
                             socket.connect()
                             Log.d("Bluetooth", "Connected to device: $device")
 
-                            socket.receiveUser()
+                            socket.exchangeUsers(localUser)
                             stopScan()
                         } catch (e: IOException) {
                             Log.e("Bluetooth", "Failed to connect to device: ${device.name}", e)
@@ -176,12 +175,11 @@ class BluetoothRepository(
     }
 
     fun BluetoothSocket.sendUser(user: User) {
-        val socket = this
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val outputStream = socket.outputStream
+                val outputStream = outputStream
                 val userJson = serializeUser(user)
-                outputStream.write(userJson.toByteArray())
+                outputStream.write("USER:$userJson\n".toByteArray())
                 Log.d("Bluetooth", "User sent: $userJson")
             } catch (e: Exception) {
                 Log.e("Bluetooth", "Failed to send user data", e)
@@ -190,10 +188,9 @@ class BluetoothRepository(
     }
 
     fun BluetoothSocket.receiveUser() {
-        val socket = this
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val inputStream = socket.inputStream
+                val inputStream = inputStream
                 val buffer = ByteArray(4096)
                 val receivedData = StringBuilder()
 
@@ -201,22 +198,60 @@ class BluetoothRepository(
                 while (inputStream.read(buffer).also { bytesRead = it } != -1) {
                     receivedData.append(String(buffer, 0, bytesRead))
 
-                    if (isCompleteJson(receivedData.toString())) {
+                    if (receivedData.endsWith("}\n")) {
                         break
                     }
                 }
 
-                val userJson = receivedData.toString()
-                val user = deserializeUser(userJson)
-                Log.d("Bluetooth", "User received: $user")
-                handleReceivedUser(user)
+                val message = receivedData.toString().trim()
+                if (message.startsWith("USER:")) {
+                    val userJson = message.removePrefix("USER:")
+                    val user = deserializeUser(userJson)
+                    Log.d("Bluetooth", "User received: $user")
+                    handleReceivedUser(user)
+                }
             } catch (e: Exception) {
                 Log.e("Bluetooth", "Failed to receive user data", e)
             }
         }
     }
 
-    fun enableDiscoverable() {
+    fun BluetoothSocket.exchangeUsers(localUser: User) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val outputStream = outputStream
+                val inputStream = inputStream
+
+                // Send hello message to initiate exchange
+                outputStream.write("HELLO\n".toByteArray())
+                Log.d("Bluetooth", "HELLO message sent")
+
+                val buffer = ByteArray(4096)
+                val receivedData = StringBuilder()
+                var bytesRead: Int
+                while (inputStream.read(buffer).also { bytesRead = it } != -1) {
+                    receivedData.append(String(buffer, 0, bytesRead))
+                    if (receivedData.endsWith("\n")) break
+                }
+
+                val message = receivedData.toString().trim()
+                when (message) {
+                    "HELLO" -> {
+                        // If HELLO received, send user data
+                        sendUser(localUser)
+                        receiveUser()
+                    }
+                    else -> Log.d("Bluetooth", "Unexpected message: $message")
+                }
+            } catch (e: IOException) {
+                Log.e("Bluetooth", "Error during user exchange", e)
+            } finally {
+                close()
+            }
+        }
+    }
+
+    fun enableDiscoverable(localUser: User) {
         if (!bluetoothAdapter.isEnabled) {
             Log.e("Bluetooth", "Bluetooth is not enabled")
             return
@@ -229,8 +264,7 @@ class BluetoothRepository(
                         putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 30)
                     }
                     context.startActivity(discoverableIntent)
-                    if (!bluetoothAdapter.isDiscovering)
-                        startScan()
+                    startScan(localUser)
                     Thread.sleep(29 * 1000L)
                 } catch (e: InterruptedException) {
                     Log.e("Bluetooth", "Discoverable thread interrupted", e)
@@ -252,10 +286,11 @@ class BluetoothRepository(
 
     @SuppressLint("MissingPermission")
     fun startAdvertising(
+        localUser: User,
         appUuid: UUID,
         onConnectionAccepted: BluetoothSocket.() -> Unit
     ) {
-        enableDiscoverable()
+        enableDiscoverable(localUser)
 
         if (isAdvertising) return
 
@@ -286,7 +321,8 @@ class BluetoothRepository(
                     val socket = serverSocket?.accept()
                     socket?.let {
                         Log.d("Bluetooth", "Connection accepted from ${it.remoteDevice.name}")
-                        socket.onConnectionAccepted()
+                        it.exchangeUsers(User(id = 0, name = "Local User", description = "", color = Color.White.toLong(), avatar = null, deviceId = "LOCAL_DEVICE"))
+                        it.onConnectionAccepted()
                     }
                 }
             } catch (e: Exception) {
@@ -296,5 +332,4 @@ class BluetoothRepository(
             }
         }
     }
-
 }
