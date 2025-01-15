@@ -17,6 +17,7 @@ import com.example.telepathy.domain.dtos.UserDTO
 import com.example.telepathy.domain.mappers.UserMapper.toDTO
 import com.example.telepathy.domain.mappers.UserMapper.toLong
 import com.example.telepathy.domain.serialization.deserializeUser
+import com.example.telepathy.domain.serialization.isCompleteJson
 import com.example.telepathy.domain.serialization.serializeUser
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -241,9 +242,21 @@ class BluetoothRepository(
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val inputStream = socket.inputStream
-                val buffer = ByteArray(1024)
-                val bytesRead = inputStream.read(buffer)
-                val userJson = String(buffer, 0, bytesRead)
+                val buffer = ByteArray(4096) // Increased buffer size for better handling of larger data
+                val receivedData = StringBuilder() // Use StringBuilder to accumulate chunks
+
+                var bytesRead: Int
+                while (inputStream.read(buffer).also { bytesRead = it } != -1) {
+                    // Append the received chunk to the accumulated data
+                    receivedData.append(String(buffer, 0, bytesRead))
+
+                    // Check if we've received a valid JSON object (can be enhanced with better checks)
+                    if (isCompleteJson(receivedData.toString())) {
+                        break // Exit loop if the JSON data is complete
+                    }
+                }
+
+                val userJson = receivedData.toString()
                 val user = deserializeUser(userJson)
                 Log.d("Bluetooth", "User received: $user")
                 handleReceivedUser(user)
