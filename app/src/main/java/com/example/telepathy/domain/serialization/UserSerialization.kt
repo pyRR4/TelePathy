@@ -17,9 +17,9 @@ fun deserializeUser(json: String): User {
 fun isCompleteJson(json: String): Boolean {
     return try {
         val gson = Gson()
-        gson.fromJson(json, Any::class.java) // Try to parse it as a generic object
+        gson.fromJson(json, Any::class.java)
         true
     } catch (e: JsonSyntaxException) {
-        false // JSON is not yet complete
+        false
     }
 }
