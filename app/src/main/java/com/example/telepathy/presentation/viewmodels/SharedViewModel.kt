@@ -33,4 +33,26 @@ class SharedViewModel(
             _localUser.value = updatedUser
         }
     }
+
+    fun createTestUser(): StateFlow<User?> {
+        val testUserFlow = MutableStateFlow<User?>(null)
+        viewModelScope.launch {
+            val testUser = User(
+                id = 0,
+                name = "Test User",
+                description = "This is a test user",
+                color = 123456,
+                avatar = null,
+                deviceId = "testDeviceId"
+            )
+            userRepository.insert(testUser)
+
+            userRepository.getAllUsers().collect { users ->
+                val insertedUser = users.find { it.deviceId == "testDeviceId" }
+                testUserFlow.value = insertedUser
+            }
+        }
+        return testUserFlow
+    }
+
 }
