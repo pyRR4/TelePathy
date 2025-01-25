@@ -22,6 +22,7 @@ import androidx.navigation.NavHostController
 import com.example.telepathy.data.PreferencesManager
 import com.example.telepathy.presentation.ui.ScreenTemplate
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import com.example.telepathy.presentation.ui.theme.DarkButtonsColor
 import com.example.telepathy.R
@@ -284,6 +285,12 @@ fun EnterNewPinScreen(
     onCancel: (() -> Unit)?
 ) {
     var pinTemp by remember { mutableStateOf("") }
+
+    Column(
+        modifier = Modifier.testTag("PinScreen")
+    ) {
+        Text(text = "Pin")
+    }
 
     PinScreenBase(
         headerText = "Set New PIN",
