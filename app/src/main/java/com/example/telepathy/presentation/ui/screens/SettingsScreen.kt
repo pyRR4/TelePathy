@@ -45,6 +45,7 @@ import androidx.compose.ui.res.painterResource
 import com.example.telepathy.presentation.viewmodels.SharedViewModel
 import android.content.Intent
 import android.os.Process
+import androidx.compose.ui.platform.testTag
 
 
 data class SettingOption(
@@ -112,6 +113,12 @@ fun SettingsScreen(
             }
         )
     )
+
+    Column(
+        modifier = Modifier.testTag("SettingsScreen")
+    ) {
+        Text(text = "Settings")
+    }
 
     ScreenTemplate(
         navIcon = {

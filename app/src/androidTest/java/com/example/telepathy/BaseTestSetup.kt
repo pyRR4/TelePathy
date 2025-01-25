@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import com.example.telepathy.data.AppDatabase
+import com.example.telepathy.data.PreferencesManager
 import com.example.telepathy.data.entities.User
 import com.example.telepathy.data.repositories.UserRepositoryImpl
 import com.example.telepathy.presentation.viewmodels.SharedViewModel
@@ -14,7 +15,7 @@ import org.junit.Before
 open class BaseTestSetup {
 
     lateinit var database: AppDatabase
-    lateinit var sharedViewModel: SharedViewModel
+    lateinit var preferencesManager: PreferencesManager
 
     @Before
     fun setUp() {
@@ -25,10 +26,10 @@ open class BaseTestSetup {
             .build()
 
         val userRepository = UserRepositoryImpl(database.userDao())
-        sharedViewModel = SharedViewModel(userRepository)
+        val preferencesManager = PreferencesManager(context)
 
         runBlocking {
-            insertTestUser(userRepository)
+            insertTestUser(userRepository,preferencesManager)
         }
     }
 
@@ -37,7 +38,7 @@ open class BaseTestSetup {
         database.close()
     }
 
-    private suspend fun insertTestUser(userRepository: UserRepositoryImpl) {
+    private suspend fun insertTestUser(userRepository: UserRepositoryImpl, preferencesManager:PreferencesManager ) {
         val testUser = User(
             id = 0,
             name = "Test User",
@@ -47,5 +48,7 @@ open class BaseTestSetup {
             deviceId = "testDeviceId"
         )
         userRepository.insert(testUser)
+        preferencesManager.saveLocalUserId(1)
+        preferencesManager.saveLocalUserDeviceId("testDeviceId")
     }
 }

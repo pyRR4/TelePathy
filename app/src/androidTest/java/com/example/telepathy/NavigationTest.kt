@@ -2,6 +2,7 @@ package com.example.telepathy.presentation.navigation
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
@@ -15,25 +16,26 @@ class NavigationTest : BaseTestSetup() {
     val composeRule = createComposeRule()
 
     @Test
-    fun testNavigationToContactsScreen() {
+    fun testNavigationToSettings() {
         var navController: NavHostController? = null
 
         composeRule.setContent {
             navController = rememberNavController()
             AnimatedNavHost(
                 navController = navController,
-                startDestination = "availablescreen",
-                currentScreen = mutableStateOf("availablescreen")
+                startDestination = "contactsscreen",
+                currentScreen = mutableStateOf("contactsscreen")
             )
         }
 
-        composeRule.onNodeWithText("Available Around").assertExists()
+        composeRule.onNodeWithTag("ContactsScreen").assertExists()
 
         composeRule.runOnIdle {
-            navController?.navigate("contactsscreen")
+            navController?.navigate("settingsscreen")
         }
 
-        composeRule.onNodeWithText("Contacts Screen").assertExists()
+        composeRule.onNodeWithTag("SettingsScreen").assertExists()
+
     }
 
     @Test
@@ -44,8 +46,8 @@ class NavigationTest : BaseTestSetup() {
             navController = rememberNavController()
             AnimatedNavHost(
                 navController = navController,
-                startDestination = "availablescreen",
-                currentScreen = mutableStateOf("availablescreen")
+                startDestination = "contactsscreen",
+                currentScreen = mutableStateOf("contactsscreen")
             )
         }
 
@@ -53,6 +55,46 @@ class NavigationTest : BaseTestSetup() {
             navController?.navigate("talkscreen/1")
         }
 
-        composeRule.onNodeWithText("Talk with User 1").assertExists()
+        composeRule.onNodeWithTag("TalkScreen").assertExists()
+    }
+
+    @Test
+    fun testNavigationToEditScreen() {
+        var navController: NavHostController? = null
+
+        composeRule.setContent {
+            navController = rememberNavController()
+            AnimatedNavHost(
+                navController = navController,
+                startDestination = "settingsscreen",
+                currentScreen = mutableStateOf("settingsscreen")
+            )
+        }
+
+        composeRule.runOnIdle {
+            navController?.navigate("edit_profile")
+        }
+
+        composeRule.onNodeWithTag("EditScreen").assertExists()
+    }
+
+    @Test
+    fun testNavigationToVideoScreen() {
+        var navController: NavHostController? = null
+
+        composeRule.setContent {
+            navController = rememberNavController()
+            AnimatedNavHost(
+                navController = navController,
+                startDestination = "settingsscreen",
+                currentScreen = mutableStateOf("settingsscreen")
+            )
+        }
+
+        composeRule.runOnIdle {
+            navController?.navigate("videoPlayerScreen")
+        }
+
+        composeRule.onNodeWithTag("VideoScreen").assertExists()
     }
 }
